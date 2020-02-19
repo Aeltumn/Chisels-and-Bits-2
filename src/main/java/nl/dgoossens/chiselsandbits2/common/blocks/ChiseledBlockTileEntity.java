@@ -18,7 +18,6 @@ import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
-import nl.dgoossens.chiselsandbits2.client.render.chiseledblock.ter.TileChunk;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlobStateReference;
@@ -29,13 +28,11 @@ import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Supplier;
 
 public class ChiseledBlockTileEntity extends TileEntity {
     public static final ModelProperty<VoxelBlobStateReference> VOXEL_DATA = new ModelProperty<>();
     public static final ModelProperty<VoxelNeighborRenderTracker> NEIGHBOUR_RENDER_TRACKER = new ModelProperty<>();
 
-    private TileChunk chunk; //The rendering chunk this block belongs to.
     private VoxelShape cachedShape, collisionShape, raytraceShape;
     private int primaryBlock;
     private VoxelBlobStateReference voxelBlob;
@@ -77,9 +74,6 @@ public class ChiseledBlockTileEntity extends TileEntity {
         collisionShape = null;
         itemCache = null;
         recalculateShape();
-
-        if(getWorld() != null && getWorld().isRemote)
-            getChunk(getWorld()).update(this, hasVoxelBlob);
     }
 
     public boolean hasRenderTracker() {
@@ -173,44 +167,6 @@ public class ChiseledBlockTileEntity extends TileEntity {
         final ItemStack stack = new ItemStack(ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get(), 1);
         stack.setTagInfo(ChiselUtil.NBT_BLOCKENTITYTAG, comp);
         return stack;
-    }
-
-    /**
-     * Get the tile chunk this block belongs to.
-     */
-    public TileChunk getChunk(final World world) {
-        if (chunk == null) {
-            chunk = findRenderChunk(getPos(), world, () -> new TileChunk(this));
-            if(world.isRemote)
-                chunk.register(this, true); //Register us to be a part of the chunk if this is the first time we're searching.
-        }
-        return chunk;
-    }
-
-    /**
-     * Find the rendering chunk this TE belongs to.
-     */
-    public static TileChunk findRenderChunk(final BlockPos pos, final IBlockReader access, final Supplier<TileChunk> backup) {
-        int chunkPosX = pos.getX() & TileChunk.CHUNK_COORDINATE_MASK;
-        int chunkPosY = pos.getY() & TileChunk.CHUNK_COORDINATE_MASK;
-        int chunkPosZ = pos.getZ() & TileChunk.CHUNK_COORDINATE_MASK;
-
-        for (int x = 0; x < TileChunk.TILE_CHUNK_SIZE; ++x) {
-            for (int y = 0; y < TileChunk.TILE_CHUNK_SIZE; ++y) {
-                for (int z = 0; z < TileChunk.TILE_CHUNK_SIZE; ++z) {
-                    final TileEntity te = access.getTileEntity(new BlockPos(chunkPosX + x, chunkPosY + y, chunkPosZ + z));
-                    if (te instanceof ChiseledBlockTileEntity && ((ChiseledBlockTileEntity) te).chunk != null)
-                        return ((ChiseledBlockTileEntity) te).chunk;
-                }
-            }
-        }
-
-        return backup.get();
-    }
-
-    @Override
-    public boolean canRenderBreaking() {
-        return true;
     }
 
     /**
@@ -336,29 +292,5 @@ public class ChiseledBlockTileEntity extends TileEntity {
         iteration++;
         final NBTBlobConverter converter = new NBTBlobConverter(this);
         converter.readChiselData(compound, VoxelVersions.getDefault());
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        detachRenderer();
-    }
-
-    @Override
-    public void onChunkUnloaded() {
-        detachRenderer();
-    }
-
-    @Override
-    public void remove() {
-        super.remove();
-        detachRenderer();
-    }
-
-    private void detachRenderer() {
-        if (chunk != null) {
-            chunk.unregister(this, true);
-            chunk = null;
-        }
     }
 }

@@ -43,7 +43,7 @@ public class BitBeakerItem extends StorageItem {
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack itemstack = playerIn.getHeldItem(handIn);
-        if(!playerIn.isSneaking()) return new ActionResult<>(ActionResultType.PASS, itemstack);
+        if(!playerIn.isCrouching()) return new ActionResult<>(ActionResultType.PASS, itemstack);
 
         RayTraceResult raytraceresult = rayTrace(worldIn, playerIn, RayTraceContext.FluidMode.SOURCE_ONLY);
         if (raytraceresult.getType() == RayTraceResult.Type.MISS) {

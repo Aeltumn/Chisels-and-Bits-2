@@ -87,8 +87,7 @@ public class ChiselsAndBits2 {
     }
 
     private void setupClient(final FMLClientSetupEvent event) {
-        //Register keybindings
-        CLIENT.setup();
+        //Register client-side things
         KEYBINDINGS.setup();
 
         //Register container screens

@@ -5,18 +5,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
@@ -26,14 +23,9 @@ import nl.dgoossens.chiselsandbits2.api.item.*;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IItemScrollWheel;
-import nl.dgoossens.chiselsandbits2.client.render.chiseledblock.model.ChiseledBlockSmartModel;
-import nl.dgoossens.chiselsandbits2.client.render.chiseledblock.ter.GfxRenderState;
 import nl.dgoossens.chiselsandbits2.client.render.color.ColourableItemColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockItemColor;
-import nl.dgoossens.chiselsandbits2.client.render.chiseledblock.ter.ChiseledBlockTER;
-import nl.dgoossens.chiselsandbits2.client.render.morphingbit.MorphingBitSmartModel;
-import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
@@ -59,13 +51,6 @@ import java.lang.reflect.Field;
 public class ClientSide extends ClientSideHelper {
     //--- GENERAL SETUP ---
     /**
-     * Setup all client side only things to register.
-     */
-    public void setup() {
-        //TODO ClientRegistry.bindTileEntitySpecialRenderer(ChiseledBlockTileEntity.class, new ChiseledBlockTER());
-    }
-
-    /**
      * Register listeners to mod event bus.
      */
     public void initialise() {
@@ -73,7 +58,6 @@ public class ClientSide extends ClientSideHelper {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerBlockColors);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerIconTextures);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clearCaches);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::bakeModels);
     }
 
     /**
@@ -141,25 +125,7 @@ public class ClientSide extends ClientSideHelper {
      * Clear the cached model data whenever textures are stitched.
      */
     private void clearCaches(final TextureStitchEvent.Post e) {
-        GfxRenderState.gfxRefresh++;
         CacheType.DEFAULT.call();
-    }
-
-    /**
-     * Bake all of our custom models.
-     */
-    private void bakeModels(final ModelBakeEvent event) {
-        CacheType.MODEL.call();
-
-        //Chiseled Block
-        ChiseledBlockSmartModel smartModel = new ChiseledBlockSmartModel();
-        event.getModelRegistry().put(new ModelResourceLocation(new ResourceLocation(ChiselsAndBits2.MOD_ID, "chiseled_block"), ""), smartModel);
-        event.getModelRegistry().put(new ModelResourceLocation(new ResourceLocation(ChiselsAndBits2.MOD_ID, "chiseled_block"), "inventory"), smartModel);
-
-        //Morphing Bit
-        MorphingBitSmartModel morphingModel = new MorphingBitSmartModel();
-        event.getModelRegistry().put(new ModelResourceLocation(new ResourceLocation(ChiselsAndBits2.MOD_ID, "morphing_bit"), ""), morphingModel);
-        event.getModelRegistry().put(new ModelResourceLocation(new ResourceLocation(ChiselsAndBits2.MOD_ID, "morphing_bit"), "inventory"), morphingModel);
     }
 
     /**

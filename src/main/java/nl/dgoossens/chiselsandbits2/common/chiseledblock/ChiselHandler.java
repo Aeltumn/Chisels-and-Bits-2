@@ -213,7 +213,7 @@ public class ChiselHandler {
         //Check if we can place it here
         BlockPos actualPos = pkt.pos; //Placement block for non-offgird placement
         boolean canPlace = true;
-        if (player.isSneaking() && !ClientItemPropertyUtil.getGlobalCBM().equals(ItemMode.CHISELED_BLOCK_GRID)) {
+        if (player.isCrouching() && !ClientItemPropertyUtil.getGlobalCBM().equals(ItemMode.CHISELED_BLOCK_GRID)) {
             if (!BlockPlacementLogic.isPlaceableOffgrid(player, player.world, face, pkt.location, player.getHeldItemMainhand()))
                 canPlace = false;
         } else {
@@ -228,7 +228,7 @@ public class ChiselHandler {
             return;
         }
 
-        if(player.isSneaking()) {
+        if(player.isCrouching()) {
             //Offgrid mode, place in all blockpositions concerned
             final ExtendedVoxelBlob evb = new ExtendedVoxelBlob(3, 3, 3, -1, -1, -1);
             final VoxelBlob placedBlob = it.getVoxelBlob(stack);

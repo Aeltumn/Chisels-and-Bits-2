@@ -30,10 +30,8 @@ import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
 import nl.dgoossens.chiselsandbits2.api.item.IItemMenu;
 import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
 import nl.dgoossens.chiselsandbits2.api.radial.RadialMenu;
-import nl.dgoossens.chiselsandbits2.client.render.chiseledblock.RenderingManager;
 import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
 import nl.dgoossens.chiselsandbits2.client.render.RenderingAssistant;
-import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlock;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel.ChiselIterator;
@@ -68,9 +66,6 @@ import java.util.function.Supplier;
  */
 public class ClientSideHelper {
     //--- GENERAL ---
-    //Managers
-    private final RenderingManager RENDER_MANAGER;
-
     //General Constants
     protected static final double BIT_SIZE = 1.0 / 16.0;
     protected static final double HALF_BIT = BIT_SIZE / 2.0f;
@@ -95,17 +90,6 @@ public class ClientSideHelper {
     protected boolean previousSilhoutte, previousOffGrid;
     protected IItemMode previousMode;
     protected long previousTileIteration = -Long.MAX_VALUE;
-
-    public ClientSideHelper() {
-        RENDER_MANAGER = new RenderingManager();
-    }
-
-    /**
-     * Get the general rendering manager.
-     */
-    public RenderingManager getRenderingManager() {
-        return RENDER_MANAGER;
-    }
 
     /**
      * Cleans up some data when a player leaves the current save game.

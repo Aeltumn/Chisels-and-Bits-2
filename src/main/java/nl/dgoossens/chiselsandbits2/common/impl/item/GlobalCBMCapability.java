@@ -11,7 +11,7 @@ public class GlobalCBMCapability implements Capability.IStorage<ItemModeWrapper>
     @Nullable
     @Override
     public INBT writeNBT(Capability<ItemModeWrapper> capability, ItemModeWrapper instance, Direction side) {
-        return new IntNBT(instance.get().ordinal());
+        return IntNBT.valueOf(instance.get().ordinal());
     }
 
     @Override

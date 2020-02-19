@@ -227,7 +227,7 @@ public class BitStorageImpl implements BitStorage {
             content.put(String.valueOf(i), subcontent);
         }
         compound.put("content", content);
-        compound.put("type", new IntNBT(getType().ordinal()));
+        compound.put("type", IntNBT.valueOf(getType().ordinal()));
         return compound;
     }
 }

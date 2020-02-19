@@ -99,7 +99,7 @@ public class RotationUtil {
 
     private static Direction spinFacing(final Direction curr, final Axis axis, boolean backwards) {
         if(axis == Axis.X) backwards = !backwards; //Somehow clockwise and counterclockwise are swapped for X. Don't have a clue why.
-        return backwards ? rotateAroundCCW(curr, axis) : curr.rotateAround(axis);
+        return backwards ? rotateAroundCCW(curr, axis) : curr; //TODO curr.rotateAround(axis);
     }
 
     //Internal method, opposite of Direction#rotateAround
