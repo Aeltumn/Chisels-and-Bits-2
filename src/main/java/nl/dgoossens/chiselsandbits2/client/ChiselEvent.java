@@ -42,7 +42,7 @@ public class ChiselEvent {
     public static void onPlayerInteract(PlayerInteractEvent e) {
         //--- Locking Morphing Bits ---
         if(e instanceof PlayerInteractEvent.RightClickEmpty || e instanceof PlayerInteractEvent.LeftClickEmpty) {
-            if(e.getPlayer().getHeldItemMainhand().getItem() instanceof MorphingBitItem && e.getPlayer().isSneaking()) {
+            if(e.getPlayer().getHeldItemMainhand().getItem() instanceof MorphingBitItem && e.getPlayer().isCrouching()) {
                 if (System.currentTimeMillis() - lastClick < 150) return;
                 lastClick = System.currentTimeMillis();
 

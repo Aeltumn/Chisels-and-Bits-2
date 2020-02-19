@@ -5,11 +5,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.state.IProperty;
 import net.minecraft.state.Property;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import nl.dgoossens.chiselsandbits2.api.bit.RestrictionAPI;
-import nl.dgoossens.chiselsandbits2.client.cull.DummyEnvironmentWorldReader;
+import nl.dgoossens.chiselsandbits2.client.cull.DummyBlockReader;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlock;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -68,13 +67,12 @@ public class RestrictionAPIImpl implements RestrictionAPI {
             return;
         }
         if (blk.hasTileEntity(block)) return;
-        if (blk.getRenderLayer() != BlockRenderLayer.SOLID) return; //TODO Re-enable non-solid blocks
         if (!blk.getDefaultState().isSolid()) return; //TODO re-enable non-solid blocks
         //Can't be a rotatable block without being allowed to be fully rotated.
         if (blk.getDefaultState().has(BlockStateProperties.HORIZONTAL_FACING)) return;
         if (blk.getDefaultState().has(BlockStateProperties.FACING_EXCEPT_UP)) return;
 
-        DummyEnvironmentWorldReader dummyWorld = new DummyEnvironmentWorldReader() {
+        DummyBlockReader dummyWorld = new DummyBlockReader() {
             @Override
             public BlockState getBlockState(BlockPos pos) {
                 if (pos.equals(BlockPos.ZERO)) return block;

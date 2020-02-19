@@ -12,15 +12,15 @@ public class FormatInfo {
 
     public FormatInfo(final VertexFormat format) {
         int total = 0;
-        indexLengths = new int[format.getElementCount()];
-        finalLengths = new int[format.getElementCount()];
-        offsets = new int[format.getElementCount()];
+        indexLengths = new int[format.getElements().size()];
+        finalLengths = new int[format.getElements().size()];
+        offsets = new int[format.getElements().size()];
 
         for (int x = 0; x < indexLengths.length; ++x) {
-            finalLengths[x] = format.getElement(x).getElementCount();
+            finalLengths[x] = format.getElements().get(x).getElementCount();
             indexLengths[x] = finalLengths[x];
 
-            switch (format.getElement(x).getUsage()) {
+            switch (format.getElements().get(x).getUsage()) {
                 default:
                 case GENERIC:
                 case PADDING:

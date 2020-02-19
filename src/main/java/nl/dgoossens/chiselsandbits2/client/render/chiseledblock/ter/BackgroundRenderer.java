@@ -1,5 +1,7 @@
 package nl.dgoossens.chiselsandbits2.client.render.chiseledblock.ter;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -41,10 +43,9 @@ public class BackgroundRenderer implements Callable<Tessellator> {
                     tessellator = new Tessellator(2109952);
                 }
             }
-            final BufferBuilder buffer = tessellator.getBuffer();
+            final MatrixStack buffer = new MatrixStack();
             try {
-                buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-                buffer.setTranslation(-chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ());
+                buffer.translate(-chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ());
             } catch (final IllegalStateException e) {
                 e.printStackTrace();
             }
@@ -54,8 +55,8 @@ public class BackgroundRenderer implements Callable<Tessellator> {
             for (final ChiseledBlockTileEntity tx : myPrivateList) {
                 if (!tx.isRemoved()) {
                     final ChiseledBlockBaked model = ChiselsAndBits2.getInstance().getClient().getRenderingManager().getCachedModel(tx);
-                    if (!model.isEmpty())
-                        blockRenderer.getBlockModelRenderer().renderModel(cache, model, tx.getBlockState(), tx.getPos(), buffer, true, random, random.nextLong(), tx.getModelData());
+                    //if (!model.isEmpty())
+                        //blockRenderer.getBlockModelRenderer().renderModel(cache, model, tx.getBlockState(), tx.getPos(), buffer, new MatrixApplyingVertexBuilder());
                 }
             }
             return tessellator;

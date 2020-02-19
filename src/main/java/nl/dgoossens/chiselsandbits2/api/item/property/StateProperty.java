@@ -20,7 +20,7 @@ public class StateProperty extends IItemProperty<Boolean> {
     @Override
     public void set(PlayerEntity player, ItemStack stack, Boolean value) {
         super.set(player, stack, value);
-        stack.setTagInfo("state_"+slot, new ByteNBT((byte) (value ? 1 : 0)));
+        stack.setTagInfo("state_"+slot, ByteNBT.valueOf((byte) (value ? 1 : 0)));
         updateStack(player, stack);
     }
 }

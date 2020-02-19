@@ -151,14 +151,14 @@ public class RenderingAssistant {
         for (final int j = quads.size(); i < j; ++i) {
             final BakedQuad bakedquad = quads.get(i);
             Color color = showSilhouette ? new Color(45, 45, 45, alpha) : new Color(colorProvider.getColor(bakedquad.getTintIndex()));
-            net.minecraftforge.client.model.pipeline.LightUtil.renderQuadColor(renderer, bakedquad, (color.hashCode() & 0x00ffffff) + ((showSilhouette ? 55 : alpha) << 24));
+            //net.minecraftforge.client.model.pipeline.LightUtil.renderQuadColor(renderer, bakedquad, (color.hashCode() & 0x00ffffff) + ((showSilhouette ? 55 : alpha) << 24));
         }
     }
 
     public static void renderModel(final int alpha, final IBakedModel model, final ChiseledTintColor colorProvider, final boolean showSilhoutte) {
         final Tessellator tessellator = Tessellator.getInstance();
         final BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
         Random r = new Random();
         for (final Direction face : Direction.values()) {
@@ -172,13 +172,13 @@ public class RenderingAssistant {
     }
 
     public static void renderGhostModel(final IBakedModel baked, final World worldObj, final float partialTicks, final BlockPos blockPos, final boolean notPlaceable, final boolean expand) {
-        GlStateManager.bindTexture(Minecraft.getInstance().getTextureMap().getGlTextureId());
+        //GlStateManager.bindTexture(Minecraft.getInstance().getTextureMap().getGlTextureId());
         GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GlStateManager.alphaFunc(516, 0.1F);
 
         GlStateManager.enableBlend();
         GlStateManager.enableTexture();
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        //GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
         ChiseledTintColor colorProvider = new ChiseledBlockColor(worldObj, blockPos); //Pass the location so grass/water is tinted properly
         if(expand) {
@@ -186,7 +186,7 @@ public class RenderingAssistant {
             GlStateManager.scaled(1.02 ,1.02, 1.02);
             GlStateManager.translated(-0.005, -0.005, -0.005);
         }
-        renderModel(Math.max(3, Math.round(10.0f * Math.max(worldObj.getLightFor(LightType.BLOCK, blockPos), worldObj.getSunBrightness(partialTicks) * worldObj.getLightFor(LightType.SKY, blockPos)))), baked, colorProvider, notPlaceable);
+        renderModel(Math.max(3, Math.round(10.0f * Math.max(worldObj.getLightFor(LightType.BLOCK, blockPos), worldObj.getLightFor(LightType.SKY, blockPos)))), baked, colorProvider, notPlaceable);
         GlStateManager.disableBlend();
     }
 }

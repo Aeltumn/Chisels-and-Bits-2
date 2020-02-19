@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class RadialMenu extends Screen {
     //--- RADIAL MENU INSTANCE ---
-    public static final RadialMenu RADIAL_MENU = new ItemModeMenu(); //Change this to your own class
+    public static final RadialMenu RADIAL_MENU = null;//new ItemModeMenu(); //Change this to your own class
 
     //--- GETTERS FOR INSTANCES ---
     private Minecraft minecraft;
@@ -251,14 +251,14 @@ public abstract class RadialMenu extends Screen {
         @OnlyIn(Dist.CLIENT)
         public static void onTick(final TickEvent.ClientTickEvent e) {
             final PlayerEntity player = Minecraft.getInstance().player;
-            if (player == null) return; //We're not in-game yet if this happens..
+            if (player == null || RADIAL_MENU == null) return; //We're not in-game yet if this happens..
             RADIAL_MENU.tick();
         }
 
         @SubscribeEvent
         @OnlyIn(Dist.CLIENT)
         public static void onClickWithGuiOpen(InputEvent.RawMouseEvent e) {
-            if(e.getButton() == GLFW.GLFW_MOUSE_BUTTON_1 && RADIAL_MENU.isVisible()) {
+            if(e.getButton() == GLFW.GLFW_MOUSE_BUTTON_1 && RADIAL_MENU != null && RADIAL_MENU.isVisible()) {
                 RADIAL_MENU.selectHoverOver();
                 e.setCanceled(true);
             }
@@ -267,7 +267,7 @@ public abstract class RadialMenu extends Screen {
         @SubscribeEvent
         @OnlyIn(Dist.CLIENT)
         public static void drawLast(final RenderGameOverlayEvent.Post e) {
-            if (e.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+            if (e.getType() == RenderGameOverlayEvent.ElementType.ALL && RADIAL_MENU != null) {
                 Minecraft.getInstance().getProfiler().startSection("chiselsandbits2-radialmenu");
                 if (RADIAL_MENU.isVisible()) { //Render if it's visible.
                     final MainWindow window = e.getWindow();

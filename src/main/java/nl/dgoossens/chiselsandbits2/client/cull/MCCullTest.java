@@ -19,7 +19,7 @@ import java.util.Map;
  * vanilla uses, with some overwrites for better
  * performance.
  */
-public class MCCullTest extends DummyEnvironmentWorldReader implements ICullTest {
+public class MCCullTest extends DummyBlockReader implements ICullTest {
     //We cache results because minecraft's calculation is pretty heavy.
     private Map<Pair<BlockState, BlockState>, Boolean> resultCache = new HashMap<>();
     private BlockState a, b;

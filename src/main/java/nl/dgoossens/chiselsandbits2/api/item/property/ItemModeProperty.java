@@ -30,10 +30,10 @@ public class ItemModeProperty extends IItemProperty<IItemMode> {
     public void set(PlayerEntity player, ItemStack stack, IItemMode value) {
         super.set(player, stack, value);
         if(value instanceof ItemMode) {
-            stack.setTagInfo("bmode_"+slot, new ByteNBT((byte) 1));
-            stack.setTagInfo("mode_"+slot, new IntNBT(((ItemMode) value).ordinal()));
+            stack.setTagInfo("bmode_"+slot, ByteNBT.valueOf((byte) 1));
+            stack.setTagInfo("mode_"+slot, IntNBT.valueOf(((ItemMode) value).ordinal()));
         } else
-            stack.setTagInfo("bmode_"+slot, new ByteNBT((byte) 0));
+            stack.setTagInfo("bmode_"+slot, ByteNBT.valueOf((byte) 0));
         updateStack(player, stack);
     }
 }

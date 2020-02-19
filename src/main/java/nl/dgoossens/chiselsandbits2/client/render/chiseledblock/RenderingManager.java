@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.model.BlockPartRotation;
 import net.minecraft.client.renderer.model.FaceBakery;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelRotation;
+import net.minecraft.client.renderer.texture.MissingTextureSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
@@ -55,8 +56,7 @@ import java.util.logging.Logger;
 public class RenderingManager {
     private final WeakHashMap<World, WorldTracker> worldTrackers = new WeakHashMap<>();
     private final Queue<TessellatorReferenceHolder> previousTessellators = new LinkedBlockingQueue<>();
-    private final ConcurrentHashMap<VertexFormat, FormatInfo> formatData = new ConcurrentHashMap<>();
-    private final VertexFormat VERTEX_FORMAT = new VertexFormat();
+    private final FormatInfo formatData = new FormatInfo(DefaultVertexFormats.BLOCK);
     private final ThreadPoolExecutor pool;
     private ChiseledBlockBaked NULL_MODEL;
     private float[][][] quadMapping;
@@ -80,7 +80,7 @@ public class RenderingManager {
                     byte[] vdata = c.getByteArray(NBTBlobConverter.NBT_VERSIONED_VOXEL);
                     VoxelBlobStateReference state = c.contains(NBTBlobConverter.NBT_VERSIONED_VOXEL) ? new VoxelBlobStateReference(vdata) : new VoxelBlobStateReference();
 
-                    return getCachedModel(state, null, DefaultVertexFormats.ITEM);
+                    return getCachedModel(state, null);
                 }
             });
 
@@ -99,11 +99,6 @@ public class RenderingManager {
         if (ChiselUtil.isLowMemoryMode()) processors = 1;
         pool = new ThreadPoolExecutor(1, processors, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<>(64), threadFactory);
         pool.allowCoreThreadTimeOut(false);
-
-        //Build our vertex format with lightmap
-        for (final VertexFormatElement element : DefaultVertexFormats.ITEM.getElements())
-            VERTEX_FORMAT.addElement(element);
-        VERTEX_FORMAT.addElement(DefaultVertexFormats.TEX_2S);
     }
 
     private void initialiseMaps() {
@@ -123,7 +118,7 @@ public class RenderingManager {
             final BlockFaceUV uv = new BlockFaceUV(defUVs, 0);
             final BlockPartFace bpf = new BlockPartFace(myFace, 0, "", uv);
 
-            final BakedQuad q = faceBakery.makeBakedQuad(to, from, bpf, ChiselsAndBits2.getInstance().getClient().getMissingIcon(), myFace, mr, bpr, true);
+            final BakedQuad q = faceBakery.bakeQuad(to, from, bpf, null, myFace, mr, bpr, true, MissingTextureSprite.getLocation()); //TODO set model resource location
             final int[] vertData = q.getVertexData();
 
             int a = 0;
@@ -180,15 +175,6 @@ public class RenderingManager {
         }
     }
 
-    /**
-     * Get our custom vertex format if we're using it.
-     * @param checkPipeline Returns {@link DefaultVertexFormats#ITEM} if the forge light pipeline is disabled.
-     */
-    public VertexFormat getModelFormat(final boolean checkPipeline) {
-        if(!checkPipeline) return VERTEX_FORMAT;
-        return !ForgeConfig.CLIENT.forgeLightPipelineEnabled.get() ? DefaultVertexFormats.ITEM : VERTEX_FORMAT;
-    }
-
     public boolean isInvalid(final ModelRenderState mrs) {
         //Invalidate this cache if the render tracker changed
         if (mrs != null && mrs.isDirty()) {
@@ -203,19 +189,15 @@ public class RenderingManager {
     }
 
     public ChiseledBlockBaked getCachedModel(final VoxelBlobStateReference reference, final ModelRenderState mrs) throws ExecutionException {
-        return getCachedModel(reference, mrs, getModelFormat(true));
-    }
-
-    public ChiseledBlockBaked getCachedModel(final VoxelBlobStateReference reference, final ModelRenderState mrs, final VertexFormat format) throws ExecutionException {
         if (reference == null) {
-            if(NULL_MODEL == null) NULL_MODEL = new ChiseledBlockBaked(null, new ModelRenderState(), getModelFormat(true));
+            if(NULL_MODEL == null) NULL_MODEL = new ChiseledBlockBaked(null, new ModelRenderState());
             return NULL_MODEL;
          }
 
-        if (format == getModelFormat(true) && mrs != null)
-            return modelCache.get(mrs, () -> new ChiseledBlockBaked(reference, mrs, format));
+        if (mrs != null)
+            return modelCache.get(mrs, () -> new ChiseledBlockBaked(reference, mrs));
 
-        return new ChiseledBlockBaked(reference, mrs, format);
+        return new ChiseledBlockBaked(reference, mrs);
     }
 
     public int getFaceVertexCount(int index, int vertex) {
@@ -228,8 +210,8 @@ public class RenderingManager {
         return quadMapping[side.ordinal()][vertex];
     }
 
-    public FormatInfo getFormatInfo(final VertexFormat format) {
-        return formatData.computeIfAbsent(format, FormatInfo::new);
+    public FormatInfo getFormatInfo() {
+        return formatData;
     }
 
     /**
@@ -333,7 +315,7 @@ public class RenderingManager {
     public void uploadVBO(final UploadTracker t) {
         final Tessellator tx = t.getTessellator();
         if (t.getRenderCache().needsRebuilding())
-            t.getRenderCache().setRenderState(GfxRenderState.getNewState(tx.getBuffer().getVertexCount()));
+            t.getRenderCache().setRenderState(GfxRenderState.getNewState(tx.getBuffer().getVertexFormat().getSize()));
 
         if (t.getRenderCache().prepareRenderState(tx))
             t.submitForReuse();

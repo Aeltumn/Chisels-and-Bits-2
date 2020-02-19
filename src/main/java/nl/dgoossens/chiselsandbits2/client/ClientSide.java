@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -61,7 +62,7 @@ public class ClientSide extends ClientSideHelper {
      * Setup all client side only things to register.
      */
     public void setup() {
-        ClientRegistry.bindTileEntitySpecialRenderer(ChiseledBlockTileEntity.class, new ChiseledBlockTER());
+        //TODO ClientRegistry.bindTileEntitySpecialRenderer(ChiseledBlockTileEntity.class, new ChiseledBlockTER());
     }
 
     /**
@@ -111,8 +112,7 @@ public class ClientSide extends ClientSideHelper {
     private void registerBlockColors(final ColorHandlerEvent.Block e) {
         Registration m = ChiselsAndBits2.getInstance().getRegister();
 
-        e.getBlockColors().register(new ChiseledBlockColor(),
-                m.CHISELED_BLOCK.get());
+        e.getBlockColors().register(new ChiseledBlockColor(), m.CHISELED_BLOCK.get());
     }
 
     /**
@@ -120,7 +120,8 @@ public class ClientSide extends ClientSideHelper {
      */
     private void registerIconTextures(final TextureStitchEvent.Pre e) {
         //Only register to the texture map.
-        if(!e.getMap().getBasePath().equals("textures")) return;
+        if(!e.getMap().getTextureLocation().equals(AtlasTexture.LOCATION_BLOCKS_TEXTURE))
+            return;
 
         //We only do this for our own, addons need to do this themselves.
         for (final IMenuAction menuAction : MenuAction.values()) {
@@ -220,7 +221,7 @@ public class ClientSide extends ClientSideHelper {
                 GlStateManager.scalef(0.5f, 0.5f, 1);
                 GlStateManager.color4f(1, 1, 1, 1.0f);
                 Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-                RenderHelper.enableGUIStandardItemLighting();
+                RenderHelper.enableStandardItemLighting();
                 for (int slot = 8; slot >= -1; --slot) {
                     //-1 is the off-hand
                     ItemStack item = slot == -1 ? player.inventory.offHandInventory.get(0) : player.inventory.mainInventory.get(slot);
@@ -243,7 +244,7 @@ public class ClientSide extends ClientSideHelper {
                         } catch (Exception rx) {
                             rx.printStackTrace();
                         }
-                        AbstractGui.blit(x + 2, y + 2, blitOffset, 16, 16, Minecraft.getInstance().getTextureMap().getSprite(sprite));
+                        AbstractGui.blit(x + 2, y + 2, blitOffset, 16, 16, Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(sprite));
                         GlStateManager.disableBlend();
                         GlStateManager.translatef(0, 0, -200);
                     } else if(item.getItem() instanceof StorageItem && ((StorageItem) item.getItem()).showIconInHotbar()) {
@@ -264,7 +265,7 @@ public class ClientSide extends ClientSideHelper {
      * For drawing our custom highlight bounding boxes!
      */
     @SubscribeEvent
-    public static void drawHighlights(final DrawBlockHighlightEvent.HighlightBlock e) {
+    public static void drawHighlights(final DrawHighlightEvent.HighlightBlock e) {
         //Cancel if the draw blocks highlight method successfully rendered a highlight.
         if(ChiselsAndBits2.getInstance().getClient().drawBlockHighlight(e.getPartialTicks()))
             e.setCanceled(true);
@@ -293,7 +294,7 @@ public class ClientSide extends ClientSideHelper {
         final PlayerEntity player = Minecraft.getInstance().player;
         final ItemStack is = player.getHeldItemMainhand();
 
-        if (is.getItem() instanceof IItemScrollWheel && player.isSneaking()) {
+        if (is.getItem() instanceof IItemScrollWheel && player.isCrouching()) {
             if(((IItemScrollWheel) is.getItem()).scroll(player, is, dwheel))
                 me.setCanceled(true);
         }

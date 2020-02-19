@@ -8,14 +8,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.*;
@@ -53,11 +50,6 @@ public class ChiseledBlock extends Block {
         return true;
     }
 
-    @Override //Required for getting the destroyStage in the TER.
-    public boolean hasCustomBreakingProgress(BlockState state) {
-        return true;
-    }
-
     @Nullable
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
@@ -86,11 +78,6 @@ public class ChiseledBlock extends Block {
     @Override
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.ENTITYBLOCK_ANIMATED; //Set it to TESR only mode so there's no normal model.
-    }
-
-    @Override
-    public BlockRenderLayer getRenderLayer() {
-        return BlockRenderLayer.CUTOUT_MIPPED; //For some reason we can still have transparency despite this.
     }
 
     //Redirect getSoundType to the primary block.
@@ -178,14 +165,14 @@ public class ChiseledBlock extends Block {
 
             switch(VoxelType.getType(i)) {
                 case BLOCKSTATE:
-                    worldserver.spawnParticle(new BlockParticleData(ParticleTypes.BLOCK, BitUtil.getBlockState(i)), entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0, 0.0, 0.0, 1);
+                    worldserver.spawnParticle(new BlockParticleData(ParticleTypes.BLOCK, BitUtil.getBlockState(i)), entity.getPosX(), entity.getPosY(), entity.getPosZ(), numberOfParticles, 0.0, 0.0, 0.0, 1);
                     return true;
                 case FLUIDSTATE:
-                    worldserver.spawnParticle(new BlockParticleData(ParticleTypes.BLOCK, BitUtil.getFluidState(i).getBlockState()), entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0, 0.0, 0.0, 1);
+                    worldserver.spawnParticle(new BlockParticleData(ParticleTypes.BLOCK, BitUtil.getFluidState(i).getBlockState()), entity.getPosX(), entity.getPosY(), entity.getPosZ(), numberOfParticles, 0.0, 0.0, 0.0, 1);
                     return true;
                 case COLOURED:
                     Color c = BitUtil.getColourState(i);
-                    worldserver.spawnParticle(new RedstoneParticleData(((float)c.getRed())/255.0f, ((float)c.getGreen())/255.0f, ((float)c.getBlue())/255.0f, ((float)c.getAlpha())/255.0f), entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0, 0.0, 0.0, 1);
+                    worldserver.spawnParticle(new RedstoneParticleData(((float)c.getRed())/255.0f, ((float)c.getGreen())/255.0f, ((float)c.getBlue())/255.0f, ((float)c.getAlpha())/255.0f), entity.getPosX(), entity.getPosY(), entity.getPosZ(), numberOfParticles, 0.0, 0.0, 0.0, 1);
                     return true;
             }
         } catch(Exception x) {
@@ -352,14 +339,14 @@ public class ChiseledBlock extends Block {
             Random random = new Random();
             switch(VoxelType.getType(i)) {
                 case BLOCKSTATE:
-                    world.addParticle(new BlockParticleData(ParticleTypes.BLOCK, BitUtil.getBlockState(i)), entity.posX + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, entity.posY + 0.1D, entity.posZ + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, vec3d.x * -4.0D, 1.5D, vec3d.z * -4.0D);
+                    world.addParticle(new BlockParticleData(ParticleTypes.BLOCK, BitUtil.getBlockState(i)), entity.getPosX() + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, entity.getPosY() + 0.1D, entity.getPosZ() + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, vec3d.x * -4.0D, 1.5D, vec3d.z * -4.0D);
                     return true;
                 case FLUIDSTATE:
-                    world.addParticle(new BlockParticleData(ParticleTypes.BLOCK, BitUtil.getFluidState(i).getBlockState()), entity.posX + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, entity.posY + 0.1D, entity.posZ + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, vec3d.x * -4.0D, 1.5D, vec3d.z * -4.0D);
+                    world.addParticle(new BlockParticleData(ParticleTypes.BLOCK, BitUtil.getFluidState(i).getBlockState()), entity.getPosX() + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, entity.getPosY() + 0.1D, entity.getPosZ() + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, vec3d.x * -4.0D, 1.5D, vec3d.z * -4.0D);
                     return true;
                 case COLOURED:
                     Color c = BitUtil.getColourState(i);
-                    world.addParticle(new RedstoneParticleData(((float)c.getRed())/255.0f, ((float)c.getGreen())/255.0f, ((float)c.getBlue())/255.0f, ((float)c.getAlpha())/255.0f), entity.posX + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, entity.posY + 0.1D, entity.posZ + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, vec3d.x * -4.0D, 1.5D, vec3d.z * -4.0D);
+                    world.addParticle(new RedstoneParticleData(((float)c.getRed())/255.0f, ((float)c.getGreen())/255.0f, ((float)c.getBlue())/255.0f, ((float)c.getAlpha())/255.0f), entity.getPosX() + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, entity.getPosY() + 0.1D, entity.getPosZ() + ((double)random.nextFloat() - 0.5D) * (double)entity.getSize(entity.getPose()).width, vec3d.x * -4.0D, 1.5D, vec3d.z * -4.0D);
                     return true;
             }
         } catch(Exception x) {

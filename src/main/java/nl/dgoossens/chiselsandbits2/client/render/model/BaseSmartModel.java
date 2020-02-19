@@ -46,13 +46,18 @@ public abstract class BaseSmartModel implements IDynamicBakedModel, IForgeBakedM
         }
 
         @Override
+        public boolean func_230044_c_() {
+            return true; //3d lightning
+        }
+
+        @Override
         public boolean isBuiltInRenderer() {
             return false;
         }
 
         @Override
         public TextureAtlasSprite getParticleTexture() {
-            return ChiselsAndBits2.getInstance().getClient().getMissingIcon();
+            return null; //TODO missing icon?
         }
 
         @Override
@@ -80,6 +85,11 @@ public abstract class BaseSmartModel implements IDynamicBakedModel, IForgeBakedM
     }
 
     @Override
+    public boolean func_230044_c_() {
+        return true; //3d lightning
+    }
+
+    @Override
     public boolean isAmbientOcclusion() {
         return true;
     }
@@ -101,7 +111,7 @@ public abstract class BaseSmartModel implements IDynamicBakedModel, IForgeBakedM
 
     @Override
     public TextureAtlasSprite getParticleTexture() {
-        return ChiselsAndBits2.getInstance().getClient().getMissingIcon();
+        return null; //TODO missing icon
     }
 
     @Nonnull

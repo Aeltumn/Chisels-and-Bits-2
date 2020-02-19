@@ -21,7 +21,7 @@ public class ColourProperty extends IItemProperty<DyedItemColour> {
     @Override
     public void set(PlayerEntity player, ItemStack stack, DyedItemColour value) {
         super.set(player, stack, value);
-        stack.setTagInfo("colour_"+slot, new IntNBT(value.ordinal()));
+        stack.setTagInfo("colour_"+slot, IntNBT.valueOf(value.ordinal()));
         updateStack(player, stack);
     }
 }

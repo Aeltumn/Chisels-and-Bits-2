@@ -22,7 +22,7 @@ import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IRotatableItem;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IVoxelStorer;
-import nl.dgoossens.chiselsandbits2.client.cull.DummyEnvironmentWorldReader;
+import nl.dgoossens.chiselsandbits2.client.cull.DummyBlockReader;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlock;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
@@ -31,7 +31,6 @@ import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.ExtendedVoxelBlob
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
-import nl.dgoossens.chiselsandbits2.common.impl.item.GlobalCBMCapability;
 import nl.dgoossens.chiselsandbits2.common.impl.item.GlobalCBMCapabilityProvider;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeWrapper;
@@ -49,8 +48,6 @@ import nl.dgoossens.chiselsandbits2.common.network.client.CChiselBlockPacket;
 import nl.dgoossens.chiselsandbits2.common.util.InventoryUtils;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.util.RotationUtil;
-
-import static nl.dgoossens.chiselsandbits2.api.block.BitOperation.*;
 
 /**
  * Handles incoming packets that relate to interacting with voxelblobs.
@@ -350,7 +347,7 @@ public class ChiselHandler {
             }
         } else {
             //Other rotatable blocks
-            DummyEnvironmentWorldReader dummyWorld = new DummyEnvironmentWorldReader() {
+            DummyBlockReader dummyWorld = new DummyBlockReader() {
                 @Override
                 public BlockState getBlockState(BlockPos pos) {
                     if (pos.equals(BlockPos.ZERO)) return state;

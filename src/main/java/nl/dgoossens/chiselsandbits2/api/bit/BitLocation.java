@@ -65,9 +65,9 @@ public class BitLocation {
      */
     public BitLocation(final Entity e) {
         blockPos = e.getPosition();
-        double tx = e.posX - blockPos.getX();
-        double ty = e.posY - blockPos.getY();
-        double tz = e.posZ - blockPos.getZ();
+        double tx = e.getPosX() - blockPos.getX();
+        double ty = e.getPosY() - blockPos.getY();
+        double tz = e.getPosZ() - blockPos.getZ();
         bitX = snapToValid((int) Math.round(tx*16));
         bitY = snapToValid((int) Math.round(ty*16)) - 1;
         bitZ = snapToValid((int) Math.round(tz*16));

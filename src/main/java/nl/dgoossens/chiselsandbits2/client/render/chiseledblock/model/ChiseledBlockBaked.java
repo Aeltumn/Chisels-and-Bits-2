@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public class ChiseledBlockBaked extends BaseBakedModel implements IDynamicBakedModel, IForgeBakedModel {
-    private VertexFormat format;
     private BakedQuad[] up;
     private BakedQuad[] down;
     private BakedQuad[] north;
@@ -37,8 +36,7 @@ public class ChiseledBlockBaked extends BaseBakedModel implements IDynamicBakedM
     private BakedQuad[] west;
     private BakedQuad[] generic;
 
-    public ChiseledBlockBaked(final VoxelBlobStateReference data, final ModelRenderState mrs, final VertexFormat format) {
-        this.format = format;
+    public ChiseledBlockBaked(final VoxelBlobStateReference data, final ModelRenderState mrs) {
         if (data == null) return;
 
         final VoxelBlob vb = data.getVoxelBlob();
@@ -54,6 +52,8 @@ public class ChiseledBlockBaked extends BaseBakedModel implements IDynamicBakedM
         south = builder.getSide(Direction.SOUTH);
         generic = builder.getSide(null);
     }
+
+
 
     private static void offsetVec(final int[] result, final int toX, final int toY, final int toZ, final Direction f, final int d) {
         int leftX = 0;
@@ -131,11 +131,6 @@ public class ChiseledBlockBaked extends BaseBakedModel implements IDynamicBakedM
         return true;
     }
 
-    private IFaceBuilder getBuilder(VertexFormat format) {
-        if (!ForgeConfig.CLIENT.forgeLightPipelineEnabled.get()) format = DefaultVertexFormats.ITEM;
-        return new ChiselsAndBitsBakedQuad.Builder(format);
-    }
-
     private void generateFaces(final ChiseledModelBuilder builder, final VoxelBlob blob, final ModelRenderState mrs) {
         final ArrayList<ArrayList<FaceRegion>> rset = new ArrayList<>();
         final VoxelBlob.VisibleFace visFace = new VoxelBlob.VisibleFace();
@@ -150,9 +145,7 @@ public class ChiseledBlockBaked extends BaseBakedModel implements IDynamicBakedM
         final float[] pos = new float[3];
 
         // single reusable face builder.
-        final IFaceBuilder darkBuilder = getBuilder(DefaultVertexFormats.ITEM);
-        final IFaceBuilder litBuilder = format == ChiselsAndBits2.getInstance().getClient().getRenderingManager().getModelFormat(false) ? getBuilder(format) : darkBuilder;
-
+        final IFaceBuilder faceBuilder = new ChiselsAndBitsBakedQuad.Builder(DefaultVertexFormats.BLOCK);
         for (final ArrayList<FaceRegion> src : rset) {
             mergeFaces(src);
 
@@ -164,11 +157,10 @@ public class ChiseledBlockBaked extends BaseBakedModel implements IDynamicBakedM
                 // difference. )
                 offsetVec(to, region.getMaxX(), region.getMaxY(), region.getMaxZ(), myFace, 1);
                 offsetVec(from, region.getMinX(), region.getMinY(), region.getMinZ(), myFace, -1);
-                final ModelQuadLayer[] mpc = ModelUtil.getCachedFace(region.getState(), new Random(), myFace);
+                final ModelQuadLayer[] mpc = null; //TODO ModelUtil.getCachedFace(region.getState(), new Random(), myFace);
 
                 if (mpc != null) {
                     for (final ModelQuadLayer pc : mpc) {
-                        final IFaceBuilder faceBuilder = pc.light > 0 ? litBuilder : darkBuilder;
                         VertexFormat builderFormat = faceBuilder.getFormat();
 
                         faceBuilder.begin();
@@ -179,8 +171,8 @@ public class ChiseledBlockBaked extends BaseBakedModel implements IDynamicBakedM
 
                         // build it.
                         for (int vertNum = 0; vertNum < 4; vertNum++) {
-                            for (int elementIndex = 0; elementIndex < builderFormat.getElementCount(); elementIndex++) {
-                                final VertexFormatElement element = builderFormat.getElement(elementIndex);
+                            for (int elementIndex = 0; elementIndex < builderFormat.getElements().size(); elementIndex++) {
+                                final VertexFormatElement element = builderFormat.getElements().get(elementIndex);
                                 switch (element.getUsage()) {
                                     case POSITION:
                                         getVertexPos(pos, myFace, vertNum, to, from);

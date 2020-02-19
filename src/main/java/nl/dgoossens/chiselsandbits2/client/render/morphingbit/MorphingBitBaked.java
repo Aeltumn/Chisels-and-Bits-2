@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.model.BlockPartFace;
 import net.minecraft.client.renderer.model.BlockPartRotation;
 import net.minecraft.client.renderer.model.FaceBakery;
 import net.minecraft.client.renderer.model.ModelRotation;
+import net.minecraft.client.renderer.texture.MissingTextureSprite;
 import net.minecraft.util.Direction;
 import net.minecraftforge.client.extensions.IForgeBakedModel;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
@@ -54,7 +55,7 @@ public class MorphingBitBaked extends BaseBakedModel implements IDynamicBakedMod
         Random rand = new Random();
         for (final Direction myFace : Direction.values()) {
             //We use the shadeBitId to make it look shaded.
-            final ModelQuadLayer[] layers = ModelUtil.getCachedFace(bitId, rand, myFace);
+            final ModelQuadLayer[] layers = null; //TODO ModelUtil.getCachedFace(bitId, rand, myFace);
 
             if (layers == null || layers.length == 0)
                 continue;
@@ -93,7 +94,7 @@ public class MorphingBitBaked extends BaseBakedModel implements IDynamicBakedMod
                         throw new NullPointerException();
                 }
 
-                generic.add(faceBakery.makeBakedQuad(toB, fromB, bpf, clayer.sprite, myFace, mr, bpr, true));
+                generic.add(faceBakery.bakeQuad(toB, fromB, bpf, clayer.sprite, myFace, mr, bpr, true, MissingTextureSprite.getLocation())); //TODO fix
             }
         }
 

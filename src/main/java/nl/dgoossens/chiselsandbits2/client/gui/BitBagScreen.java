@@ -13,16 +13,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.client.config.GuiButtonExt;
+import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.bit.BitStorage;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.BagContainer;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.StorageCapabilityProvider;
 import nl.dgoossens.chiselsandbits2.common.items.BitBagItem;
-import nl.dgoossens.chiselsandbits2.common.network.NetworkRouter;
 import nl.dgoossens.chiselsandbits2.common.network.client.CVoidBagPacket;
-import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.*;
@@ -31,7 +29,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer> {
     private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(ChiselsAndBits2.MOD_ID, "textures/gui/bit_bag.png");
     private int selectedSlot = -1;
     private DurabilityBarRenderer cache;
-    private GuiButtonExt trashButton;
+    private ExtendedButton trashButton;
     private long trashButtonClicked;
 
     public BitBagScreen(BagContainer container, PlayerInventory inv, ITextComponent text) {
@@ -44,7 +42,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer> {
         super.init();
 
         //Setup buttons
-        addButton(trashButton = new GuiButtonExt(guiLeft - 18, guiTop + 2, 18, 18, "", b -> {
+        addButton(trashButton = new ExtendedButton(guiLeft - 18, guiTop + 2, 18, 18, "", b -> {
             if(trashButtonClicked != 0 && System.currentTimeMillis() - trashButtonClicked > 500) { //Make sure it isn't triggered double.
                 //Actually void everything
                 trashButtonClicked = 0;
@@ -103,7 +101,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer> {
             if (this.minecraft.player.inventory.getItemStack().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.getHasStack()) {
                 final ItemStack item = this.hoveredSlot.getStack();
                 FontRenderer font = item.getItem().getFontRenderer(item);
-                net.minecraftforge.fml.client.config.GuiUtils.preItemToolTip(item);
+                net.minecraftforge.fml.client.gui.GuiUtils.preItemToolTip(item);
                 ArrayList<String> text = new ArrayList<>(this.getTooltipFromItem(item));
                 if(this.hoveredSlot.inventory == container.getBagInventory()) {
                     //Add bit count if this is in the bag
@@ -111,7 +109,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer> {
                     text.add(TextFormatting.GRAY.toString()+(((bits*100) / 4096)/100.0d)+" blocks "+TextFormatting.ITALIC.toString()+"("+bits+" bits)");
                 }
                 this.renderTooltip(text, mouseX, mouseY, (font == null ? this.font : font));
-                net.minecraftforge.fml.client.config.GuiUtils.postItemToolTip();
+                net.minecraftforge.fml.client.gui.GuiUtils.postItemToolTip();
             }
         }
     }

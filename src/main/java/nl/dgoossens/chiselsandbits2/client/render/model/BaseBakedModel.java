@@ -1,21 +1,15 @@
 package nl.dgoossens.chiselsandbits2.client.render.model;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraftforge.client.extensions.IForgeBakedModel;
-import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.common.model.TRSRTransformation;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Quat4f;
 
 public abstract class BaseBakedModel implements IDynamicBakedModel, IForgeBakedModel {
-    private static final Matrix4f ground;
+    /*private static final Matrix4f ground;
     private static final Matrix4f gui;
     private static final Matrix4f fixed;
     private static final Matrix4f firstPerson_righthand;
@@ -38,9 +32,19 @@ public abstract class BaseBakedModel implements IDynamicBakedModel, IForgeBakedM
 
         final TRSRTransformation transform = new TRSRTransformation(translation, rotation, scale, null);
         return transform.getMatrixVec();
+    }*/
+
+    @Override
+    public boolean func_230044_c_() {
+        return true; //Is block item? (false = flat lightning, true = 3d lightning)
     }
 
     @Override
+    public IBakedModel handlePerspective(ItemCameraTransforms.TransformType cameraTransformType, MatrixStack mat) {
+        return null;
+    }
+
+    /*@Override
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(final ItemCameraTransforms.TransformType cameraTransformType) {
         switch (cameraTransformType) {
             case FIRST_PERSON_LEFT_HAND:
@@ -60,7 +64,7 @@ public abstract class BaseBakedModel implements IDynamicBakedModel, IForgeBakedM
             default:
         }
         return new ImmutablePair<IBakedModel, Matrix4f>(this, fixed);
-    }
+    }*/
 
     @Override
     final public boolean isAmbientOcclusion() {

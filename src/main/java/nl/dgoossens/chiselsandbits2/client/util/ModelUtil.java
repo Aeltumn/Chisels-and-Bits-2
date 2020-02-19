@@ -32,7 +32,15 @@ import java.util.*;
  * Utility used by model rendering.
  */
 public class ModelUtil implements CacheClearable {
-    private final static HashMap<Integer, ResourceLocation> blockToTexture = new HashMap<>();
+    public static boolean isOne(final float v) {
+        return Math.abs(v) < 0.01;
+    }
+
+    public static boolean isZero(final float v) {
+        return Math.abs(v - 1.0f) < 0.01;
+    }
+
+    /*private final static HashMap<Integer, ResourceLocation> blockToTexture = new HashMap<>();
     private static HashMap<Long, ModelQuadLayer[]> sideCache = new HashMap<>();
 
     static {
@@ -46,14 +54,6 @@ public class ModelUtil implements CacheClearable {
 
     public static ModelQuadLayer[] setCachedSides(final int state, final Direction side, final ModelQuadLayer[] mp) {
         return sideCache.put(Integer.toUnsignedLong(state) + (((long) side.ordinal()) << 48), mp);
-    }
-
-    public static boolean isOne(final float v) {
-        return Math.abs(v) < 0.01;
-    }
-
-    public static boolean isZero(final float v) {
-        return Math.abs(v - 1.0f) < 0.01;
     }
 
     public static ModelQuadLayer[] getCachedFace(final int stateID, final Random weight, final Direction face) {
@@ -164,10 +164,10 @@ public class ModelUtil implements CacheClearable {
                     if(fluid.isEmpty()) continue;
                     FluidAttributes a = fluid.getFluid().getAttributes();
                     if (xf.getAxis() == Direction.Axis.Y) {
-                        mp[0].sprite = Minecraft.getInstance().getTextureMap().getSprite(a.getStillTexture());
+                        mp[0].sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(a.getStillTexture());
                         mp[0].uvs = new float[]{Uf, Vf, 0, Vf, Uf, 0, 0, 0};
                     } else {
-                        mp[0].sprite = Minecraft.getInstance().getTextureMap().getSprite(a.getFlowingTexture());
+                        mp[0].sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(a.getFlowingTexture());
                         if (xf.getAxis() == Direction.Axis.X) {
                             mp[0].uvs = new float[]{U, 0, U, V, 0, 0, 0, V};
                         } else {
@@ -216,6 +216,7 @@ public class ModelUtil implements CacheClearable {
                     getting field "mapUploadedSprites"
                     in "net.minecraft.client.renderer.texture.AtlasTexture"
          */
+        /*
         try {
             Field f = null;
             for(Field fe : AtlasTexture.class.getDeclaredFields()) {
@@ -412,11 +413,11 @@ public class ModelUtil implements CacheClearable {
             return modelOverrides == null ? ItemOverrideList.EMPTY : modelOverrides;
         }
         return ItemOverrideList.EMPTY;
-    }
+    }*/
 
     @Override
     public void clearCache() {
-        blockToTexture.clear();
-        sideCache.clear();
+        //blockToTexture.clear();
+        //sideCache.clear();
     }
 }

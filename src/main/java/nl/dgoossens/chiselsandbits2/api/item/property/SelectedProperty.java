@@ -23,7 +23,7 @@ public class SelectedProperty extends IItemProperty<VoxelWrapper> {
     @Override
     public void set(PlayerEntity player, ItemStack stack, VoxelWrapper value) {
         super.set(player, stack, value);
-        stack.setTagInfo("bit_"+slot, new IntNBT(value.getId()));
+        stack.setTagInfo("bit_"+slot, IntNBT.valueOf(value.getId()));
         updateStack(player, stack);
     }
 }

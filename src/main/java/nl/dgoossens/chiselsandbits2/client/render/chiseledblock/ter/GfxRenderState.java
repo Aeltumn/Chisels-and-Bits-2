@@ -48,8 +48,8 @@ public abstract class GfxRenderState {
 
         @Override
         public GfxRenderState prepare(final Tessellator t) {
-            if (t.getBuffer().getVertexCount() > 0)
-                return GfxRenderState.getNewState(t.getBuffer().getVertexCount()).prepare(t);
+            if (t.getBuffer().getVertexFormat().getSize() > 0)
+                return GfxRenderState.getNewState(t.getBuffer().getVertexFormat().getElements().size()).prepare(t);
             t.getBuffer().finishDrawing();
             return this;
         }
@@ -71,7 +71,7 @@ public abstract class GfxRenderState {
 
         @Override
         public boolean render() {
-            if (vertexbuffer != null) {
+            /*if (vertexbuffer != null) {
                 GlStateManager.enableClientState(32884);
                 GLX.glClientActiveTexture(GLX.GL_TEXTURE0); //defaultTexUnit
                 GlStateManager.enableClientState(32888);
@@ -107,22 +107,22 @@ public abstract class GfxRenderState {
                     }
                 }
                 return true;
-            }
+            }*/
             return false;
         }
 
-        private void setupArrayPointers() {
+        /*private void setupArrayPointers() {
             GlStateManager.vertexPointer(3, GL11.GL_FLOAT, 28, 0);
             GlStateManager.colorPointer(4, GL11.GL_UNSIGNED_BYTE, 28, 12);
             GlStateManager.texCoordPointer(2, GL11.GL_FLOAT, 28, 16);
             GLX.glClientActiveTexture(GLX.GL_TEXTURE1); //lightmapTexUnit
             GlStateManager.texCoordPointer(2, GL11.GL_SHORT, 28, 24);
             GLX.glClientActiveTexture(GLX.GL_TEXTURE0); //defaultTexUnit
-        }
+        }*/
 
         @Override
         public GfxRenderState prepare(final Tessellator t) {
-            if (t.getBuffer().getVertexCount() == 0) {
+            if (t.getBuffer().getVertexFormat().getSize() == 0) {
                 destroy();
                 return new VoidRenderState().prepare(t);
             }
@@ -131,7 +131,7 @@ public abstract class GfxRenderState {
             if (vertexbuffer == null) vertexbuffer = new VertexBuffer(t.getBuffer().getVertexFormat());
 
             t.getBuffer().finishDrawing();
-            vertexbuffer.bufferData(t.getBuffer().getByteBuffer());
+            //vertexbuffer.upload(t.getBuffer().getNextBuffer());
             refreshNum = gfxRefresh;
             return this;
         }
@@ -139,15 +139,15 @@ public abstract class GfxRenderState {
         @Override
         public void destroy() {
             if (vertexbuffer != null) {
-                vertexbuffer.deleteGlBuffers();
+                //vertexbuffer.deleteGlBuffers();
                 vertexbuffer = null;
             }
         }
 
         @Override
         protected void finalize() throws Throwable {
-            if (vertexbuffer != null)
-                ChiselsAndBits2.getInstance().getClient().getRenderingManager().addNextFrameTask(vertexbuffer::deleteGlBuffers);
+            //if (vertexbuffer != null)
+                //ChiselsAndBits2.getInstance().getClient().getRenderingManager().addNextFrameTask(vertexbuffer::deleteGlBuffers);
         }
     }
 }

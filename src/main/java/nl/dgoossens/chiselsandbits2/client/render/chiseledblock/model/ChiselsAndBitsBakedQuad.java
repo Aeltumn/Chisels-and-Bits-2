@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
@@ -14,17 +15,17 @@ import nl.dgoossens.chiselsandbits2.api.render.IFaceBuilder;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChiselsAndBitsBakedQuad extends BakedQuad {
-    public ChiselsAndBitsBakedQuad(final float[][][] unpackedData, final int tint, final Direction orientation, final TextureAtlasSprite sprite, VertexFormat format) {
-        super(ChiselsAndBits2.getInstance().getClient().getRenderingManager().getFormatInfo(format).pack(unpackedData), tint, orientation, sprite, true, format);
+    public ChiselsAndBitsBakedQuad(final float[][][] unpackedData, int tint, Direction orientation, TextureAtlasSprite sprite) {
+        super(ChiselsAndBits2.getInstance().getClient().getRenderingManager().getFormatInfo().pack(unpackedData), tint, orientation, sprite, true);
     }
 
     private float[] getRawPart(int v, int i) {
-        return ChiselsAndBits2.getInstance().getClient().getRenderingManager().getFormatInfo(format).unpack(vertexData, v, i);
+        return ChiselsAndBits2.getInstance().getClient().getRenderingManager().getFormatInfo().unpack(vertexData, v, i);
     }
 
     @Override
     public void pipe(final IVertexConsumer consumer) {
-        final int[] eMap = LightUtil.mapFormats(consumer.getVertexFormat(), format);
+        final int[] eMap = LightUtil.mapFormats(consumer.getVertexFormat(), DefaultVertexFormats.BLOCK);
 
         consumer.setTexture(sprite);
         consumer.setQuadTint(getTintIndex());
@@ -32,22 +33,18 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad {
         consumer.setApplyDiffuseLighting(true);
 
         for (int v = 0; v < 4; v++) {
-            for (int e = 0; e < consumer.getVertexFormat().getElementCount(); e++) {
-                if (eMap[e] != format.getElementCount())
-                    consumer.put(e, getRawPart(v, eMap[e]));
-                else
-                    consumer.put(e);
-            }
+            for (int e = 0; e < consumer.getVertexFormat().getElements().size(); e++)
+                consumer.put(e, getRawPart(v, eMap[e]));
         }
     }
 
     @Override
     public int[] getVertexData() {
-        final int[] tmpData = new int[format.getSize() /* / 4 * 4 */];
+        final int[] tmpData = new int[DefaultVertexFormats.BLOCK.getSize() /* / 4 * 4 */];
 
         for (int v = 0; v < 4; v++) {
-            for (int e = 0; e < format.getElementCount(); e++)
-                LightUtil.pack(getRawPart(v, e), tmpData, format, v, e);
+            for (int e = 0; e < DefaultVertexFormats.BLOCK.getElements().size(); e++)
+                LightUtil.pack(getRawPart(v, e), tmpData, DefaultVertexFormats.BLOCK, v, e);
         }
 
         return tmpData;
@@ -91,7 +88,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad {
 
             elements++;
 
-            if (elements == getVertexFormat().getElementCount()) {
+            if (elements == getVertexFormat().getElements().size()) {
                 vertices++;
                 elements = 0;
             }
@@ -99,10 +96,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad {
 
         @Override
         public void begin() {
-            if (format != getVertexFormat())
-                throw new RuntimeException("Bad format, can only be CNB.");
-
-            unpackedData = new float[4][getVertexFormat().getElementCount()][4];
+            unpackedData = new float[4][getVertexFormat().getElements().size()][4];
             tint = -1;
             orientation = null;
 
@@ -112,7 +106,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad {
 
         @Override
         public BakedQuad create(final TextureAtlasSprite sprite) {
-            return new ChiselsAndBitsBakedQuad(unpackedData, tint, orientation, sprite, getFormat());
+            return new ChiselsAndBitsBakedQuad(unpackedData, tint, orientation, sprite);
         }
 
         @Override

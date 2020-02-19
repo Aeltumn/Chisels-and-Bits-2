@@ -8,17 +8,6 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
-repositories {
-    maven {
-        name = "Progwml6 maven"
-        url = "https://dvs1.progwml6.com/files/maven/"
-    }
-    maven {
-        name = "ModMaven"
-        url = "https://modmaven.k-4u.nl"
-    }
-}
-
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'maven-publish'
 
@@ -29,8 +18,8 @@ archivesBaseName = 'chiselsandbits2'
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 ext {
-    mc_version = '1.14.4'
-    jei_version = '6.0.0.26'
+    mc_version = '1.15.2'
+    // jei_version = '6.0.0.26'
 }
 
 minecraft {
@@ -39,7 +28,7 @@ minecraft {
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'snapshot', version: '20190719-1.14.3'
+    mappings channel: 'snapshot', version: '20200219-1.15.1'
     // makeObfSourceJar = false
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -126,9 +115,9 @@ sourceSets.main.resources {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.14.4-28.1.105'
-    compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
+    minecraft 'net.minecraftforge:forge:1.15.2-31.1.14'
+    // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api")
+    // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
 }
 
 jar {

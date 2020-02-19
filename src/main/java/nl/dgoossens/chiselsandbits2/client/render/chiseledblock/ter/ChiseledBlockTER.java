@@ -1,11 +1,13 @@
 package nl.dgoossens.chiselsandbits2.client.render.chiseledblock.ter;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -27,15 +29,11 @@ import org.lwjgl.opengl.GL11;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class ChiseledBlockTER extends TileEntityRenderer<ChiseledBlockTileEntity> {
-    private int isConfigured = 0;
+public class ChiseledBlockTER {//} extends TileEntityRenderer<ChiseledBlockTileEntity> {
+    /*private int isConfigured = 0;
 
     @Override
-    public void render(final ChiseledBlockTileEntity te, final double x, final double y, final double z, final float partialTicks, final int destroyStage) {
-        renderLogic(te, x, y, z, partialTicks, destroyStage);
-    }
-
-    private void renderLogic(final ChiseledBlockTileEntity te, final double x, final double y, final double z, final float partialTicks, final int destroyStage) {
+    public void render(ChiseledBlockTileEntity te, float v, MatrixStack matrixStack, IRenderTypeBuffer iRenderTypeBuffer, int partialTicks, int destroyStage) {
         if (destroyStage >= 0) {
             renderBreakingEffects(te, x, y, z, partialTicks, destroyStage);
             return;
@@ -148,5 +146,5 @@ public class ChiseledBlockTER extends TileEntityRenderer<ChiseledBlockTileEntity
 
         GlStateManager.clearCurrentColor();
         GlStateManager.popMatrix();
-    }
+    }*/
 }

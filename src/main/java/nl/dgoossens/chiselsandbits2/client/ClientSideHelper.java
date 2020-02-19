@@ -136,14 +136,6 @@ public class ClientSideHelper {
     }
 
     /**
-     * Get the sprite used for missing icons.
-     */
-    public TextureAtlasSprite getMissingIcon() {
-        //The missing sprite is returned when an error occurs whilst searching for the texture.
-        return Minecraft.getInstance().getTextureMap().getSprite(new ResourceLocation(""));
-    }
-
-    /**
      * Server friendly get player method to get the client
      * main player.
      */
@@ -220,7 +212,7 @@ public class ClientSideHelper {
      */
     public void useTapeMeasure(BlockRayTraceResult rayTrace) {
         //Clear measurements if there are measurements and we're not currently selecting one.
-        if(tapeMeasureCache == null && Minecraft.getInstance().player.isSneaking() && !ChiselsAndBits2.getInstance().getClient().tapeMeasurements.isEmpty()) {
+        if(tapeMeasureCache == null && Minecraft.getInstance().player.isCrouching() && !ChiselsAndBits2.getInstance().getClient().tapeMeasurements.isEmpty()) {
             ChiselsAndBits2.getInstance().getClient().tapeMeasurements.clear();
             Minecraft.getInstance().player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.cleared_measurements"), true);
             return;
@@ -399,10 +391,10 @@ public class ClientSideHelper {
         final Entity view = Minecraft.getInstance().getRenderViewEntity();
         if (view != null) {
             final float yaw = view.prevRotationYaw + (view.rotationYaw - view.prevRotationYaw) * partialTicks;
-            GlStateManager.rotated(180 + -yaw, 0f, 1f, 0f);
+            GlStateManager.rotatef(180 + -yaw, 0f, 1f, 0f);
 
             final float pitch = view.prevRotationPitch + (view.rotationPitch - view.prevRotationPitch) * partialTicks;
-            GlStateManager.rotated(-pitch, 1f, 0f, 0f);
+            GlStateManager.rotatef(-pitch, 1f, 0f, 0f);
         }
         GlStateManager.scaled(getScale(len), -getScale(len), zScale);
         GlStateManager.translated(-fontRenderer.getStringWidth(size) * 0.5, 0, 0);
@@ -479,7 +471,7 @@ public class ClientSideHelper {
             final NBTBlobConverter nbt = new NBTBlobConverter();
             nbt.readChiselData(currentItem.getChildTag(ChiselUtil.NBT_BLOCKENTITYTAG), VoxelVersions.getDefault());
 
-            if (player.isSneaking() && !ClientItemPropertyUtil.getGlobalCBM().equals(ItemMode.CHISELED_BLOCK_GRID)) {
+            if (player.isCrouching() && !ClientItemPropertyUtil.getGlobalCBM().equals(ItemMode.CHISELED_BLOCK_GRID)) {
                 final BitLocation bl = new BitLocation(r, true, BitOperation.PLACE);
                 //We don't make this darker if we can't place here because the calculations are far too expensive to do every time.
                 ChiselsAndBits2.getInstance().getClient().showGhost(currentItem, nbt, player.world, bl.blockPos, face, new BlockPos(bl.bitX, bl.bitY, bl.bitZ), partialTicks, true, () -> !BlockPlacementLogic.isPlaceableOffgrid(player, player.world, face, bl, currentItem));

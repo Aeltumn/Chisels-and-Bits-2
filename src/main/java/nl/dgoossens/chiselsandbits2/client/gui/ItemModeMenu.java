@@ -6,6 +6,7 @@ import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
@@ -41,13 +42,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class ItemModeMenu extends RadialMenu {
+public class ItemModeMenu { //extends RadialMenu {
     public final static double RING_INNER_EDGE = 20;
     public final static double RING_OUTER_EDGE = 55;
     public final static double TEXT_DISTANCE = 65;
     public final static double HALF_PI = Math.PI * 0.5;
 
-    private List<MenuRegion> modes;
+    /*private List<MenuRegion> modes;
     private List<MenuButton> buttons;
     private long buttonLastHighlighted = 0L;
     private DurabilityBarRenderer cache;
@@ -129,7 +130,6 @@ public class ItemModeMenu extends RadialMenu {
         GlStateManager.translatef(0.0F, 0.0F, 5.0F);
         GlStateManager.color4f(1, 1, 1, 1.0f);
         GlStateManager.enableTexture();
-        GlStateManager.bindTexture(Minecraft.getInstance().getTextureMap().getGlTextureId());
 
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
         renderIcons(middle_x, middle_y, buffer, true);
@@ -150,6 +150,7 @@ public class ItemModeMenu extends RadialMenu {
     /**
      * Renders the semi-transparent backgrounds behind the buttons and regions.
      */
+    /*
     private void renderBackgrounds(double mouseX, double mouseY, double middle_x, double middle_y, BufferBuilder buffer) {
         final double vecX = mouseX - middle_x;
         final double vecY = mouseY - middle_y;
@@ -262,6 +263,7 @@ public class ItemModeMenu extends RadialMenu {
      * Renders the icons as retrieved from {@link ClientSide#getMenuActionIconLocation(IMenuAction)} or {@link ClientSide#getModeIconLocation(IItemMode)}.
      * Called both before and after textures are enabled for rendering the flat colours.
      */
+    /*
     private void renderIcons(double middle_x, double middle_y, BufferBuilder buffer, boolean textures) {
         for (final MenuRegion mnuRgn : modes) {
             if(!textures) //Menu regions don't render without textures.
@@ -333,6 +335,7 @@ public class ItemModeMenu extends RadialMenu {
     /**
      * Render the texts next to highlighted elements and the item renders for selected item modes.
      */
+    /*
     private void renderOverlay(double middle_x, double middle_y, BufferBuilder buffer) {
         boolean buttonHighlighted = false;
         for (final MenuButton btn : buttons) {
@@ -405,6 +408,7 @@ public class ItemModeMenu extends RadialMenu {
                     buffer.pos(middle_x + btnx1, middle_y + btny2, blitOffset).color(red, green, blue, a).endVertex();
                     buffer.pos(middle_x + btnx2, middle_y + btny2, blitOffset).color(red, green, blue, a).endVertex();
                     buffer.pos(middle_x + btnx2, middle_y + btny1, blitOffset).color(red, green, blue, a).endVertex();*/
+    /*
                 } else {
                     if(buffer!=null)
                         continue;
@@ -420,6 +424,7 @@ public class ItemModeMenu extends RadialMenu {
     /**
      * Render durability bars showing how full slots are.
      */
+    /*
     private void renderCapacityBars(double middle_x, double middle_y) {
         if(getMinecraft().player.isCreative()) return; //No capacity bars in creative
         ItemStack stack = getMinecraft().player.getHeldItemMainhand();
@@ -484,7 +489,7 @@ public class ItemModeMenu extends RadialMenu {
     public DurabilityBarRenderer getDurabilityBarRenderer() {
         if(cache == null) cache = new DurabilityBarRenderer();
         return cache;
-    }
+    }*/
 
     public static class MenuButton {
         final Runnable action;
@@ -499,7 +504,7 @@ public class ItemModeMenu extends RadialMenu {
 
         public MenuButton(final IMenuAction menuAction, final double x, final double y, final Direction textSide) {
             this(menuAction.getLocalizedName(), x, y, 0xffffffff, textSide, menuAction::trigger);
-            this.sprite = Minecraft.getInstance().getTextureMap().getSprite(ClientSideHelper.getMenuActionIconLocation(menuAction));
+            this.sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(ClientSideHelper.getMenuActionIconLocation(menuAction));
         }
 
         public MenuButton(final String name, final double x, final double y, final int col, final Direction textSide, final Runnable action) {
@@ -525,6 +530,7 @@ public class ItemModeMenu extends RadialMenu {
         }
     }
 
+    /*
     public static class MenuRegion {
         public IItemMode mode;
         public VoxelWrapper item;
@@ -575,5 +581,5 @@ public class ItemModeMenu extends RadialMenu {
                     ", highlighted=" + highlighted +
                     '}';
         }
-    }
+    }*/
 }

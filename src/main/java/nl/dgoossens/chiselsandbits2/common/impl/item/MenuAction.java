@@ -33,7 +33,7 @@ public enum MenuAction implements IMenuAction {
 
     @Override
     public void trigger() {
-        boolean sneaking = ChiselsAndBits2.getInstance().getClient().getPlayer().isSneaking();
+        boolean sneaking = ChiselsAndBits2.getInstance().getClient().getPlayer().isCrouching();
         switch (this) {
             case UNDO:
                 ChiselsAndBits2.getInstance().getUndoTracker().undo();
