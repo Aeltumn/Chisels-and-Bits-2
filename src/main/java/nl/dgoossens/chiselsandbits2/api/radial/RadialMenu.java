@@ -21,6 +21,7 @@ import nl.dgoossens.chiselsandbits2.api.item.IItemMenu;
 import nl.dgoossens.chiselsandbits2.client.gui.ItemModeMenu;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class RadialMenu extends Screen {
     //--- RADIAL MENU INSTANCE ---
-    public static final RadialMenu RADIAL_MENU = null;//new ItemModeMenu(); //Change this to your own class
+    public static final Optional<RadialMenu> RADIAL_MENU = Optional.empty();//new ItemModeMenu(); //Change this to your own class
 
     //--- GETTERS FOR INSTANCES ---
     private Minecraft minecraft;
@@ -251,15 +252,15 @@ public abstract class RadialMenu extends Screen {
         @OnlyIn(Dist.CLIENT)
         public static void onTick(final TickEvent.ClientTickEvent e) {
             final PlayerEntity player = Minecraft.getInstance().player;
-            if (player == null || RADIAL_MENU == null) return; //We're not in-game yet if this happens..
-            RADIAL_MENU.tick();
+            if (player == null) return; //We're not in-game yet if this happens..
+            RADIAL_MENU.ifPresent(RadialMenu::tick);
         }
 
         @SubscribeEvent
         @OnlyIn(Dist.CLIENT)
         public static void onClickWithGuiOpen(InputEvent.RawMouseEvent e) {
-            if(e.getButton() == GLFW.GLFW_MOUSE_BUTTON_1 && RADIAL_MENU != null && RADIAL_MENU.isVisible()) {
-                RADIAL_MENU.selectHoverOver();
+            if(e.getButton() == GLFW.GLFW_MOUSE_BUTTON_1 && RADIAL_MENU.isPresent() && RADIAL_MENU.get().isVisible()) {
+                RADIAL_MENU.ifPresent(RadialMenu::selectHoverOver);
                 e.setCanceled(true);
             }
         }
@@ -267,17 +268,18 @@ public abstract class RadialMenu extends Screen {
         @SubscribeEvent
         @OnlyIn(Dist.CLIENT)
         public static void drawLast(final RenderGameOverlayEvent.Post e) {
-            if (e.getType() == RenderGameOverlayEvent.ElementType.ALL && RADIAL_MENU != null) {
+            if (e.getType() == RenderGameOverlayEvent.ElementType.ALL) {
                 Minecraft.getInstance().getProfiler().startSection("chiselsandbits2-radialmenu");
-                if (RADIAL_MENU.isVisible()) { //Render if it's visible.
+                if (RADIAL_MENU.isPresent() && RADIAL_MENU.get().isVisible()) { //Render if it's visible.
                     final MainWindow window = e.getWindow();
-                    RADIAL_MENU.configure(window); //Setup the height/width scales
-                    if (RADIAL_MENU.isVisible()) {
-                        int i = (int) (RADIAL_MENU.getMinecraft().mouseHelper.getMouseX() * (double) window.getScaledWidth() / (double) window.getWidth());
-                        int j = (int) (RADIAL_MENU.getMinecraft().mouseHelper.getMouseY() * (double) window.getScaledHeight() / (double) window.getHeight());
+                    RADIAL_MENU.get().configure(window); //Setup the height/width scales
+                    if (RADIAL_MENU.get().isVisible()) {
+                        int i = (int) (RADIAL_MENU.get().getMinecraft().mouseHelper.getMouseX() * (double) window.getScaledWidth() / (double) window.getWidth());
+                        int j = (int) (RADIAL_MENU.get().getMinecraft().mouseHelper.getMouseY() * (double) window.getScaledHeight() / (double) window.getHeight());
 
                         //This comment makes note that the code below is horrible from a forge perspective, but it's great.
-                        ForgeHooksClient.drawScreen(RADIAL_MENU, i, j, e.getPartialTicks());
+                        //TODO We should make the radial menu an actually really real GUI, because we need that MatrixStack.
+                        ForgeHooksClient.drawScreen(RADIAL_MENU.get(), i, j, e.getPartialTicks());
                     }
                 }
                 Minecraft.getInstance().getProfiler().endSection();

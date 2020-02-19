@@ -106,7 +106,7 @@ public class ClientSideHelper {
         modelBounds = null;
 
         ChiselsAndBits2.getInstance().getUndoTracker().clean();
-        RadialMenu.RADIAL_MENU.cleanup();
+        RadialMenu.RADIAL_MENU.ifPresent(RadialMenu::cleanup);
     }
 
     /**

@@ -26,8 +26,7 @@ public class BitBagItem extends StorageItem {
                 ChiselsAndBits2.getInstance().getKeybindings().modeMenu);
     }
 
-    //TODO Re-enable bit bag GUI.
-    /*@Override
+    @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         if(handIn == Hand.MAIN_HAND) {
             ItemStack itemstack = playerIn.getHeldItemMainhand();
@@ -35,7 +34,7 @@ public class BitBagItem extends StorageItem {
             playerIn.addStat(Stats.ITEM_USED.get(this));
             return new ActionResult<>(ActionResultType.SUCCESS, itemstack);
         } else return super.onItemRightClick(worldIn, playerIn, handIn);
-    }*/
+    }
 
     @Override
     public VoxelType getVoxelType() {
