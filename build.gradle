@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'maven-publish'
 
-version = '0.5.2a'
+version = '0.6.0a'
 group = 'nl.dgoossens.chiselsandbits2'
 archivesBaseName = 'chiselsandbits2'
 
