@@ -24,9 +24,9 @@ public class PlayerItemModeCapability implements Capability.IStorage<PlayerItemM
     @Override
     public void readNBT(Capability<PlayerItemModeManager> capability, PlayerItemModeManager instance, Direction side, INBT nbt) {
         if(nbt instanceof IntNBT) {
-            PlayerItemMode a = PlayerItemMode.values()[((IntNBT) nbt).getInt()];
-            if(a.getType() == ItemModeType.CHISELED_BLOCK)
-                instance.setChiseledBlockMode(a);
+            int i = ((IntNBT) nbt).getInt();
+            if(i < PlayerItemMode.values().length && PlayerItemMode.values()[i].getType() == ItemModeType.CHISELED_BLOCK)
+                instance.setChiseledBlockMode(PlayerItemMode.values()[i]);
             else
                 instance.setChiseledBlockMode(ItemModeType.CHISELED_BLOCK.getDefault());
         } else

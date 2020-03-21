@@ -18,8 +18,9 @@ public class ItemModeProperty extends IItemProperty<IItemMode> {
     public IItemMode get(final ItemStack stack) {
         if(stack.hasTag() && stack.getTag().contains("bmode_"+slot)) {
             boolean b = stack.getTag().getBoolean("bmode_"+slot);
+            int i = stack.getTag().getInt("mode_"+slot);
             if(b) {
-                return ItemMode.values()[stack.getTag().getInt("mode_"+slot)];
+                return i >= ItemMode.values().length ? type.getDefault() : ItemMode.values()[i];
             } else
                 throw new UnsupportedOperationException("No support for custom item mode properties yet!");
         }
