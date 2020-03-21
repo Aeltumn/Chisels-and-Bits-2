@@ -31,11 +31,8 @@ import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.ExtendedVoxelBlob
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
-import nl.dgoossens.chiselsandbits2.common.impl.item.GlobalCBMCapabilityProvider;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeWrapper;
+import nl.dgoossens.chiselsandbits2.common.impl.item.*;
 import nl.dgoossens.chiselsandbits2.common.impl.voxel.VoxelRegionSrc;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
 import nl.dgoossens.chiselsandbits2.common.items.MorphingBitItem;
 import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
@@ -205,7 +202,7 @@ public class ChiselHandler {
 
         final IVoxelStorer it = (IVoxelStorer) stack.getItem();
         final World world = player.world;
-        final ItemMode mode = player.getCapability(GlobalCBMCapabilityProvider.GLOBAL_CBM).map(ItemModeWrapper::get).orElse(ItemModeType.CHISELED_BLOCK.getDefault());
+        final PlayerItemMode mode = player.getCapability(PlayerItemModeCapabilityProvider.PIMM).map(PlayerItemModeManager::getChiseledBlockMode).orElse((PlayerItemMode) ItemModeType.CHISELED_BLOCK.getDefault());
         final Direction face = pkt.side;
         final NBTBlobConverter nbt = new NBTBlobConverter();
         nbt.readChiselData(stack.getChildTag(ChiselUtil.NBT_BLOCKENTITYTAG), VoxelVersions.getDefault());
@@ -213,11 +210,11 @@ public class ChiselHandler {
         //Check if we can place it here
         BlockPos actualPos = pkt.pos; //Placement block for non-offgird placement
         boolean canPlace = true;
-        if (player.isCrouching() && !ClientItemPropertyUtil.getGlobalCBM().equals(ItemMode.CHISELED_BLOCK_GRID)) {
+        if (player.isCrouching() && !ClientItemPropertyUtil.getChiseledBlockMode().equals(PlayerItemMode.CHISELED_BLOCK_GRID)) {
             if (!BlockPlacementLogic.isPlaceableOffgrid(player, player.world, face, pkt.location, player.getHeldItemMainhand()))
                 canPlace = false;
         } else {
-            if((!ChiselUtil.isBlockReplaceable(player.world, actualPos, player, face, false) && ClientItemPropertyUtil.getGlobalCBM() == ItemMode.CHISELED_BLOCK_GRID) || (!(player.world.getTileEntity(actualPos) instanceof ChiseledBlockTileEntity) && !BlockPlacementLogic.isNormallyPlaceable(player, player.world, actualPos, face, nbt, mode)))
+            if((!ChiselUtil.isBlockReplaceable(player.world, actualPos, player, face, false) && ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_GRID) || (!(player.world.getTileEntity(actualPos) instanceof ChiseledBlockTileEntity) && !BlockPlacementLogic.isNormallyPlaceable(player, player.world, actualPos, face, nbt, mode)))
                 actualPos = actualPos.offset(face);
 
             if(!BlockPlacementLogic.isNormallyPlaceable(player, player.world, actualPos, face, nbt, mode))
@@ -256,7 +253,7 @@ public class ChiselHandler {
                         case CHISELED_BLOCK_MERGE:
                         case CHISELED_BLOCK_OVERLAP:
                             final VoxelBlob vb = tec.getVoxelBlob();
-                            if(mode.equals(ItemMode.CHISELED_BLOCK_OVERLAP))
+                            if(mode.equals(PlayerItemMode.CHISELED_BLOCK_OVERLAP))
                                 vb.overlap(slice);
                             else
                                 vb.merge(slice);
@@ -285,7 +282,7 @@ public class ChiselHandler {
                     case CHISELED_BLOCK_MERGE:
                     case CHISELED_BLOCK_OVERLAP:
                         final VoxelBlob vb = tec.getVoxelBlob();
-                        if(mode.equals(ItemMode.CHISELED_BLOCK_OVERLAP))
+                        if(mode.equals(PlayerItemMode.CHISELED_BLOCK_OVERLAP))
                             vb.overlap(it.getVoxelBlob(stack));
                         else
                             vb.merge(it.getVoxelBlob(stack));

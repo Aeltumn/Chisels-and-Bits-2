@@ -20,6 +20,7 @@ import nl.dgoossens.chiselsandbits2.common.bitstorage.StorageCapabilityProvider;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.items.*;
 import nl.dgoossens.chiselsandbits2.common.network.client.CItemModePacket;
 import nl.dgoossens.chiselsandbits2.common.network.client.CVoxelWrapperPacket;
@@ -99,7 +100,7 @@ public class ItemPropertyUtil implements CacheClearable {
     public static void setItemMode(final PlayerEntity player, final ItemStack stack, final IItemMode mode) {
         if(player.world.isRemote) {
             if (mode instanceof ItemMode && mode.getType() == ItemModeType.CHISELED_BLOCK) {
-                ClientItemPropertyUtil.setGlobalCBM((ItemMode) mode);
+                ClientItemPropertyUtil.setChiseledBlockMode((PlayerItemMode) mode);
                 return;
             }
 

@@ -7,12 +7,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.item.DyedItemColour;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.network.client.CItemStatePacket;
-import nl.dgoossens.chiselsandbits2.common.network.client.CSetGlobalCBMPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CUpdatePlayerItemModesPacket;
 import nl.dgoossens.chiselsandbits2.common.network.client.CTapeMeasureColourPacket;
-import nl.dgoossens.chiselsandbits2.common.network.server.SGlobalCBMPacket;
+import nl.dgoossens.chiselsandbits2.common.network.server.SPlayerItemModePacket;
 
 import java.lang.reflect.Field;
 
@@ -21,28 +21,28 @@ import java.lang.reflect.Field;
  */
 @OnlyIn(Dist.CLIENT)
 public class ClientItemPropertyUtil {
-    private static ItemMode globalCBM = (ItemMode) ItemModeType.CHISELED_BLOCK.getDefault();
+    private static PlayerItemMode cbm = (PlayerItemMode) ItemModeType.CHISELED_BLOCK.getDefault();
 
     /**
      * Read the global chiseled block mode from an incoming packet.
      */
-    public static void readGlobalCBM(final SGlobalCBMPacket packet) {
-        globalCBM = packet.readCBM();
+    public static void readPlayerItemModes(final SPlayerItemModePacket packet) {
+        cbm = packet.getChiseledBlockMode();
     }
 
     /**
      *  Get the chiseled block mode the main client player is using.
      */
-    public static ItemMode getGlobalCBM() {
-        return globalCBM;
+    public static PlayerItemMode getChiseledBlockMode() {
+        return cbm;
     }
 
     /**
-     * Set the globally selected chiseled block mode.
+     * Set the selected chiseled block mode.
      */
-    public static void setGlobalCBM(final ItemMode itemMode) {
-        globalCBM = itemMode;
-        ChiselsAndBits2.getInstance().getNetworkRouter().sendToServer(new CSetGlobalCBMPacket(itemMode));
+    public static void setChiseledBlockMode(final PlayerItemMode itemMode) {
+        cbm = itemMode;
+        ChiselsAndBits2.getInstance().getNetworkRouter().sendToServer(new CUpdatePlayerItemModesPacket(itemMode));
         reshowHighlightedStack();
     }
 

@@ -14,15 +14,13 @@ public enum ItemModeType implements IItemModeType {
     CHISELED_BLOCK,
     ;
 
-    private List<IItemMode> cache;
-
     @Override
-    public ItemMode getDefault() {
+    public IItemMode getDefault() {
         switch(this) {
             case CHISEL: return ItemMode.CHISEL_SINGLE;
             case TAPEMEASURE: return ItemMode.TAPEMEASURE_BIT;
             case WRENCH: return ItemMode.WRENCH_ROTATE;
-            case CHISELED_BLOCK: return ItemMode.CHISELED_BLOCK_FIT;
+            case CHISELED_BLOCK: return PlayerItemMode.CHISELED_BLOCK_FIT;
         }
         throw new UnsupportedOperationException("No default given for item mode type "+this);
     }

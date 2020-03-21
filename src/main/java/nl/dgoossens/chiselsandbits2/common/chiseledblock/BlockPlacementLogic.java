@@ -12,6 +12,7 @@ import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.ExtendedVoxelBlob
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.util.ChiselUtil;
 
 /**
@@ -22,11 +23,11 @@ public class BlockPlacementLogic {
     /**
      * Returns whether or not a block is placeable.
      */
-    public static boolean isNormallyPlaceable(final PlayerEntity player, final World world, final BlockPos pos, final Direction face, final NBTBlobConverter nbt, final ItemMode mode) {
+    public static boolean isNormallyPlaceable(final PlayerEntity player, final World world, final BlockPos pos, final Direction face, final NBTBlobConverter nbt, final PlayerItemMode mode) {
         if(ChiselUtil.isBlockReplaceable(world, pos, player, face, false))
             return true;
 
-        if(mode.equals(ItemMode.CHISELED_BLOCK_FIT)) {
+        if(mode.equals(PlayerItemMode.CHISELED_BLOCK_FIT)) {
             if(world.getTileEntity(pos) instanceof ChiseledBlockTileEntity) {
                 ChiseledBlockTileEntity cbte = (ChiseledBlockTileEntity) world.getTileEntity(pos);
                 if(cbte != null && !nbt.getVoxelBlob().canMerge(cbte.getVoxelBlob()))

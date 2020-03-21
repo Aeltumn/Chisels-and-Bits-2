@@ -21,6 +21,7 @@ import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockItemColor;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
 import nl.dgoossens.chiselsandbits2.common.registry.Registration;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
@@ -107,11 +108,18 @@ public class ClientSide extends ClientSideHelper {
             e.addSprite(menuActionLocations.get(menuAction));
         }
 
-        for (final ItemModeEnum itemMode : ItemMode.values()) {
-            if (!itemMode.hasIcon()) continue;
-            modeIconLocations.put(itemMode, itemMode.getIconResourceLocation());
-            e.addSprite(modeIconLocations.get(itemMode));
-        }
+        //Register icons for item modes
+        for (final ItemModeEnum itemMode : ItemMode.values())
+            addItemModeSprite(e, itemMode);
+        for (final ItemModeEnum itemMode : PlayerItemMode.values())
+            addItemModeSprite(e, itemMode);
+    }
+
+    //Utility method to make it easier to add item mode sprites
+    private void addItemModeSprite(final TextureStitchEvent.Pre e, final ItemModeEnum itemMode) {
+        if (!itemMode.hasIcon()) return;
+        modeIconLocations.put(itemMode, itemMode.getIconResourceLocation());
+        e.addSprite(modeIconLocations.get(itemMode));
     }
 
     /**

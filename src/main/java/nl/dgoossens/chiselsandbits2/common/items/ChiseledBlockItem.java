@@ -103,7 +103,7 @@ public class ChiseledBlockItem extends BlockItem implements IItemScrollWheel, II
      */
     @Override
     public String getHighlightTip(ItemStack item, String displayName) {
-        IItemMode im = ClientItemPropertyUtil.getGlobalCBM();
+        IItemMode im = ClientItemPropertyUtil.getChiseledBlockMode();
         return displayName + " - " + im.getLocalizedName();
     }
 

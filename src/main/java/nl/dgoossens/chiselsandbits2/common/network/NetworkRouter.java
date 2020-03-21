@@ -8,7 +8,7 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.common.network.client.*;
 import nl.dgoossens.chiselsandbits2.common.network.server.SAddUndoStepPacket;
-import nl.dgoossens.chiselsandbits2.common.network.server.SGlobalCBMPacket;
+import nl.dgoossens.chiselsandbits2.common.network.server.SPlayerItemModePacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SGroupMethod;
 import nl.dgoossens.chiselsandbits2.common.network.server.SRehighlightItemPacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SSynchronizeBitStoragePacket;
@@ -38,7 +38,7 @@ public class NetworkRouter {
         HANDLER.registerMessage(disc++, CVoxelWrapperPacket.class, CVoxelWrapperPacket::encode, CVoxelWrapperPacket::decode, CVoxelWrapperPacket::handle);
         register(COpenBitBagPacket.class);
         register(CVoidBagPacket.class);
-        register(CSetGlobalCBMPacket.class);
+        register(CUpdatePlayerItemModesPacket.class);
 
         //Server
         HANDLER.registerMessage(disc++, SSynchronizeBitStoragePacket.class, SSynchronizeBitStoragePacket::encode, SSynchronizeBitStoragePacket::decode, SSynchronizeBitStoragePacket::handle);
@@ -46,7 +46,7 @@ public class NetworkRouter {
         HANDLER.registerMessage(disc++, SRehighlightItemPacket.class, SRehighlightItemPacket::encode, SRehighlightItemPacket::decode, SRehighlightItemPacket::handle);
         HANDLER.registerMessage(disc++, SGroupMethod.BeginGroupPacket.class, SGroupMethod.BeginGroupPacket::encode, SGroupMethod.BeginGroupPacket::decode, SGroupMethod.BeginGroupPacket::handle);
         HANDLER.registerMessage(disc++, SGroupMethod.EndGroupPacket.class, SGroupMethod.EndGroupPacket::encode, SGroupMethod.EndGroupPacket::decode, SGroupMethod.EndGroupPacket::handle);
-        register(SGlobalCBMPacket.class);
+        register(SPlayerItemModePacket.class);
     }
 
     /**

@@ -3,21 +3,21 @@ package nl.dgoossens.chiselsandbits2.common.network.server;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.network.IPacket;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class SGlobalCBMPacket implements IPacket<SGlobalCBMPacket> {
-    private ItemMode mode;
+public class SPlayerItemModePacket implements IPacket<SPlayerItemModePacket> {
+    private PlayerItemMode mode;
 
-    public SGlobalCBMPacket() {}
-    public SGlobalCBMPacket(final ItemMode mode) {
-        this.mode = mode;
+    public SPlayerItemModePacket() {}
+    public SPlayerItemModePacket(final PlayerItemMode cbm) {
+        this.mode = cbm;
     }
 
-    public ItemMode readCBM() {
+    public PlayerItemMode getChiseledBlockMode() {
         return mode;
     }
 
@@ -27,14 +27,14 @@ public class SGlobalCBMPacket implements IPacket<SGlobalCBMPacket> {
     }
 
     @Override
-    public Function<PacketBuffer, SGlobalCBMPacket> getDecoder() {
-        return (buffer) -> new SGlobalCBMPacket(ItemMode.values()[buffer.readVarInt()]);
+    public Function<PacketBuffer, SPlayerItemModePacket> getDecoder() {
+        return (buffer) -> new SPlayerItemModePacket(PlayerItemMode.values()[buffer.readVarInt()]);
     }
 
     @Override
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->
-            ClientItemPropertyUtil.readGlobalCBM(this)
+            ClientItemPropertyUtil.readPlayerItemModes(this)
         );
         ctx.get().setPacketHandled(true);
     }

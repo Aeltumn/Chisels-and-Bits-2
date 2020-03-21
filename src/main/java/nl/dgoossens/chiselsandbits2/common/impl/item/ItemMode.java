@@ -28,11 +28,6 @@ public enum ItemMode implements ItemModeEnum {
     WRENCH_ROTATE(10, 9),
     WRENCH_ROTATECCW(10, 9),
     WRENCH_MIRROR(12, 9),
-
-    CHISELED_BLOCK_GRID(12, 16), //Can't place chiseled block in spaces that already contain chiseled blocks
-    CHISELED_BLOCK_FIT(9, 13), //Can only place chiseled blocks if there is no overlap with existing blocks
-    CHISELED_BLOCK_OVERLAP(9, 13), //Place chiseled blocks and replace existing bits
-    CHISELED_BLOCK_MERGE(9, 13), //Merge chiseled blocks and don't place bits in spots where bits already exist
     ;
 
     private IItemModeType type;
@@ -76,11 +71,6 @@ public enum ItemMode implements ItemModeEnum {
             case WRENCH_ROTATECCW:
             case WRENCH_MIRROR:
                 return ItemModeType.WRENCH;
-            case CHISELED_BLOCK_GRID:
-            case CHISELED_BLOCK_FIT:
-            case CHISELED_BLOCK_OVERLAP:
-            case CHISELED_BLOCK_MERGE:
-                return ItemModeType.CHISELED_BLOCK;
         }
         throw new UnsupportedOperationException("No type set for item mode "+name());
     }
@@ -116,10 +106,6 @@ public enum ItemMode implements ItemModeEnum {
             case TAPEMEASURE_BIT: //Nobody will ever use tape measure hotkeys, they just take up space in the controls menu.
             case TAPEMEASURE_BLOCK:
             case TAPEMEASURE_DISTANCE:
-            case CHISELED_BLOCK_FIT: //Can't hotkey these as they are global so you won't be switching them often, they are more for preference
-            case CHISELED_BLOCK_GRID:
-            case CHISELED_BLOCK_MERGE:
-            case CHISELED_BLOCK_OVERLAP:
                 return false;
             default:
                 return true;

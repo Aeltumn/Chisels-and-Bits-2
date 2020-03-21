@@ -19,12 +19,10 @@ import nl.dgoossens.chiselsandbits2.client.gui.BitBagScreen;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.BitStorageImpl;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.StorageCapability;
 import nl.dgoossens.chiselsandbits2.common.impl.ChiselsAndBitsAPIImpl;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeWrapper;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemModeManager;
 import nl.dgoossens.chiselsandbits2.common.network.NetworkRouter;
 import nl.dgoossens.chiselsandbits2.common.registry.*;
-import nl.dgoossens.chiselsandbits2.common.impl.item.GlobalCBMCapability;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemModeCapability;
 
 @Mod(ChiselsAndBits2.MOD_ID)
 public class ChiselsAndBits2 {
@@ -76,7 +74,7 @@ public class ChiselsAndBits2 {
     private void setup(final FMLCommonSetupEvent event) {
         //Register things
         CapabilityManager.INSTANCE.register(BitStorage.class, new StorageCapability(), BitStorageImpl::new);
-        CapabilityManager.INSTANCE.register(ItemModeWrapper.class, new GlobalCBMCapability(), ItemModeWrapper::new);
+        CapabilityManager.INSTANCE.register(PlayerItemModeManager.class, new PlayerItemModeCapability(), PlayerItemModeManager::new);
         NETWORK_ROUTER.init();
 
         //Setup vanilla restrictions

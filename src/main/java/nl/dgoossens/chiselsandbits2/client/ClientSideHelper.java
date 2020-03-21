@@ -10,12 +10,10 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -45,6 +43,7 @@ import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockPlacementLogic;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.voxel.VoxelRegionSrc;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
@@ -452,7 +451,7 @@ public class ClientSideHelper {
             RayTraceResult rtr = ChiselUtil.rayTrace(player);
             if(!(rtr instanceof BlockRayTraceResult) || rtr.getType() != RayTraceResult.Type.BLOCK) return;
             final BlockRayTraceResult r = (BlockRayTraceResult) rtr;
-            final ItemMode mode = ClientItemPropertyUtil.getGlobalCBM();
+            final PlayerItemMode mode = ClientItemPropertyUtil.getChiseledBlockMode();
 
             BlockPos offset = r.getPos();
             Direction face = r.getFace();
@@ -460,14 +459,14 @@ public class ClientSideHelper {
             final NBTBlobConverter nbt = new NBTBlobConverter();
             nbt.readChiselData(currentItem.getChildTag(ChiselUtil.NBT_BLOCKENTITYTAG), VoxelVersions.getDefault());
 
-            if (player.isCrouching() && !ClientItemPropertyUtil.getGlobalCBM().equals(ItemMode.CHISELED_BLOCK_GRID)) {
+            if (player.isCrouching() && !ClientItemPropertyUtil.getChiseledBlockMode().equals(PlayerItemMode.CHISELED_BLOCK_GRID)) {
                 final BitLocation bl = new BitLocation(r, true, BitOperation.PLACE);
                 //We don't make this darker if we can't place here because the calculations are far too expensive to do every time.
                 ChiselsAndBits2.getInstance().getClient().showGhost(currentItem, nbt, player.world, bl.blockPos, face, new BlockPos(bl.bitX, bl.bitY, bl.bitZ), partialTicks, true, () -> !BlockPlacementLogic.isPlaceableOffgrid(player, player.world, face, bl, currentItem));
             } else {
                 //If we can already place where we're looking we don't have to move.
                 //On grid we don't do this.
-                if((!ChiselUtil.isBlockReplaceable(player.world, offset, player, face, false) && ClientItemPropertyUtil.getGlobalCBM() == ItemMode.CHISELED_BLOCK_GRID) || (!(player.world.getTileEntity(offset) instanceof ChiseledBlockTileEntity) && !BlockPlacementLogic.isNormallyPlaceable(player, player.world, offset, face, nbt, mode)))
+                if((!ChiselUtil.isBlockReplaceable(player.world, offset, player, face, false) && ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_GRID) || (!(player.world.getTileEntity(offset) instanceof ChiseledBlockTileEntity) && !BlockPlacementLogic.isNormallyPlaceable(player, player.world, offset, face, nbt, mode)))
                     offset = offset.offset(face);
 
                 final BlockPos finalOffset = offset;
@@ -510,7 +509,7 @@ public class ClientSideHelper {
     protected void showGhost(ItemStack item, NBTBlobConverter c, World world, BlockPos pos, Direction face, BlockPos partial, float partialTicks, boolean offGrid, final Supplier<Boolean> silhoutte) {
         final PlayerEntity player = Minecraft.getInstance().player;
         IBakedModel model = null;
-        if(ghostCache != null && ClientItemPropertyUtil.getGlobalCBM().equals(previousMode) && item.equals(previousItem) && pos.equals(previousPosition) && partial.equals(previousPartial) && offGrid == previousOffGrid && world.getBlockState(pos).equals(previousState) && !didTileChange(world.getTileEntity(pos)))
+        if(ghostCache != null && ClientItemPropertyUtil.getChiseledBlockMode().equals(previousMode) && item.equals(previousItem) && pos.equals(previousPosition) && partial.equals(previousPartial) && offGrid == previousOffGrid && world.getBlockState(pos).equals(previousState) && !didTileChange(world.getTileEntity(pos)))
             model = ghostCache;
         else {
             previousPosition = pos;
@@ -518,7 +517,7 @@ public class ClientSideHelper {
             previousItem = item;
             previousSilhoutte = silhoutte.get();
             previousState = world.getBlockState(pos);
-            previousMode = ClientItemPropertyUtil.getGlobalCBM();
+            previousMode = ClientItemPropertyUtil.getChiseledBlockMode();
             previousOffGrid = offGrid;
 
             final TileEntity te = world.getTileEntity(pos);
@@ -528,7 +527,7 @@ public class ClientSideHelper {
             if(te instanceof ChiseledBlockTileEntity) {
                 previousTileIteration = ((ChiseledBlockTileEntity) te).getIteration();
                 VoxelBlob b = ((ChiseledBlockTileEntity) te).getVoxelBlob();
-                if(ClientItemPropertyUtil.getGlobalCBM().equals(ItemMode.CHISELED_BLOCK_MERGE)) {
+                if(ClientItemPropertyUtil.getChiseledBlockMode().equals(PlayerItemMode.CHISELED_BLOCK_MERGE)) {
                     blob.intersect(b);
                     modified = true;
                 }
@@ -558,7 +557,7 @@ public class ClientSideHelper {
         }
 
         //Always expand the offgrid, silhouttes and otherwise if overlap or fit. We expand offgrids as otherwise the calculations are too intensive. (expanse isn't really noticable anyways)
-        RenderingAssistant.renderGhostModel(model, player.world, partialTicks, pos, previousSilhoutte, previousOffGrid || previousSilhoutte || ClientItemPropertyUtil.getGlobalCBM() == ItemMode.CHISELED_BLOCK_OVERLAP || ClientItemPropertyUtil.getGlobalCBM() == ItemMode.CHISELED_BLOCK_FIT);
+        RenderingAssistant.renderGhostModel(model, player.world, partialTicks, pos, previousSilhoutte, previousOffGrid || previousSilhoutte || ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_OVERLAP || ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_FIT);
         GlStateManager.popMatrix();
     }
 
