@@ -21,7 +21,7 @@ public class GlobalCBMCapability implements Capability.IStorage<ItemModeWrapper>
             if(a.getType() == ItemModeType.CHISELED_BLOCK)
                 instance.insert(a);
             else
-                instance.insert((ItemMode) ItemModeType.CHISELED_BLOCK.getDefault());
+                instance.insert(ItemModeType.CHISELED_BLOCK.getDefault());
         } else
             throw new UnsupportedOperationException("Invalid item mode.");
     }

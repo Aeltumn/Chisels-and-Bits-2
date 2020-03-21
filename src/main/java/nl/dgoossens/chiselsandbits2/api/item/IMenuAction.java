@@ -32,7 +32,21 @@ public interface IMenuAction {
      * Get the resource location for the icon.
      */
     public default ResourceLocation getIconResourceLocation() {
-        return new ResourceLocation(ChiselsAndBits2.MOD_ID, "icons/" + name().toLowerCase());
+        return new ResourceLocation(ChiselsAndBits2.MOD_ID, "icons/buttons/" + name().toLowerCase());
+    }
+
+    /**
+     * How many pixels the png file for this icon is wide.
+     */
+    public default int getTextureWidth() {
+        return 16;
+    }
+
+    /**
+     * How many pixels the png file for this icon is high.
+     */
+    public default int getTextureHeight() {
+        return 16;
     }
 
     /**

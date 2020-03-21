@@ -45,13 +45,6 @@ public interface ItemModeEnum extends IItemMode {
     boolean hasIcon();
 
     /**
-     * Get the resource location for the icon.
-     */
-    public default ResourceLocation getIconResourceLocation() {
-        return new ResourceLocation(ChiselsAndBits2.MOD_ID, "icons/" + getTypelessName().toLowerCase());
-    }
-
-    /**
      * Returns false when a item mode should not have a hotkey.
      */
     boolean hasHotkey();

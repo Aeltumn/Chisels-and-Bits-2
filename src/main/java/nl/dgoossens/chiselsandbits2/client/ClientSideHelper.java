@@ -1,15 +1,20 @@
 package nl.dgoossens.chiselsandbits2.client;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.IngameGui;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -555,6 +560,35 @@ public class ClientSideHelper {
         //Always expand the offgrid, silhouttes and otherwise if overlap or fit. We expand offgrids as otherwise the calculations are too intensive. (expanse isn't really noticable anyways)
         RenderingAssistant.renderGhostModel(model, player.world, partialTicks, pos, previousSilhoutte, previousOffGrid || previousSilhoutte || ClientItemPropertyUtil.getGlobalCBM() == ItemMode.CHISELED_BLOCK_OVERLAP || ClientItemPropertyUtil.getGlobalCBM() == ItemMode.CHISELED_BLOCK_FIT);
         GlStateManager.popMatrix();
+    }
+
+    /**
+     * Renders selection ghosts in the hotbar next to items with a selected item mode.
+     */
+    public void renderSelectedModePreviews(final MainWindow window) {
+        Minecraft mc = Minecraft.getInstance();
+        IngameGui gui = mc.ingameGUI;
+        mc.getProfiler().startSection("chiselsandbit2-selectedModePreview");
+
+        PlayerEntity player = (PlayerEntity) mc.getRenderViewEntity();
+        RenderSystem.enableBlend();
+        //Render for each slot in the hotbar
+        for (int slot = 8; slot >= -1; --slot) {
+            int left = (window.getScaledWidth() / 2 - 87 + slot * 20);
+            if(slot == -1) left -= 9; //Move 9 extra to the left if this is the offhand as it's a bit further away
+            int top = (window.getScaledHeight() - 18);
+            ItemStack item = slot == -1 ? player.inventory.offHandInventory.get(0) : player.inventory.mainInventory.get(slot);
+            if (item.getItem() instanceof TypedItem && ((TypedItem) item.getItem()).showIconInHotbar()) {
+                final IItemMode mode = ((TypedItem) item.getItem()).getSelectedMode(item);
+
+                //Don't render if this mode has no icon.
+                final ResourceLocation sprite = getModeIconLocation(mode);
+                if (sprite == null) continue;
+                AbstractGui.blit(left, top, gui.getBlitOffset() + 200, mode.getTextureWidth(), mode.getTextureHeight(), mc.getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(sprite));
+            }
+        }
+        RenderSystem.disableBlend();
+        mc.getProfiler().endSection();
     }
 
     //--- SUB CLASSES ---

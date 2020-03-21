@@ -8,18 +8,34 @@ import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 
 public enum MenuAction implements IMenuAction {
     //General
-    UNDO,
-    REDO,
+    UNDO(12, 10),
+    REDO(12, 10),
 
     //Chisel
-    PLACE,
-    SWAP,
+    PLACE(8, 11),
+    SWAP(14, 11),
 
     //Chiseled Block / Pattern
-    ROLL_X,
-    ROLL_Y,
-    ROLL_Z,
+    ROLL_X(9, 13),
+    ROLL_Y(9, 13),
+    ROLL_Z(9, 13),
     ;
+
+    private int width, height;
+    MenuAction(int w, int h) {
+        width = w;
+        height = h;
+    }
+
+    @Override
+    public int getTextureWidth() {
+        return width;
+    }
+
+    @Override
+    public int getTextureHeight() {
+        return height;
+    }
 
     @Override
     public boolean hasIcon() {

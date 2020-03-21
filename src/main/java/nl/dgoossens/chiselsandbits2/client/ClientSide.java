@@ -1,15 +1,10 @@
 package nl.dgoossens.chiselsandbits2.client;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -17,10 +12,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
 import nl.dgoossens.chiselsandbits2.api.cache.CacheType;
 import nl.dgoossens.chiselsandbits2.api.item.*;
-import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IItemScrollWheel;
 import nl.dgoossens.chiselsandbits2.client.render.color.ColourableItemColor;
@@ -29,13 +22,13 @@ import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockItemColor;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
-import nl.dgoossens.chiselsandbits2.common.items.StorageItem;
-import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
 import nl.dgoossens.chiselsandbits2.common.registry.Registration;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.registry.ModKeybindings;
 
 import java.lang.reflect.Field;
+
+import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.FOOD;
 
 /**
  * Handles all features triggered by client-sided events.
@@ -104,7 +97,7 @@ public class ClientSide extends ClientSideHelper {
      */
     private void registerIconTextures(final TextureStitchEvent.Pre e) {
         //Only register to the texture map.
-        if(!e.getMap().getTextureLocation().equals(AtlasTexture.LOCATION_BLOCKS_TEXTURE))
+        if(!e.getMap().getTextureLocation().equals(PlayerContainer.LOCATION_BLOCKS_TEXTURE))
             return;
 
         //We only do this for our own, addons need to do this themselves.
@@ -170,60 +163,15 @@ public class ClientSide extends ClientSideHelper {
 
 
     /**
-     * For rendering the ghost selected menu option on the
+     * For rendering the preview selected menu option on the
      * item portrait.
      */
     @SubscribeEvent
     public static void drawLast(final RenderGameOverlayEvent.Post e) {
         if (e.getType() == RenderGameOverlayEvent.ElementType.HOTBAR && ChiselsAndBits2.getInstance().getConfig().enableToolbarIcons.get()) {
-            Minecraft.getInstance().getProfiler().startSection("chiselsandbit2-toolbaricons");
             final PlayerEntity player = Minecraft.getInstance().player;
-            if (!player.isSpectator()) {
-                //If at least one item wants to render something
-                if (!hasToolbarIconItem(player.inventory)) return;
-
-                final ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
-                GlStateManager.translatef(0, 0, 50);
-                GlStateManager.scalef(0.5f, 0.5f, 1);
-                GlStateManager.color4f(1, 1, 1, 1.0f);
-                Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-                RenderHelper.enableStandardItemLighting();
-                for (int slot = 8; slot >= -1; --slot) {
-                    //-1 is the off-hand
-                    ItemStack item = slot == -1 ? player.inventory.offHandInventory.get(0) : player.inventory.mainInventory.get(slot);
-                    final int x = (e.getWindow().getScaledWidth() / 2 - 90 + slot * 20 + (slot == -1 ? -9 : 0) + 2) * 2;
-                    final int y = (e.getWindow().getScaledHeight() - 16 - 3) * 2;
-                    if (item.getItem() instanceof TypedItem && ((TypedItem) item.getItem()).showIconInHotbar()) {
-                        final IItemMode mode = ((TypedItem) item.getItem()).getSelectedMode(item);
-
-                        final ResourceLocation sprite = modeIconLocations.get(mode);
-                        //Don't render null sprite.
-                        if (sprite == null) continue;
-
-                        GlStateManager.translatef(0, 0, 200); //The item models are also rendered 150 higher
-                        GlStateManager.enableBlend();
-                        int blitOffset = 0;
-                        try {
-                            Field f = AbstractGui.class.getDeclaredField("blitOffset");
-                            f.setAccessible(true);
-                            blitOffset = (int) f.get(Minecraft.getInstance().ingameGUI);
-                        } catch (Exception rx) {
-                            rx.printStackTrace();
-                        }
-                        AbstractGui.blit(x + 2, y + 2, blitOffset, 16, 16, Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(sprite));
-                        GlStateManager.disableBlend();
-                        GlStateManager.translatef(0, 0, -200);
-                    } else if(item.getItem() instanceof StorageItem && ((StorageItem) item.getItem()).showIconInHotbar()) {
-                        VoxelWrapper w = ((StorageItem) item.getItem()).getSelected(item);
-                        if (w.isEmpty() || w.getType() == VoxelType.COLOURED) continue;
-                        ir.renderItemIntoGUI(w.getStack(), x, y);
-                    }
-                }
-                GlStateManager.scalef(2, 2, 1);
-                GlStateManager.translatef(0, 0, -50);
-                RenderHelper.disableStandardItemLighting();
-            }
-            Minecraft.getInstance().getProfiler().endSection();
+            if (player != null && !player.isSpectator() && hasToolbarIconItem(player.inventory))
+                ChiselsAndBits2.getInstance().getClient().renderSelectedModePreviews(e.getWindow());
         }
     }
 
