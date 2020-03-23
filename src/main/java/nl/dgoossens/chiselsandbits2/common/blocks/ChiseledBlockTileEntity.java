@@ -50,7 +50,8 @@ public class ChiseledBlockTileEntity extends TileEntity {
 
     /**
      * Value that if not equal can be used to conclude that the tile entity
-     * changed.
+     * changed. You can compare two iteration numbers at two times, if they differ
+     * the TE has changed.
      */
     public long getIteration() {
         return iteration;
@@ -66,13 +67,13 @@ public class ChiseledBlockTileEntity extends TileEntity {
     }
 
     private void setVoxelReference(VoxelBlobStateReference voxel) {
-        boolean hasVoxelBlob = voxelBlob != null;
         voxelBlob = voxel;
-        requestModelDataUpdate();
         cachedShape = null;
         raytraceShape = null;
         collisionShape = null;
         itemCache = null;
+
+        requestModelDataUpdate();
         recalculateShape();
     }
 

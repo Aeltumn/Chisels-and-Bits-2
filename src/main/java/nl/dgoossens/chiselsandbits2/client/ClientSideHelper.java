@@ -2,7 +2,6 @@ package nl.dgoossens.chiselsandbits2.client;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -34,13 +33,13 @@ import nl.dgoossens.chiselsandbits2.api.item.IItemMenu;
 import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
 import nl.dgoossens.chiselsandbits2.api.radial.RadialMenu;
 import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
+import nl.dgoossens.chiselsandbits2.client.render.GhostModelRenderer;
 import nl.dgoossens.chiselsandbits2.client.render.RenderingAssistant;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel.ChiselIterator;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel.ChiselTypeIterator;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockPlacementLogic;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
@@ -84,16 +83,8 @@ public class ClientSideHelper {
     protected BitLocation selectionStart;
     private BitOperation operation;
 
-    //Ghost Rendering
-    protected IBakedModel ghostCache = null;
-    protected BlockPos previousPosition;
-    protected BlockPos previousPartial;
-    protected ItemStack previousItem;
-    protected IntegerBox modelBounds;
-    protected BlockState previousState;
-    protected boolean previousSilhoutte, previousOffGrid;
-    protected IItemMode previousMode;
-    protected long previousTileIteration = -Long.MAX_VALUE;
+    //Ghost Model
+    private GhostModelRenderer ghostModel = null;
 
     /**
      * Cleans up some data when a player leaves the current save game.
@@ -105,9 +96,7 @@ public class ClientSideHelper {
         tapeMeasureCache = null;
         selectionStart = null;
         operation = null;
-
-        resetPlacementGhost();
-        modelBounds = null;
+        ghostModel = null;
 
         ChiselsAndBits2.getInstance().getUndoTracker().clean();
         RadialMenu.RADIAL_MENU.ifPresent(RadialMenu::cleanup);
@@ -218,6 +207,7 @@ public class ClientSideHelper {
             //Security measure.
             if(!(stack.getItem() instanceof TapeMeasureItem)) return;
 
+            //Add the new tape measure to the list of actively rendered measurements
             while(tapeMeasurements.size() >= ChiselsAndBits2.getInstance().getConfig().tapeMeasureLimit.get()) {
                 tapeMeasurements.remove(0); //Remove the oldest one.
             }
@@ -462,7 +452,7 @@ public class ClientSideHelper {
             if (player.isCrouching() && !ClientItemPropertyUtil.getChiseledBlockMode().equals(PlayerItemMode.CHISELED_BLOCK_GRID)) {
                 final BitLocation bl = new BitLocation(r, true, BitOperation.PLACE);
                 //We don't make this darker if we can't place here because the calculations are far too expensive to do every time.
-                ChiselsAndBits2.getInstance().getClient().showGhost(currentItem, nbt, player.world, bl.blockPos, face, new BlockPos(bl.bitX, bl.bitY, bl.bitZ), partialTicks, true, () -> !BlockPlacementLogic.isPlaceableOffgrid(player, player.world, face, bl, currentItem));
+                ChiselsAndBits2.getInstance().getClient().showGhost(currentItem, nbt, player, bl.blockPos, face, new BlockPos(bl.bitX, bl.bitY, bl.bitZ), partialTicks, true, () -> !BlockPlacementLogic.isPlaceableOffgrid(player, player.world, face, bl, currentItem));
             } else {
                 //If we can already place where we're looking we don't have to move.
                 //On grid we don't do this.
@@ -470,95 +460,21 @@ public class ClientSideHelper {
                     offset = offset.offset(face);
 
                 final BlockPos finalOffset = offset;
-                ChiselsAndBits2.getInstance().getClient().showGhost(currentItem, nbt, player.world, offset, face, BlockPos.ZERO, partialTicks, false, () -> !BlockPlacementLogic.isNormallyPlaceable(player, player.world, finalOffset, face, nbt, mode));
+                ChiselsAndBits2.getInstance().getClient().showGhost(currentItem, nbt, player, offset, face, BlockPos.ZERO, partialTicks, false, () -> !BlockPlacementLogic.isNormallyPlaceable(player, player.world, finalOffset, face, nbt, mode));
             }
         }
-    }
-
-    /**
-     * Forces the placement ghost to get re-rendered, called when the chiseled block item mode is changed.
-     */
-    public void resetPlacementGhost() {
-        ghostCache = null;
-        previousPartial = null;
-        previousPosition = null;
-        previousItem = null;
-        previousState = null;
-        previousTileIteration = -Long.MAX_VALUE;
-        previousSilhoutte = false;
-        previousOffGrid = false;
-        previousMode = null;
-    }
-
-    /**
-     * Determines if there is a difference between te and previousTile.
-     */
-    private boolean didTileChange(final TileEntity te) {
-        if(te == null && previousTileIteration == -Long.MAX_VALUE) return false; //Both null? Same.
-        if(te == null || previousTileIteration == -Long.MAX_VALUE) return true; //Not both not null? Different!
-        if(te instanceof ChiseledBlockTileEntity) {
-            final ChiseledBlockTileEntity newTile = (ChiseledBlockTileEntity) te;
-            return newTile.getIteration() != previousTileIteration;
-        }
-        return true; //It changed if it isn't a chiseled block anymore.
     }
 
     /**
      * Shows the ghost of the chiseled block in item at the position offset by the partial in bits.
      */
-    protected void showGhost(ItemStack item, NBTBlobConverter c, World world, BlockPos pos, Direction face, BlockPos partial, float partialTicks, boolean offGrid, final Supplier<Boolean> silhoutte) {
-        final PlayerEntity player = Minecraft.getInstance().player;
-        IBakedModel model = null;
-        if(ghostCache != null && ClientItemPropertyUtil.getChiseledBlockMode().equals(previousMode) && item.equals(previousItem) && pos.equals(previousPosition) && partial.equals(previousPartial) && offGrid == previousOffGrid && world.getBlockState(pos).equals(previousState) && !didTileChange(world.getTileEntity(pos)))
-            model = ghostCache;
-        else {
-            previousPosition = pos;
-            previousPartial = partial;
-            previousItem = item;
-            previousSilhoutte = silhoutte.get();
-            previousState = world.getBlockState(pos);
-            previousMode = ClientItemPropertyUtil.getChiseledBlockMode();
-            previousOffGrid = offGrid;
+    protected void showGhost(ItemStack item, NBTBlobConverter c, PlayerEntity player, BlockPos pos, Direction face, BlockPos partial, float partialTicks, boolean offGrid, final Supplier<Boolean> silhouette) {
+        //Create a new ghost model if this one is invalid or non-existant
+        if(ghostModel == null || !ghostModel.isValid(player, pos, partial, face, offGrid))
+            ghostModel = new GhostModelRenderer(item, c, player, pos, partial, face, offGrid, silhouette);
 
-            final TileEntity te = world.getTileEntity(pos);
-
-            boolean modified = false;
-            VoxelBlob blob = c.getVoxelBlob();
-            if(te instanceof ChiseledBlockTileEntity) {
-                previousTileIteration = ((ChiseledBlockTileEntity) te).getIteration();
-                VoxelBlob b = ((ChiseledBlockTileEntity) te).getVoxelBlob();
-                if(ClientItemPropertyUtil.getChiseledBlockMode().equals(PlayerItemMode.CHISELED_BLOCK_MERGE)) {
-                    blob.intersect(b);
-                    modified = true;
-                }
-            } else previousTileIteration = -Long.MAX_VALUE;
-            modelBounds = blob.getBounds();
-
-            if(modified) {
-                c.setBlob(blob);
-                item = c.getItemStack();
-            }
-
-            model = Minecraft.getInstance().getItemRenderer().getItemModelWithOverrides(item, player.getEntityWorld(), player);
-            ghostCache = model;
-        }
-
-        final ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
-        final double x = renderInfo.getProjectedView().x;
-        final double y = renderInfo.getProjectedView().y;
-        final double z = renderInfo.getProjectedView().z;
-
-        GlStateManager.pushMatrix();
-        GlStateManager.translated(pos.getX() - x, pos.getY() - y, pos.getZ() - z);
-        if (!partial.equals(BlockPos.ZERO)) {
-            final BlockPos t = BlockPlacementLogic.getPartialOffset(face, partial, modelBounds);
-            final double fullScale = 1.0 / VoxelBlob.DIMENSION;
-            GlStateManager.translated(t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale);
-        }
-
-        //Always expand the offgrid, silhouttes and otherwise if overlap or fit. We expand offgrids as otherwise the calculations are too intensive. (expanse isn't really noticable anyways)
-        RenderingAssistant.renderGhostModel(model, player.world, partialTicks, pos, previousSilhoutte, previousOffGrid || previousSilhoutte || ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_OVERLAP || ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_FIT);
-        GlStateManager.popMatrix();
+        //Render the model
+        ghostModel.render(partialTicks);
     }
 
     /**
@@ -577,14 +493,14 @@ public class ClientSideHelper {
             if(slot == -1) left -= 9; //Move 9 extra to the left if this is the offhand as it's a bit further away
             int top = (window.getScaledHeight() - 18);
             ItemStack item = slot == -1 ? player.inventory.offHandInventory.get(0) : player.inventory.mainInventory.get(slot);
+            //TODO add support for bit bag preview items
             if (item.getItem() instanceof TypedItem && ((TypedItem) item.getItem()).showIconInHotbar()) {
                 final IItemMode mode = ((TypedItem) item.getItem()).getSelectedMode(item);
 
                 //Don't render if this mode has no icon.
                 final ResourceLocation sprite = getModeIconLocation(mode);
                 if (sprite == null) continue;
-                //Png files are 16x16 for Minecraft's stitcher's sake but they all start at the top left pixel and have the real texture height in code.
-                //This allows us to properly scale them in code.
+                //Png files are 16x16 for Minecraft's stitcher's sake but they all start at the top left pixel and have the real texture height in code. This allows us to properly scale them in code.
                 //We take the ratio between the target scale (if we scale the image to be targetxtarget pixels, half as big) then we take the lower ratio, there's also an upper limit otherwise the single bit looks massive
                 //We also target 11 width and 8 height as having a high icon obstructs the hotbar more than a wide one
                 double ratio = Math.min(0.75d, Math.min(11.0d / mode.getTextureWidth(), 8.0d / mode.getTextureHeight()));
