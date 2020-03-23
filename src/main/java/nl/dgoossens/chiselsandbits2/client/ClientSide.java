@@ -187,7 +187,7 @@ public class ClientSide extends ClientSideHelper {
     @SubscribeEvent
     public static void drawHighlights(final DrawHighlightEvent.HighlightBlock e) {
         //Cancel if the draw blocks highlight method successfully rendered a highlight.
-        if(ChiselsAndBits2.getInstance().getClient().drawBlockHighlight(e.getPartialTicks()))
+        if(ChiselsAndBits2.getInstance().getClient().drawBlockHighlight(e.getMatrix(), e.getBuffers(), e.getPartialTicks()))
             e.setCanceled(true);
     }
 

@@ -8,8 +8,6 @@ import java.util.*;
 
 public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselIterator {
     final int INDEX_X = 0;
-
-    ;
     final int INDEX_Y = 8;
     final int INDEX_Z = 16;
     // future state.
@@ -74,29 +72,22 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
         }
 
         floodFill(sx, sy, sz, possiblepositions, selectedpositions);
-        Collections.sort(selectedpositions, new Comparator<Integer>() {
-
-            @Override
-            public int compare(
-                    final Integer a,
-                    final Integer b) {
-                final int aX = getValue(a, INDEX_X);
-                final int bX = getValue(b, INDEX_X);
-                if (aX != bX) {
-                    return aX - bX;
-                }
-
-                final int aY = getValue(a, INDEX_Y);
-                final int bY = getValue(b, INDEX_Y);
-                if (aY != bY) {
-                    return aY - bY;
-                }
-
-                final int aZ = getValue(a, INDEX_Z);
-                final int bZ = getValue(b, INDEX_Z);
-                return aZ - bZ;
+        Collections.sort(selectedpositions, (a, b) -> {
+            final int aX = getValue(a, INDEX_X);
+            final int bX = getValue(b, INDEX_X);
+            if (aX != bX) {
+                return aX - bX;
             }
 
+            final int aY = getValue(a, INDEX_Y);
+            final int bY = getValue(b, INDEX_Y);
+            if (aY != bY) {
+                return aY - bY;
+            }
+
+            final int aZ = getValue(a, INDEX_Z);
+            final int bZ = getValue(b, INDEX_Z);
+            return aZ - bZ;
         });
 
         // we are done, drop the list and keep an iterator.

@@ -2,6 +2,7 @@ package nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -35,6 +36,7 @@ public final class VoxelBlob implements IVoxelSrc {
     public final static int DIMENSION_MINUS_ONE = DIMENSION - 1;
 
     public final static VoxelBlob NULL_BLOB = new VoxelBlob();
+    public final static VoxelBlob FULL_BLOCK = new VoxelBlob(BitUtil.getBlockId(Blocks.STONE.getDefaultState())); //It doesn't matter what it is a full block of.
 
     private int best_buffer_size = 26;
     final int[] values = new int[ARRAY_SIZE];
@@ -56,12 +58,15 @@ public final class VoxelBlob implements IVoxelSrc {
     public VoxelBlob() {
     }
 
-    protected VoxelBlob(final VoxelBlob vb) {
-        for (int x = 0; x < values.length; ++x)
-            values[x] = vb.values[x];
+    public VoxelBlob(final VoxelBlob vb) {
+        System.arraycopy(vb.values, 0, values, 0, values.length);
     }
 
-    protected int[] getValues() {
+    public VoxelBlob(final int i) {
+        Arrays.fill(values, i);
+    }
+
+    int[] getValues() {
         return values;
     }
 

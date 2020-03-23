@@ -5,19 +5,23 @@ import net.minecraft.util.math.AxisAlignedBB;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 
+import java.util.Optional;
+
 /**
  * An iterator over an area that can be chiseled.
  */
 public interface ChiselIterator {
     /**
-     * Get the integer box around this iterator.
+     * Get the integer box around this iterator but only on bits
+     * that are not air in the supplied blob.
      */
-    IntegerBox getVoxelBox(VoxelBlob blobAt, boolean b);
+    Optional<IntegerBox> getVoxelBox(VoxelBlob blob);
 
     /**
-     * Get the bounding box around this iterator.
+     * Get the bounding box around this iterator but only on bits
+     * that are not air in the supplied blob.
      */
-    AxisAlignedBB getBoundingBox(VoxelBlob NULL_BLOB, boolean b);
+    Optional<AxisAlignedBB> getBoundingBox(VoxelBlob blob);
 
     /**
      * Get the block side this iterator is based on.

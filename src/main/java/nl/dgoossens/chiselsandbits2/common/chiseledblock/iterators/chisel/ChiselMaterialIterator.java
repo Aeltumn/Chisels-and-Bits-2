@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ChiselMaterialIterator extends BaseChiselIterator implements ChiselIterator {
-
     final int INDEX_X = 0;
     final int INDEX_Y = 8;
     final int INDEX_Z = 16;

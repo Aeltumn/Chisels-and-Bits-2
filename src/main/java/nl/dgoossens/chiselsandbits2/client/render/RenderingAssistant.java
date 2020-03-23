@@ -1,10 +1,11 @@
 package nl.dgoossens.chiselsandbits2.client.render;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -24,129 +25,55 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Assists with generic rendering tasks, mostly those called by the ClientSideHelper.
+ * Assists with generic rendering tasks for rendering boxes and lines, mostly those called by the ClientSideHelper.
  */
 public class RenderingAssistant {
-    public static void drawSelectionBoundingBoxIfExists(final AxisAlignedBB bb, final BlockPos blockPos, final PlayerEntity player, final float partialTicks, final boolean normalBoundingBox, final int red, final int green, final int blue, final int alpha, final int seeThruAlpha) {
+    public static void drawBoundingBox(final MatrixStack matrix, final IRenderTypeBuffer builder, final AxisAlignedBB bb, final BlockPos location) {
+        drawBoundingBox(matrix, builder, bb, location, 0.0f, 0.0f, 0.0f);
+    }
+
+    public static void drawBoundingBox(final MatrixStack matrix, final IRenderTypeBuffer builder, final AxisAlignedBB bb, final BlockPos location, final float red, final float green, final float blue) {
         if (bb != null) {
-            final ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
-            final double x = renderInfo.getProjectedView().x;
-            final double y = renderInfo.getProjectedView().y;
-            final double z = renderInfo.getProjectedView().z;
-
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-            GL11.glLineWidth(2.0F);
-            GlStateManager.disableTexture();
-            GlStateManager.depthMask(false);
-            GlStateManager.shadeModel(GL11.GL_FLAT);
-
-            final AxisAlignedBB bb2 = bb.expand(0.002D, 0.002D, 0.002D).offset(-x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ());
-            if (!normalBoundingBox)
-                renderBoundingBox(bb2, red, green, blue, alpha);
-
-            GlStateManager.disableDepthTest();
-            renderBoundingBox(bb2, red, green, blue, seeThruAlpha);
-
-            GlStateManager.shadeModel(Minecraft.isAmbientOcclusionEnabled() ? GL11.GL_SMOOTH : GL11.GL_FLAT);
-            GlStateManager.enableDepthTest();
-            GlStateManager.depthMask(true);
-            GlStateManager.enableTexture();
-            GlStateManager.disableBlend();
+            ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
+            double x = renderInfo.getProjectedView().x, y = renderInfo.getProjectedView().y, z = renderInfo.getProjectedView().z;
+            AxisAlignedBB offsetBoundingBox = bb.offset(location.getX() - x, location.getY() - y, location.getZ() - z);
+            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(RenderType.getLines()), offsetBoundingBox, red, green, blue, 0.4f);
         }
     }
 
-    public static void drawLineWithColor(final Vec3d a, final Vec3d b, final BlockPos blockPos, final PlayerEntity player, final float partialTicks, final boolean normalBoundingBox, final int red, final int green, final int blue, final int alpha, final int seeThruAlpha) {
+    public static void drawLine(final Vec3d a, final Vec3d b, final float red, final float green, final float blue) {
         if(a != null && b != null) {
-            final ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
-            final double x = renderInfo.getProjectedView().x;
-            final double y = renderInfo.getProjectedView().y;
-            final double z = renderInfo.getProjectedView().z;
+            ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
+            double x = renderInfo.getProjectedView().x, y = renderInfo.getProjectedView().y, z = renderInfo.getProjectedView().z;
 
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-            GL11.glLineWidth(2.0F);
-            GlStateManager.disableTexture();
-            GlStateManager.depthMask(false);
-            GlStateManager.shadeModel(GL11.GL_FLAT);
+            //TODO Don't know if RenderSystem is the best way to do this.
+            //RenderSystem.enableBlend();
+            //RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+            //GL11.glLineWidth(2.0F);
+            //RenderSystem.disableTexture();
+            //RenderSystem.depthMask(false);
+            //RenderSystem.shadeModel(GL11.GL_FLAT);
+            renderLine(a.subtract(x, y, z), b.subtract(x, y, z), red, green, blue, 0.4f);
 
-            final Vec3d a2 = a.add(-x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ());
-            final Vec3d b2 = b.add(-x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ());
-            if(!normalBoundingBox)
-                renderLine(a2, b2, red, green, blue, alpha);
-
-            GlStateManager.disableDepthTest();
-            renderLine(a2, b2, red, green, blue, seeThruAlpha);
-
-            GlStateManager.shadeModel(Minecraft.isAmbientOcclusionEnabled() ? GL11.GL_SMOOTH : GL11.GL_FLAT);
-            GlStateManager.enableDepthTest();
-            GlStateManager.depthMask(true);
-            GlStateManager.enableTexture();
-            GlStateManager.disableBlend();
+            //RenderSystem.shadeModel(Minecraft.isAmbientOcclusionEnabled() ? GL11.GL_SMOOTH : GL11.GL_FLAT);
+            //RenderSystem.depthMask(true);
+            //RenderSystem.enableTexture();
+            //RenderSystem.disableBlend();
         }
     }
 
-    // Custom replacement of 1.9.4 -> 1.10's method that changed.
-    public static void renderBoundingBox(final AxisAlignedBB boundingBox, final int red, final int green, final int blue, final int alpha) {
-        final Tessellator tess = Tessellator.getInstance();
-        final BufferBuilder buffer = tess.getBuffer();
-        buffer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
-
-        final double minX = boundingBox.minX;
-        final double minY = boundingBox.minY;
-        final double minZ = boundingBox.minZ;
-        final double maxX = boundingBox.maxX;
-        final double maxY = boundingBox.maxY;
-        final double maxZ = boundingBox.maxZ;
-
-        // lower ring ( starts to 0 / 0 )
-        buffer.pos(minX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(minX, minY, minZ).color(red, green, blue, alpha).endVertex();
-
-        // Y line at 0 / 0
-        buffer.pos(minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-
-        // upper ring ( including previous point to draw 4 lines )
-        buffer.pos(maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-
-        /*
-         * the next 3 Y Lines use flat shading to render invisible lines to
-         * enable doing this all in one pass.
-         */
-
-        // Y line at 1 / 0
-        buffer.pos(maxX, minY, minZ).color(red, green, blue, 0).endVertex();
-        buffer.pos(maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-
-        // Y line at 0 / 1
-        buffer.pos(minX, minY, maxZ).color(red, green, blue, 0).endVertex();
-        buffer.pos(minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-
-        // Y line at 1 / 1
-        buffer.pos(maxX, minY, maxZ).color(red, green, blue, 0).endVertex();
-        buffer.pos(maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-
-        tess.draw();
+    private static void renderLine(final Vec3d a, final Vec3d b, final float red, final float green, final float blue, final float alpha) {
+        MatrixStack matrix = new MatrixStack();
+        matrix.push();
+        IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        IVertexBuilder builder = buffer.getBuffer(RenderType.getLines());
+        builder.pos(a.getX(), a.getY(), a.getZ()).color(red, green, blue, alpha).endVertex();
+        builder.pos(b.getX(), b.getY(), b.getZ()).color(red, green, blue, alpha).endVertex();
+        matrix.pop();
+        buffer.finish();
     }
 
-    public static void renderLine(final Vec3d a, final Vec3d b, final int red, final int green, final int blue, final int alpha) {
-        final Tessellator tess = Tessellator.getInstance();
-        final BufferBuilder buffer = tess.getBuffer();
-        buffer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
-
-        buffer.pos(a.getX(), a.getY(), a.getZ()).color(red, green, blue, alpha).endVertex();
-        buffer.pos(b.getX(), b.getY(), b.getZ()).color(red, green, blue, alpha).endVertex();
-
-        tess.draw();
-    }
-
-    public static void renderQuads(final int alpha, final BufferBuilder renderer, final List<BakedQuad> quads, final ChiseledTintColor colorProvider, final boolean showSilhouette) {
+    /*public static void renderQuads(final int alpha, final BufferBuilder renderer, final List<BakedQuad> quads, final ChiseledTintColor colorProvider, final boolean showSilhouette) {
         int i = 0;
         for (final int j = quads.size(); i < j; ++i) {
             final BakedQuad bakedquad = quads.get(i);
@@ -188,5 +115,5 @@ public class RenderingAssistant {
         }
         renderModel(Math.max(3, Math.round(10.0f * Math.max(worldObj.getLightFor(LightType.BLOCK, blockPos), worldObj.getLightFor(LightType.SKY, blockPos)))), baked, colorProvider, notPlaceable);
         GlStateManager.disableBlend();
-    }
+    }*/
 }

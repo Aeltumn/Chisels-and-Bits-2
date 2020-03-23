@@ -137,7 +137,7 @@ public class GhostModelRenderer {
         }
 
         //Always expand the offgrid, silhouettes and otherwise if overlap or fit. We always expand offgrid ghosts as otherwise the calculations are too intensive. (the expanding isn't really noticeable anyways)
-        RenderingAssistant.renderGhostModel(model, player.world, partialTicks, position, isSilhouette(), shouldExpand());
+        //TODO RenderingAssistant.renderGhostModel(model, player.world, partialTicks, position, isSilhouette(), shouldExpand());
         GlStateManager.popMatrix();
     }
 }
