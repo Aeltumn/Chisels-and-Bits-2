@@ -88,9 +88,7 @@ public class ClientSide extends ClientSideHelper {
      * Register block color handlers.
      */
     private void registerBlockColors(final ColorHandlerEvent.Block e) {
-        Registration m = ChiselsAndBits2.getInstance().getRegister();
-
-        e.getBlockColors().register(new ChiseledBlockColor(), m.CHISELED_BLOCK.get());
+        e.getBlockColors().register(new ChiseledBlockColor(), ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get());
     }
 
     /**

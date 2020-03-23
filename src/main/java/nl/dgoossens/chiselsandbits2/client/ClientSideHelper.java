@@ -583,7 +583,15 @@ public class ClientSideHelper {
                 //Don't render if this mode has no icon.
                 final ResourceLocation sprite = getModeIconLocation(mode);
                 if (sprite == null) continue;
-                AbstractGui.blit(left, top, gui.getBlitOffset() + 200, mode.getTextureWidth(), mode.getTextureHeight(), mc.getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(sprite));
+                //Png files are 16x16 for Minecraft's stitcher's sake but they all start at the top left pixel and have the real texture height in code.
+                //This allows us to properly scale them in code.
+                //We take the ratio between the target scale (if we scale the image to be targetxtarget pixels, half as big) then we take the lower ratio, there's also an upper limit otherwise the single bit looks massive
+                //We also target 11 width and 8 height as having a high icon obstructs the hotbar more than a wide one
+                double ratio = Math.min(0.75d, Math.min(11.0d / mode.getTextureWidth(), 8.0d / mode.getTextureHeight()));
+                //We also multiply the width/height with a scale to make them look better again as the sprites are 16x16.
+                int width = (int) Math.round(mode.getTextureWidth() * ratio * (16.0d / mode.getTextureWidth()));
+                int height = (int) Math.round(mode.getTextureHeight() * ratio * (16.0d / mode.getTextureHeight()));
+                AbstractGui.blit(left, top, gui.getBlitOffset() + 200, width, height, mc.getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(sprite));
             }
         }
         RenderSystem.disableBlend();
