@@ -1,45 +1,33 @@
-package nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel;
+package nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators;
 
 import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Direction.AxisDirection;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
+import net.minecraft.util.math.BlockPos;
 import nl.dgoossens.chiselsandbits2.api.block.IVoxelSrc;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.bit.BitIterator;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Iterator that goes past every block of the same material as the one selected.
+ */
 public class ChiselMaterialIterator extends BaseChiselIterator implements ChiselIterator {
-    final int INDEX_X = 0;
-    final int INDEX_Y = 8;
-    final int INDEX_Z = 16;
+    private static final int INDEX_X = 0;
+    private static final int INDEX_Y = 8;
+    private static final int INDEX_Z = 16;
 
-    // future state.
-    Iterator<Integer> list;
+    private Iterator<Integer> list; //List of bits that we will iterate over.
+    private int value; //Currently selected bit
 
-    // present state.
-    Direction side;
-    int value;
+    public ChiselMaterialIterator(final BlockPos pos, final IVoxelSrc source, final Direction side, final boolean place) {
+        super(side);
+        int x = pos.getX(), y = pos.getY(), z = pos.getZ();
+        List<Integer> selectedpositions = new ArrayList<>();
 
-    public ChiselMaterialIterator(
-            final int dim,
-            final int sx,
-            final int sy,
-            final int sz,
-            final IVoxelSrc source,
-            final IItemMode mode,
-            final Direction side,
-            final boolean place) {
-        this.side = side;
-        final List<Integer> selectedpositions = new ArrayList<Integer>();
-
-        final int tx = side.getXOffset(), ty = side.getYOffset(), tz = side.getZOffset();
-
-        int x = sx, y = sy, z = sz;
-
+        int tx = side.getXOffset(), ty = side.getYOffset(), tz = side.getZOffset();
         int placeoffsetX = 0;
         int placeoffsetY = 0;
         int placeoffsetZ = 0;
@@ -53,9 +41,8 @@ public class ChiselMaterialIterator extends BaseChiselIterator implements Chisel
             placeoffsetZ = side.getAxis() == Axis.Z ? side.getAxisDirection() == AxisDirection.POSITIVE ? 1 : -1 : 0;
         }
 
-        final int target = source.getSafe(x, y, z);
-
-        final BitIterator bi = new BitIterator();
+        int target = source.getSafe(x, y, z);
+        BitIterator bi = new BitIterator();
         while (bi.hasNext()) {
             int xx = -1, yy = -1, zz = -1;
             if (source.getSafe(bi.x, bi.y, bi.z) == target) {
@@ -74,26 +61,19 @@ public class ChiselMaterialIterator extends BaseChiselIterator implements Chisel
                 selectedpositions.add(createPos(xx, yy, zz));
         }
 
-        // we are done, drop the list and keep an iterator.
+        //We are done, drop the list and keep an iterator.
         list = selectedpositions.iterator();
     }
 
-    private int setValue(
-            final int pos,
-            final int idx) {
+    private int setValue(final int pos, final int idx) {
         return ((byte) pos & 0xff) << idx;
     }
 
-    private int getValue(
-            final int value,
-            final int idx) {
+    private int getValue(final int value, final int idx) {
         return (byte) (value >>> idx & 0xff);
     }
 
-    private int createPos(
-            final int x,
-            final int y,
-            final int z) {
+    private int createPos(final int x, final int y, final int z) {
         return setValue(x, INDEX_X) | setValue(y, INDEX_Y) | setValue(z, INDEX_Z);
     }
 
@@ -103,13 +83,7 @@ public class ChiselMaterialIterator extends BaseChiselIterator implements Chisel
             value = list.next();
             return true;
         }
-
         return false;
-    }
-
-    @Override
-    public Direction side() {
-        return side;
     }
 
     @Override

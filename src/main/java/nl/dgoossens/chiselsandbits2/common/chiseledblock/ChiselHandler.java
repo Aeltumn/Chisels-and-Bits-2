@@ -26,7 +26,7 @@ import nl.dgoossens.chiselsandbits2.client.cull.DummyBlockReader;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlock;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel.ChiselIterator;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.ChiselIterator;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.ExtendedVoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
@@ -134,7 +134,7 @@ public class ChiselHandler {
                         if (te instanceof ChiseledBlockTileEntity) {
                             final ChiseledBlockTileEntity tec = (ChiseledBlockTileEntity) te;
                             final VoxelBlob vb = tec.getVoxelBlob();
-                            final ChiselIterator i = ChiselUtil.getIterator(mode, pkt, new VoxelRegionSrc(player, world, pos, 1), pos, pkt.operation);
+                            final ChiselIterator i = mode.getIterator(pos, pkt.side, pkt.operation, new VoxelRegionSrc(player, world, pos, 1), pkt.from, pkt.to);
 
                             //Handle the operation
                             switch (pkt.operation) {

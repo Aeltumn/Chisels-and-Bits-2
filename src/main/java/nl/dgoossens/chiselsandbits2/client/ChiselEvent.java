@@ -5,8 +5,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -18,6 +20,7 @@ import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
 import nl.dgoossens.chiselsandbits2.common.items.MorphingBitItem;
+import nl.dgoossens.chiselsandbits2.common.items.TapeMeasureItem;
 import nl.dgoossens.chiselsandbits2.common.network.client.CPlaceBlockPacket;
 import nl.dgoossens.chiselsandbits2.common.network.client.CWrenchBlockPacket;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
@@ -39,30 +42,37 @@ public class ChiselEvent {
      * stupid minecraft bugs and de-syncs.
      */
     @SubscribeEvent
-    public static void onPlayerInteract(PlayerInteractEvent e) {
+    public static void onPlayerInteract(InputEvent.ClickInputEvent e) {
+        PlayerEntity player = Minecraft.getInstance().player;
+
         //--- Locking Morphing Bits ---
-        if(e instanceof PlayerInteractEvent.RightClickEmpty || e instanceof PlayerInteractEvent.LeftClickEmpty) {
-            if(e.getPlayer().getHeldItemMainhand().getItem() instanceof MorphingBitItem && e.getPlayer().isCrouching()) {
+        if(e.isUseItem()) {
+            if(player.getHeldItemMainhand().getItem() instanceof MorphingBitItem && player.isCrouching()) {
                 if (System.currentTimeMillis() - lastClick < 150) return;
                 lastClick = System.currentTimeMillis();
 
-                final ItemStack i = e.getPlayer().getHeldItemMainhand();
+                final ItemStack i = player.getHeldItemMainhand();
                 boolean b = ((MorphingBitItem) i.getItem()).isLocked(i);
                 ClientItemPropertyUtil.setLockState(!b);
                 return;
             }
         }
 
-        //--- All other item interaction actions ---
-        boolean leftClick = e instanceof PlayerInteractEvent.LeftClickBlock;
-        if (!leftClick && !(e instanceof PlayerInteractEvent.RightClickBlock)) return;
+        //--- Pick Bit ---
+        if(e.isPickBlock()) {
+            //TODO pick bit!
+            return;
+        }
 
-        final PlayerEntity player = Minecraft.getInstance().player;
+        //--- All other item interaction actions ---
         ItemStack stack = player.getHeldItemMainhand();
         if(stack.getItem() instanceof IBitModifyItem) {
+            //Trigger an effect for one of our own tools.
+            //We do it here instead of using Minecraft's method to cancel it properly for invalid blocks. (also to use our own raytracing)
             IBitModifyItem it = (IBitModifyItem) stack.getItem();
             for(IBitModifyItem.ModificationType modificationType : IBitModifyItem.ModificationType.values()) {
-                if(it.canPerformModification(modificationType) && it.validateUsedButton(modificationType, leftClick, stack)) {
+                if(it.canPerformModification(modificationType) && it.validateUsedButton(modificationType, e.isAttack(), stack)) {
+                    e.setSwingHand(true);
                     e.setCanceled(true);
 
                     if (System.currentTimeMillis() - lastClick < 150) return;
@@ -72,7 +82,7 @@ public class ChiselEvent {
                         case BUILD:
                         case EXTRACT:
                             //Chisel
-                            startChiselingBlock(leftClick, player, stack);
+                            startChiselingBlock(e.isAttack(), player, stack);
                             break;
                         case ROTATE:
                         case MIRROR:
@@ -85,18 +95,35 @@ public class ChiselEvent {
                             break;
                         case CUSTOM:
                             //Custom modification
-                            it.performCustomModification(leftClick, stack);
+                            it.performCustomModification(e.isAttack(), stack);
                             break;
                     }
                 }
             }
+        } else if(stack.getItem() instanceof TapeMeasureItem && e.isUseItem()) {
+            //We trigger the tape measure here as it works even if we don't hit a block. If we used `useItem` in Item.class it would only trigger when hitting a block.
+            e.setSwingHand(true);
+            e.setCanceled(true);
+
+            //Clear measurements if there are measurements and we're not currently selecting one.
+            if(ChiselsAndBits2.getInstance().getClient().tapeMeasureCache == null && player.isCrouching() && !ChiselsAndBits2.getInstance().getClient().tapeMeasurements.isEmpty()) {
+                ChiselsAndBits2.getInstance().getClient().tapeMeasurements.clear();
+                player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.cleared_measurements"), true);
+                return;
+            }
+
+            RayTraceResult rayTrace = ChiselUtil.rayTrace(player);
+            if (!(rayTrace instanceof BlockRayTraceResult) || rayTrace.getType() != RayTraceResult.Type.BLOCK)
+                return;
+
+            ChiselsAndBits2.getInstance().getClient().useTapeMeasure((BlockRayTraceResult) rayTrace);
         }
     }
 
     /**
      * Handle the block chiselling with the given bit operation.
      */
-    public static void startChiselingBlock(final boolean leftClick, final PlayerEntity player, final ItemStack stack) {
+    public static void startChiselingBlock(final boolean attack, final PlayerEntity player, final ItemStack stack) {
         if (!player.world.isRemote)
             throw new UnsupportedOperationException("Block chiseling can only be started on the client-side.");
 
@@ -108,7 +135,7 @@ public class ChiselEvent {
         if (!(rayTrace instanceof BlockRayTraceResult) || rayTrace.getType() != RayTraceResult.Type.BLOCK)
             return;
 
-        final BitOperation operation = leftClick ? BitOperation.REMOVE : (tit.isSwapping(stack) ? BitOperation.SWAP : BitOperation.PLACE);
+        final BitOperation operation = attack ? BitOperation.REMOVE : (tit.isSwapping(stack) ? BitOperation.SWAP : BitOperation.PLACE);
         final BitLocation location = new BitLocation((BlockRayTraceResult) rayTrace, true, operation);
 
         //Start drawn region selection if applicable

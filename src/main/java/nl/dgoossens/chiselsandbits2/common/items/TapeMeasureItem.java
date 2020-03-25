@@ -67,15 +67,6 @@ public class TapeMeasureItem extends TypedItem {
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
-        if (context.getWorld().isRemote) {
-            ChiselsAndBits2.getInstance().getClient().useTapeMeasure(new BlockRayTraceResult(context.getHitVec(), context.getFace(), context.getPos(), false));
-            return ActionResultType.SUCCESS;
-        }
-        return super.onItemUse(context);
-    }
-
-    @Override
     public Set<ItemModeMenu.MenuButton> getMenuButtons(final ItemStack item) {
         Set<ItemModeMenu.MenuButton> ret = new HashSet<>();
         final int colorSize = DyeColor.values().length / 4 * 24 - 4;

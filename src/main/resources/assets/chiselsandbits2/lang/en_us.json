@@ -4,7 +4,7 @@
   "item.chiselsandbits2.chisel": "Chisel",
   "item.chiselsandbits2.chisel.help": "$ to chisel|$ to place or swap|$ to display menu",
   "item.chiselsandbits2.tape_measure": "Tape Measure",
-  "item.chiselsandbits2.tape_measure.help": "$ on two points to measure spaces|Shift + $ to clear previous measurements|$ to display modes",
+  "item.chiselsandbits2.tape_measure.help": "$ on two points to measure spaces|Shift + $ on a block to clear previous measurements|$ to display modes",
   "item.chiselsandbits2.wrench": "Wrench",
   "item.chiselsandbits2.wrench.help": "$ to use|$ to display menu",
   "item.chiselsandbits2.morphing_bit": "Morphing Bit",

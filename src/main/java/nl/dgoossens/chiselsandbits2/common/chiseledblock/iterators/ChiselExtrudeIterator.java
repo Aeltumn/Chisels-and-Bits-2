@@ -1,34 +1,26 @@
-package nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel;
+package nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators;
 
 import net.minecraft.util.Direction;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
+import net.minecraft.util.math.BlockPos;
 import nl.dgoossens.chiselsandbits2.api.block.IVoxelSrc;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 
 import java.util.*;
 
 public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselIterator {
-    final int INDEX_X = 0;
-    final int INDEX_Y = 8;
-    final int INDEX_Z = 16;
-    // future state.
-    Iterator<Integer> list;
-    // present state.
-    Direction side;
-    int value;
+    private static final int INDEX_X = 0;
+    private static final int INDEX_Y = 8;
+    private static final int INDEX_Z = 16;
+    private Iterator<Integer> list;
+    private int value;
 
-    public ChiselExtrudeIterator(
-            final int dim,
-            final int sx,
-            final int sy,
-            final int sz,
-            final IVoxelSrc source,
-            final IItemMode mode,
-            final Direction side,
-            final boolean place) {
-        this.side = side;
+    public ChiselExtrudeIterator(final BlockPos pos, final IVoxelSrc source, final Direction side, final boolean place) {
+        super(side);
+        int sx = pos.getX(), sy = pos.getY(), sz = pos.getZ();
+        int dim = VoxelBlob.DIMENSION;
 
-        final Set<Integer> possiblepositions = new HashSet<Integer>();
-        final List<Integer> selectedpositions = new ArrayList<Integer>();
+        final Set<Integer> possiblepositions = new HashSet<>();
+        final List<Integer> selectedpositions = new ArrayList<>();
 
         final int tx = side.getXOffset(), ty = side.getYOffset(), tz = side.getZOffset();
         int placeoffset = 0;
@@ -72,7 +64,7 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
         }
 
         floodFill(sx, sy, sz, possiblepositions, selectedpositions);
-        Collections.sort(selectedpositions, (a, b) -> {
+        selectedpositions.sort((a, b) -> {
             final int aX = getValue(a, INDEX_X);
             final int bX = getValue(b, INDEX_X);
             if (aX != bX) {
@@ -94,48 +86,27 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
         list = selectedpositions.iterator();
     }
 
-    private int setValue(
-            final int pos,
-            final int idx) {
+    private int setValue(final int pos, final int idx) {
         return ((byte) pos & 0xff) << idx;
     }
 
-    private int getValue(
-            final int value,
-            final int idx) {
+    private int getValue(final int value, final int idx) {
         return (byte) (value >>> idx & 0xff);
     }
 
-    private int createPos(
-            final int x,
-            final int y,
-            final int z) {
+    private int createPos(final int x, final int y, final int z) {
         return setValue(x, INDEX_X) | setValue(y, INDEX_Y) | setValue(z, INDEX_Z);
     }
 
-    protected void readyMatching(
-            final IVoxelSrc source,
-            final int x,
-            final int y,
-            final int z) {
-
+    protected void readyMatching(final IVoxelSrc source, final int x, final int y, final int z) {
     }
 
-    protected boolean isMatch(
-            final IVoxelSrc source,
-            final int x,
-            final int y,
-            final int z) {
+    protected boolean isMatch(final IVoxelSrc source, final int x, final int y, final int z) {
         return source.getSafe(x, y, z) != 0;
     }
 
-    private void floodFill(
-            final int sx,
-            final int sy,
-            final int sz,
-            final Set<Integer> possiblepositions,
-            final List<Integer> selectedpositions) {
-        final Queue<Integer> q = new LinkedList<Integer>();
+    private void floodFill(final int sx, final int sy, final int sz, final Set<Integer> possiblepositions, final List<Integer> selectedpositions) {
+        final Queue<Integer> q = new LinkedList<>();
         q.add(createPos(sx, sy, sz));
 
         while (!q.isEmpty()) {
@@ -157,10 +128,7 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
         }
     }
 
-    private void addIfExists(
-            final Queue<Integer> q,
-            final Set<Integer> possiblepositions,
-            final int pos) {
+    private void addIfExists(final Queue<Integer> q, final Set<Integer> possiblepositions, final int pos) {
         if (possiblepositions.contains(pos)) {
             possiblepositions.remove(pos);
             q.add(pos);
@@ -178,11 +146,6 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
     }
 
     @Override
-    public Direction side() {
-        return side;
-    }
-
-    @Override
     public int x() {
         return getValue(value, INDEX_X);
     }
@@ -196,41 +159,4 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
     public int z() {
         return getValue(value, INDEX_Z);
     }
-
-    public static class ChiselExtrudeMaterialIterator extends ChiselExtrudeIterator {
-
-        int material = 0;
-
-        public ChiselExtrudeMaterialIterator(
-                final int dim,
-                final int sx,
-                final int sy,
-                final int sz,
-                final IVoxelSrc source,
-                final IItemMode mode,
-                final Direction side,
-                final boolean place) {
-            super(dim, sx, sy, sz, source, mode, side, place);
-        }
-
-        @Override
-        protected void readyMatching(
-                final IVoxelSrc source,
-                final int x,
-                final int y,
-                final int z) {
-            material = source.getSafe(x, y, z);
-        }
-
-        @Override
-        protected boolean isMatch(
-                final IVoxelSrc source,
-                final int x,
-                final int y,
-                final int z) {
-            return source.getSafe(x, y, z) == material;
-        }
-
-    }
-
 }

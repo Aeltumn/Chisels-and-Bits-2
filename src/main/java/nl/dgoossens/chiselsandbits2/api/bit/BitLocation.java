@@ -8,6 +8,10 @@ import net.minecraft.util.math.Vec3d;
 import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 
+/**
+ * The location of a bit on a certain block.
+ * Basically an extension of a {@link BlockPos} with a specific targeted bit.
+ */
 public class BitLocation {
     private static final double ONE_32ND = 0.5 / VoxelBlob.DIMENSION;
     public BlockPos blockPos;

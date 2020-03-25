@@ -3,18 +3,16 @@ package nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Blocks;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.shapes.VoxelShape;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.BitIterator;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.bit.BitOcclusionIterator;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.zip.InflaterInputStream;
 
 public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance> {
@@ -78,25 +76,24 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
         return new VoxelBlob(vb);
     }
 
-    public Collection<AxisAlignedBB> getBoxes() {
-        return Arrays.asList(generateBoxes(getBlob(), true));
+    public Collection<VoxelShape> getBoxes() {
+        return generateBoxes(getBlob(), true);
     }
 
-    public Collection<AxisAlignedBB> getCollidableBoxes() {
-        return Arrays.asList(generateBoxes(getBlob(), false));
+    public Collection<VoxelShape> getCollidableBoxes() {
+        return generateBoxes(getBlob(), false);
     }
 
-    private AxisAlignedBB[] generateBoxes(final VoxelBlob blob, boolean includeFluids) {
-        final List<AxisAlignedBB> cache = new ArrayList<>();
-        final BitOcclusionIterator boi = new BitOcclusionIterator(cache);
+    private Collection<VoxelShape> generateBoxes(final VoxelBlob blob, boolean includeFluids) {
+        final Set<VoxelShape> boxes = new HashSet<>();
+        final BitIterator boi = new BitIterator();
 
         while (boi.hasNext()) {
             int i = boi.getNext(blob);
-            if(i == VoxelBlob.AIR_BIT) boi.drop();
-            else if(!includeFluids && VoxelType.isFluid(i)) boi.drop();
-            else boi.add();
+            if(i != VoxelBlob.AIR_BIT && (includeFluids || !VoxelType.isFluid(i)))
+                boxes.add(boi.getShape());
         }
-        return cache.toArray(new AxisAlignedBB[cache.size()]);
+        return boxes;
     }
 
     public int getFormat() {

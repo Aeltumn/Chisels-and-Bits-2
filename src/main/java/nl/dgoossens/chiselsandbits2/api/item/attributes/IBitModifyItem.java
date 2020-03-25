@@ -15,9 +15,9 @@ public interface IBitModifyItem {
 
     /**
      * Performs an optional custom modification.
-     * @param leftClick If the left mouse button was clicked, false if right mouse button.
+     * @param attack If the left mouse button was clicked, false if right mouse button.
      */
-    public default void performCustomModification(final boolean leftClick, final ItemStack item) {}
+    public default void performCustomModification(final boolean attack, final ItemStack item) {}
 
     /**
      * Validates whether or not this item's allowed modification type can be triggered by the

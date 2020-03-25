@@ -6,6 +6,7 @@ import net.minecraft.block.SoundType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.util.Direction;
@@ -15,20 +16,11 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
-import nl.dgoossens.chiselsandbits2.api.block.IVoxelSrc;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel.ChiselIterator;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel.ChiselTypeIterator;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
-import nl.dgoossens.chiselsandbits2.common.network.client.CChiselBlockPacket;
 
 import javax.annotation.Nonnull;
-
-import static nl.dgoossens.chiselsandbits2.api.block.BitOperation.PLACE;
 
 /**
  * A util that handles everything related to the chiseleling process with some extra
@@ -129,7 +121,7 @@ public class ChiselUtil {
         BlockState placementState = ChiselsAndBits2.getInstance().getAPI().getRestrictions().getPlacementState(originalState);
         if(target.equals(ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get()) || placementState == null) return;
 
-        //IFluidState fluid = world.getFluidState(pos);
+        IFluidState fluid = world.getFluidState(pos);
         boolean isAir = isBlockReplaceable(world, pos, player, face, true);
 
         if (ChiselsAndBits2.getInstance().getAPI().getRestrictions().canChiselBlock(originalState) || isAir) {
@@ -140,10 +132,9 @@ public class ChiselUtil {
                 if (!isAir) te.fillWith(blockId);
                 else {
                     te.fillWith(VoxelBlob.AIR_BIT);
-                    //TODO re-enable fluid bits!
                     //If there was a fluid previously make this a fluid block instead of an air block.
-                    //if (fluid.isEmpty()) te.fillWith(VoxelBlob.AIR_BIT);
-                    //else te.fillWith(BitUtil.getFluidId(fluid));
+                    if (fluid.isEmpty()) te.fillWith(VoxelBlob.AIR_BIT);
+                    else te.fillWith(BitUtil.getFluidId(fluid));
                 }
             }
         }
@@ -160,26 +151,5 @@ public class ChiselUtil {
             return true;
 
         return ChiselsAndBits2.getInstance().getAPI().getRestrictions().canChiselBlock(originalState) || isBlockReplaceable(world, pos, player, face, false);
-    }
-
-    /**
-     * Get the chisel iterator from a incoming chisel packet.
-     */
-    public static ChiselIterator getIterator(final IItemMode mode, final CChiselBlockPacket pkt, final IVoxelSrc vb, final BlockPos pos, final BitOperation place) {
-        if (mode == ItemMode.CHISEL_DRAWN_REGION) {
-            final BlockPos from = pkt.from.blockPos;
-            final BlockPos to = pkt.to.blockPos;
-
-            final int bitX = pos.getX() == from.getX() ? pkt.from.bitX : 0;
-            final int bitY = pos.getY() == from.getY() ? pkt.from.bitY : 0;
-            final int bitZ = pos.getZ() == from.getZ() ? pkt.from.bitZ : 0;
-
-            final int scaleX = (pos.getX() == to.getX() ? pkt.to.bitX : 15) - bitX + 1;
-            final int scaleY = (pos.getY() == to.getY() ? pkt.to.bitY : 15) - bitY + 1;
-            final int scaleZ = (pos.getZ() == to.getZ() ? pkt.to.bitZ : 15) - bitZ + 1;
-
-            return new ChiselTypeIterator(VoxelBlob.DIMENSION, bitX, bitY, bitZ, scaleX, scaleY, scaleZ, pkt.side);
-        }
-        return ChiselTypeIterator.create(VoxelBlob.DIMENSION, pkt.from.bitX, pkt.from.bitY, pkt.from.bitZ, vb, mode, pkt.side, place.equals(PLACE));
     }
 }

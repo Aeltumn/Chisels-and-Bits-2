@@ -1,7 +1,6 @@
 package nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
@@ -10,7 +9,7 @@ import nl.dgoossens.chiselsandbits2.api.render.ICullTest;
 import nl.dgoossens.chiselsandbits2.api.block.IVoxelSrc;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.serialization.BlobSerilizationCache;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.bit.BitIterator;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.BitIterator;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 import nl.dgoossens.chiselsandbits2.common.util.RotationUtil;
 

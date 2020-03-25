@@ -53,7 +53,10 @@ public class RenderingAssistant {
             //RenderSystem.disableTexture();
             //RenderSystem.depthMask(false);
             //RenderSystem.shadeModel(GL11.GL_FLAT);
-            renderLine(a.subtract(x, y, z), b.subtract(x, y, z), red, green, blue, 0.4f);
+            Vec3d a2 = a.add(-x, -y, -z);
+            Vec3d b2 = b.add(-x, -y, -z);
+            System.out.println("Rendering from "+a+" to "+b+" which translates to "+a2+" to "+b2+" because we have a view at ("+x+", "+y+", "+z+")");
+            renderLine(a2, b2, red, green, blue, 0.4f);
 
             //RenderSystem.shadeModel(Minecraft.isAmbientOcclusionEnabled() ? GL11.GL_SMOOTH : GL11.GL_FLAT);
             //RenderSystem.depthMask(true);

@@ -74,7 +74,6 @@ public class ChiseledBlockTileEntity extends TileEntity {
         itemCache = null;
 
         requestModelDataUpdate();
-        recalculateShape();
     }
 
     public boolean hasRenderTracker() {
@@ -110,7 +109,10 @@ public class ChiseledBlockTileEntity extends TileEntity {
      */
     @Nonnull
     public VoxelShape getCachedShape() {
-        if (cachedShape == null) recalculateShape();
+        if (cachedShape == null) {
+            if (getVoxelReference() != null)
+                cachedShape = VoxelShapes.create(getVoxelReference().getVoxelBlob().getBounds().toBoundingBox());
+        }
         return cachedShape == null ? VoxelShapes.empty() : cachedShape;
     }
 
@@ -121,34 +123,23 @@ public class ChiseledBlockTileEntity extends TileEntity {
     public VoxelShape getCollisionShape() {
         if (ChiselUtil.ACTIVELY_TRACING) {
             //This will trigger if we're doing raytracing, and we need to do a custom shape to also have fluids included.
-            if (raytraceShape == null) recalculateShape();
-            return raytraceShape == null ? VoxelShapes.empty() : raytraceShape;
+            if (raytraceShape == null) {
+                VoxelShape base = VoxelShapes.empty();
+                if (getVoxelReference() != null)
+                    for (AxisAlignedBB box : getVoxelReference().getInstance().getBoxes())
+                        base = VoxelShapes.combine(base, box, IBooleanFunction.OR);
+                raytraceShape = base.simplify();
+            }
+            return raytraceShape;
         }
-        if (collisionShape == null) recalculateShape();
-        return collisionShape == null ? VoxelShapes.empty() : collisionShape;
-    }
-
-    /**
-     * Recalculates the voxel shapes.
-     */
-    public void recalculateShape() {
         if (collisionShape == null) {
             VoxelShape base = VoxelShapes.empty();
             if (getVoxelReference() != null)
                 for (AxisAlignedBB box : getVoxelReference().getInstance().getCollidableBoxes())
-                    base = VoxelShapes.combine(base, VoxelShapes.create(box), IBooleanFunction.OR);
+                    base = VoxelShapes.combine(base, box, IBooleanFunction.OR);
             collisionShape = base.simplify();
         }
-        if(raytraceShape == null) {
-            VoxelShape base = VoxelShapes.empty();
-            if (getVoxelReference() != null)
-                for (AxisAlignedBB box : getVoxelReference().getInstance().getBoxes())
-                    base = VoxelShapes.combine(base, VoxelShapes.create(box), IBooleanFunction.OR);
-            raytraceShape = base.simplify();
-        }
-
-        if (cachedShape == null && getVoxelReference() != null)
-            cachedShape = VoxelShapes.create(getVoxelReference().getVoxelBlob().getBounds().toBoundingBox());
+        return collisionShape;
     }
 
     /**

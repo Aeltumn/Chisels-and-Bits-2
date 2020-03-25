@@ -23,7 +23,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
@@ -38,8 +37,7 @@ import nl.dgoossens.chiselsandbits2.client.render.GhostModelRenderer;
 import nl.dgoossens.chiselsandbits2.client.render.RenderingAssistant;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel.ChiselIterator;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel.ChiselTypeIterator;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.ChiselIterator;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockPlacementLogic;
@@ -188,13 +186,6 @@ public class ClientSideHelper {
      * Automatically handles whether or not a selection has already started and caching the measurement.
      */
     public void useTapeMeasure(BlockRayTraceResult rayTrace) {
-        //Clear measurements if there are measurements and we're not currently selecting one.
-        if(tapeMeasureCache == null && Minecraft.getInstance().player.isCrouching() && !ChiselsAndBits2.getInstance().getClient().tapeMeasurements.isEmpty()) {
-            ChiselsAndBits2.getInstance().getClient().tapeMeasurements.clear();
-            Minecraft.getInstance().player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.cleared_measurements"), true);
-            return;
-        }
-
         final BitLocation location = new BitLocation(rayTrace, true, BitOperation.REMOVE);
         if(tapeMeasureCache == null) {
             //First Selection
@@ -265,16 +256,9 @@ public class ClientSideHelper {
                 //Tape measure never displays the small cube.
                 if(tapeMeasure) return false;
 
-                //This method call is super complicated, but it saves having way more local variables than necessary.
-                // (although I don't know if limiting local variables actually matters)
-                RenderingAssistant.drawBoundingBox(matrix, buffer,
-                        ChiselTypeIterator.create(
-                                VoxelBlob.DIMENSION, location.bitX, location.bitY, location.bitZ,
-                                new VoxelRegionSrc(player, world, location.blockPos, 1),
-                                ((TypedItem) stack.getItem()).getSelectedMode(stack),
-                                ((BlockRayTraceResult) rayTrace).getFace(),
-                                operation.equals(BitOperation.PLACE)
-                        ).getBoundingBox(data instanceof ChiseledBlockTileEntity ? ((ChiseledBlockTileEntity) data).getVoxelBlob() : new VoxelBlob(BitUtil.getBlockId(world.getBlockState(location.blockPos)))).orElse(null), location.blockPos);
+                ChiselIterator iterator = ((TypedItem) stack.getItem()).getSelectedMode(stack).getIterator(new BlockPos(location.bitX, location.bitY, location.bitZ), ((BlockRayTraceResult) rayTrace).getFace(), operation, new VoxelRegionSrc(player, world, location.blockPos, 1));
+                VoxelBlob blob = data instanceof ChiseledBlockTileEntity ? ((ChiseledBlockTileEntity) data).getVoxelBlob() : new VoxelBlob(BitUtil.getBlockId(world.getBlockState(location.blockPos)));
+                RenderingAssistant.drawBoundingBox(matrix, buffer, iterator.getBoundingBox(blob).orElse(null), location.blockPos);
                 return true;
             }
         }
@@ -292,11 +276,11 @@ public class ClientSideHelper {
             ChiselIterator oneEnd, otherEnd;
             if(ItemMode.TAPEMEASURE_BLOCK.equals(mode)) {
                 boolean x = first.blockPos.getX() > second.blockPos.getX(), y = first.blockPos.getY() > second.blockPos.getY(), z = first.blockPos.getZ() > second.blockPos.getZ();
-                oneEnd = ChiselTypeIterator.create(VoxelBlob.DIMENSION, x ? 15 : 0, y ? 15 : 0, z ? 15 : 0, VoxelBlob.NULL_BLOB, ItemMode.CHISEL_SINGLE, Direction.UP, operation.equals(BitOperation.PLACE));
-                otherEnd = ChiselTypeIterator.create(VoxelBlob.DIMENSION, !x ? 15 : 0, !y ? 15 : 0, !z ? 15 : 0, VoxelBlob.NULL_BLOB, ItemMode.CHISEL_SINGLE, Direction.UP, operation.equals(BitOperation.PLACE));
+                oneEnd = ItemMode.CHISEL_SINGLE.getIterator(new BlockPos(x ? 15 : 0, y ? 15 : 0, z ? 15 : 0), Direction.UP, operation, null);
+                otherEnd = ItemMode.CHISEL_SINGLE.getIterator(new BlockPos(x ? 15 : 0, y ? 15 : 0, z ? 15 : 0), Direction.UP, operation, null);
             } else {
-                oneEnd = ChiselTypeIterator.create(VoxelBlob.DIMENSION, first.bitX, first.bitY, first.bitZ, VoxelBlob.NULL_BLOB, ItemMode.CHISEL_SINGLE, Direction.UP, operation.equals(BitOperation.PLACE));
-                otherEnd = ChiselTypeIterator.create(VoxelBlob.DIMENSION, second.bitX, second.bitY, second.bitZ, VoxelBlob.NULL_BLOB, ItemMode.CHISEL_SINGLE, Direction.UP, operation.equals(BitOperation.PLACE));
+                oneEnd = ItemMode.CHISEL_SINGLE.getIterator(new BlockPos(first.bitX, first.bitY, first.bitZ), Direction.UP, operation, null);
+                otherEnd = ItemMode.CHISEL_SINGLE.getIterator(new BlockPos(second.bitX, second.bitY, second.bitZ), Direction.UP, operation, null);
             }
 
             Optional<AxisAlignedBB> blobA = oneEnd.getBoundingBox(VoxelBlob.FULL_BLOCK), blobB = otherEnd.getBoundingBox(VoxelBlob.FULL_BLOCK);
@@ -319,14 +303,14 @@ public class ClientSideHelper {
 
                 RenderingAssistant.drawLine(a, b, color.getRed() / 255.0f, color.getGreen() / 225.0f, color.getBlue() / 255.0f);
 
-                GlStateManager.disableDepthTest();
-                GlStateManager.disableCull();
+                //GlStateManager.disableDepthTest();
+                //GlStateManager.disableCull();
 
-                final double length = a.distanceTo(b) + BIT_SIZE;
-                renderTapeMeasureLabel(partialTicks, (a.getX() + b.getX()) * 0.5 - x, (a.getY() + b.getY()) * 0.5 - y, (a.getZ() + b.getZ()) * 0.5 - z, length, color.getRed(), color.getGreen(), color.getBlue());
+                //final double length = a.distanceTo(b) + BIT_SIZE;
+                //renderTapeMeasureLabel(partialTicks, (a.getX() + b.getX()) * 0.5 - x, (a.getY() + b.getY()) * 0.5 - y, (a.getZ() + b.getZ()) * 0.5 - z, length, color.getRed(), color.getGreen(), color.getBlue());
 
-                GlStateManager.enableDepthTest();
-                GlStateManager.enableCull();
+                //GlStateManager.enableDepthTest();
+                //GlStateManager.enableCull();
             } else {
                 //TODO RenderingAssistant.drawBoundingBox(null, null, bb, BlockPos.ZERO, c.getRed() / 255.0f, c.getGreen() / 225.0f, c.getBlue() / 255.0f);
 

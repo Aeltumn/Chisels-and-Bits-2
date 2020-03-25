@@ -1,4 +1,4 @@
-package nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.chisel;
+package nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators;
 
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -15,7 +15,7 @@ public interface ChiselIterator {
      * Get the integer box around this iterator but only on bits
      * that are not air in the supplied blob.
      */
-    Optional<IntegerBox> getVoxelBox(VoxelBlob blob);
+    Optional<IntegerBox> getIntegerBox(VoxelBlob blob);
 
     /**
      * Get the bounding box around this iterator but only on bits
