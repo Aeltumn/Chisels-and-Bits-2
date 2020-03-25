@@ -6,7 +6,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.shapes.VoxelShape;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.BitIterator;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.bit.BitOcclusionIterator;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 
 import java.io.ByteArrayInputStream;

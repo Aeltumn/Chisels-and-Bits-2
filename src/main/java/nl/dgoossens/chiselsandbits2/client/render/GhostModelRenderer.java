@@ -10,17 +10,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
+import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockPlacementLogic;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
-
-import java.util.function.Supplier;
+import nl.dgoossens.chiselsandbits2.common.util.ChiselUtil;
 
 /**
  * The class responsible for rendering the ghost model of the held chiseled
@@ -29,31 +28,41 @@ import java.util.function.Supplier;
 public class GhostModelRenderer {
     //All these values are the states of the currently shown ghost. If they change we need to regenerate the model.
     private IBakedModel model = null;
-    private BlockPos position, partial; //partial is a blockpos with bitX, bitY and bitZ, only used by offgrid
+    private BitLocation location;
     private int heldSlot;
     private IntegerBox modelBounds;
     private BlockState state;
-    private IItemMode mode;
+    private PlayerItemMode mode;
     private Direction face;
     private boolean isEmpty, silhouette, offGrid;
     private long previousTileIteration = -Long.MAX_VALUE;;
 
-    public GhostModelRenderer(ItemStack item, NBTBlobConverter c, PlayerEntity player, BlockPos pos, BlockPos partial, Direction face, boolean offGrid, final Supplier<Boolean> silhouette) {
+    public GhostModelRenderer(ItemStack item, PlayerEntity player, BitLocation location, Direction face, boolean offGrid) {
         if(item.isEmpty()) {
             isEmpty = true;
             return;
         }
 
+        final NBTBlobConverter c = new NBTBlobConverter();
+        c.readChiselData(item.getChildTag(ChiselUtil.NBT_BLOCKENTITYTAG), VoxelVersions.getDefault());
+
         this.heldSlot = player.inventory.currentItem;
-        this.position = pos;
-        this.partial = partial;
-        this.silhouette = silhouette.get();
-        this.state = player.world.getBlockState(pos);
+        this.location = location;
         this.mode = ClientItemPropertyUtil.getChiseledBlockMode();
+
+        //Whether or not this is a silhoutte depends on whether or not it is placeable, which depends on if this is off-grid or not.
+        if(offGrid) {
+            this.silhouette = BlockPlacementLogic.isNotPlaceableOffGrid(player, player.world, face, location, item);
+        } else {
+            //We have a supplier for the NBTBlobConverter as we have it ready for use here so there is no need to recalculate it.
+            this.silhouette = BlockPlacementLogic.isNotPlaceable(player, player.world, location.blockPos, face, mode, () -> c);
+        }
+        this.state = player.world.getBlockState(location.blockPos);
         this.face = face;
         this.offGrid = offGrid;
 
-        final TileEntity te = player.world.getTileEntity(pos);
+        final TileEntity te = player.world.getTileEntity(location.blockPos);
+
         boolean modified = false;
         VoxelBlob blob = c.getVoxelBlob();
         if(te instanceof ChiseledBlockTileEntity) {
@@ -95,9 +104,9 @@ public class GhostModelRenderer {
     /**
      * Returns whether or not this model is still valid if we have new inputs.
      */
-    public boolean isValid(PlayerEntity player, BlockPos pos, BlockPos partial, Direction face, boolean offGrid) {
+    public boolean isValid(PlayerEntity player, BitLocation pos, Direction face, boolean offGrid) {
         if(isEmpty) return false;
-        if (model != null && heldSlot == player.inventory.currentItem && ClientItemPropertyUtil.getChiseledBlockMode().equals(mode) && pos.equals(position) && offGrid == this.offGrid && partial.equals(this.partial) && face == this.face && player.world.getBlockState(pos).equals(state) && !didTileChange(player.world.getTileEntity(pos)))
+        if (model != null && heldSlot == player.inventory.currentItem && ClientItemPropertyUtil.getChiseledBlockMode().equals(mode) && this.location.equals(pos) && offGrid == this.offGrid && face == this.face && player.world.getBlockState(pos.blockPos).equals(state) && !didTileChange(player.world.getTileEntity(pos.blockPos)))
             return true;
         else
             return false;
@@ -129,9 +138,10 @@ public class GhostModelRenderer {
 
         PlayerEntity player = Minecraft.getInstance().player;
         GlStateManager.pushMatrix();
+        BlockPos position = location.blockPos;
         GlStateManager.translated(position.getX() - x, position.getY() - y, position.getZ() - z);
-        if (!partial.equals(BlockPos.ZERO)) {
-            final BlockPos t = BlockPlacementLogic.getPartialOffset(face, partial, modelBounds);
+        if (!location.equals(BlockPos.ZERO)) {
+            final BlockPos t = BlockPlacementLogic.getPartialOffset(face, new BlockPos(location.bitX, location.bitY, location.bitZ), modelBounds);
             final double fullScale = 1.0 / VoxelBlob.DIMENSION;
             GlStateManager.translated(t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale);
         }

@@ -11,9 +11,10 @@ import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.ExtendedVoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.util.ChiselUtil;
+
+import java.util.function.Supplier;
 
 /**
  * A class dedicated to calculating whether or not we can currently place a block and where it gets placed
@@ -23,31 +24,31 @@ public class BlockPlacementLogic {
     /**
      * Returns whether or not a block is placeable.
      */
-    public static boolean isNormallyPlaceable(final PlayerEntity player, final World world, final BlockPos pos, final Direction face, final NBTBlobConverter nbt, final PlayerItemMode mode) {
+    public static boolean isNotPlaceable(final PlayerEntity player, final World world, final BlockPos pos, final Direction face, final PlayerItemMode mode, final Supplier<NBTBlobConverter> nbtSupplier) {
         if(ChiselUtil.isBlockReplaceable(world, pos, player, face, false))
-            return true;
+            return false;
 
         if(mode.equals(PlayerItemMode.CHISELED_BLOCK_FIT)) {
             if(world.getTileEntity(pos) instanceof ChiseledBlockTileEntity) {
                 ChiseledBlockTileEntity cbte = (ChiseledBlockTileEntity) world.getTileEntity(pos);
-                if(cbte != null && !nbt.getVoxelBlob().canMerge(cbte.getVoxelBlob()))
-                    return false; //Can't place if we can't merge this
-                return true;
+                if(cbte != null && !nbtSupplier.get().getVoxelBlob().canMerge(cbte.getVoxelBlob()))
+                    return true; //Can't place if we can't merge this
+                return false;
             }
         }
         switch(mode) {
             case CHISELED_BLOCK_GRID:
-                return false;
+                return true;
             default:
-                return world.getTileEntity(pos) instanceof ChiseledBlockTileEntity;
+                return !(world.getTileEntity(pos) instanceof ChiseledBlockTileEntity);
         }
     }
 
     /**
      * Returns whether or not a block is placeable when placing off-grid.
      */
-    public static boolean isPlaceableOffgrid(final PlayerEntity player, final World world, final Direction face, final BitLocation target, final ItemStack item) {
-        if(!(item.getItem() instanceof IVoxelStorer)) return false;
+    public static boolean isNotPlaceableOffGrid(final PlayerEntity player, final World world, final Direction face, final BitLocation target, final ItemStack item) {
+        if(!(item.getItem() instanceof IVoxelStorer)) return true;
         IVoxelStorer it = (IVoxelStorer) item.getItem();
 
         final ExtendedVoxelBlob evb = new ExtendedVoxelBlob(3, 3, 3, -1, -1, -1);
@@ -61,15 +62,15 @@ public class BlockPlacementLogic {
             pos = pos.add(target.blockPos);
             //If we can't chisel here, don't chisel.
             if (world.getServer() != null && world.getServer().isBlockProtected(world, pos, player))
-                return false;
+                return true;
 
             if (!ChiselUtil.canChiselPosition(pos, player, world.getBlockState(pos), face))
-                return false;
+                return true;
 
             if (!ChiselUtil.isBlockChiselable(world, pos, player, world.getBlockState(pos), face))
-                return false;
+                return true;
         }
-        return true;
+        return false;
     }
 
     /**

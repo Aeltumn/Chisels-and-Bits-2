@@ -18,10 +18,10 @@ public enum ItemMode implements ItemModeEnum {
     CHISEL_SINGLE(3, 3),
     CHISEL_LINE(6, 6),
     CHISEL_PLANE(9, 9),
-    CHISEL_CONNECTED_PLANE(9, 9),
-    CHISEL_CONNECTED_MATERIAL(9, 9),
+    //CHISEL_CONNECTED_PLANE(9, 9),
+    //CHISEL_CONNECTED_MATERIAL(9, 9),
     CHISEL_DRAWN_REGION(9, 13),
-    CHISEL_SAME_MATERIAL(9, 13),
+    //CHISEL_SAME_MATERIAL(9, 13),
     CHISEL_SNAP8(9, 11), //0.125 size (1/8)
     CHISEL_SNAP4(11, 13), //0.25 size (1/4)
     CHISEL_SNAP2(13, 16), // 0.5 size (1/2)
@@ -60,10 +60,10 @@ public enum ItemMode implements ItemModeEnum {
             case CHISEL_SINGLE:
             case CHISEL_LINE:
             case CHISEL_PLANE:
-            case CHISEL_CONNECTED_PLANE:
-            case CHISEL_CONNECTED_MATERIAL:
+            //case CHISEL_CONNECTED_PLANE:
+            //case CHISEL_CONNECTED_MATERIAL:
             case CHISEL_DRAWN_REGION:
-            case CHISEL_SAME_MATERIAL:
+            //case CHISEL_SAME_MATERIAL:
             case CHISEL_SNAP8:
             case CHISEL_SNAP4:
             case CHISEL_SNAP2:
@@ -122,14 +122,14 @@ public enum ItemMode implements ItemModeEnum {
 
     @Override
     public ChiselIterator getIterator(BlockPos bitPosition, Direction side, BitOperation place, IVoxelSrc source) {
-        if (this == ItemMode.CHISEL_CONNECTED_MATERIAL)
+        /*if (this == ItemMode.CHISEL_CONNECTED_MATERIAL)
             return new ChiselExtrudeMaterialIterator(bitPosition, source, side, place.equals(PLACE));
 
         if (this == ItemMode.CHISEL_CONNECTED_PLANE)
             return new ChiselExtrudeIterator(bitPosition, source, side, place.equals(PLACE));
 
         if (this == ItemMode.CHISEL_SAME_MATERIAL)
-            return new ChiselMaterialIterator(bitPosition, source, side, place.equals(PLACE));
+            return new ChiselMaterialIterator(bitPosition, source, side, place.equals(PLACE));*/
 
         return new ChiselTypeIterator(this, bitPosition, side);
     }

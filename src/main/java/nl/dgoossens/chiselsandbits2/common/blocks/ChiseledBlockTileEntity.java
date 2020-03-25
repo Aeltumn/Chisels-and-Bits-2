@@ -126,18 +126,21 @@ public class ChiseledBlockTileEntity extends TileEntity {
             if (raytraceShape == null) {
                 VoxelShape base = VoxelShapes.empty();
                 if (getVoxelReference() != null)
-                    for (AxisAlignedBB box : getVoxelReference().getInstance().getBoxes())
+                    for (VoxelShape box : getVoxelReference().getInstance().getBoxes())
                         base = VoxelShapes.combine(base, box, IBooleanFunction.OR);
                 raytraceShape = base.simplify();
             }
             return raytraceShape;
         }
         if (collisionShape == null) {
+            long t = System.nanoTime(), g = System.currentTimeMillis();
             VoxelShape base = VoxelShapes.empty();
             if (getVoxelReference() != null)
-                for (AxisAlignedBB box : getVoxelReference().getInstance().getCollidableBoxes())
+                for (VoxelShape box : getVoxelReference().getInstance().getCollidableBoxes())
                     base = VoxelShapes.combine(base, box, IBooleanFunction.OR);
             collisionShape = base.simplify();
+            System.out.println("Took "+(System.nanoTime()-t)+" ns");
+            System.out.println("Took "+(System.currentTimeMillis()-g)+" ms");
         }
         return collisionShape;
     }

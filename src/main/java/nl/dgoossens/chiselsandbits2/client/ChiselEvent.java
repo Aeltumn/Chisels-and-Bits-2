@@ -9,7 +9,6 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
@@ -87,7 +86,7 @@ public class ChiselEvent {
                         case ROTATE:
                         case MIRROR:
                             //Wrench
-                            performBlockRotation(player, stack);
+                            performBlockRotation(player);
                             break;
                         case PLACE:
                             //Chiseled Block
@@ -178,7 +177,7 @@ public class ChiselEvent {
     /**
      * Handle the block being rotated.
      */
-    public static void performBlockRotation(final PlayerEntity player, final ItemStack stack) {
+    public static void performBlockRotation(final PlayerEntity player) {
         if (!player.world.isRemote)
             throw new UnsupportedOperationException("Block rotation can only be started on the client-side.");
 

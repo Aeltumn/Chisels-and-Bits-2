@@ -8,6 +8,8 @@ import net.minecraft.util.math.Vec3d;
 import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 
+import java.util.Objects;
+
 /**
  * The location of a bit on a certain block.
  * Basically an extension of a {@link BlockPos} with a specific targeted bit.
@@ -18,7 +20,7 @@ public class BitLocation {
     public int bitX, bitY, bitZ;
 
     /**
-     * Get a bit location that is being targetted from a ray trace result.
+     * Get a bit location that is being targeted from a ray trace result.
      */
     public BitLocation(BlockRayTraceResult mop, final boolean absHit, final BitOperation type) {
         final BlockPos absOffset = absHit ? mop.getPos() : BlockPos.ZERO;
@@ -182,6 +184,22 @@ public class BitLocation {
         // rounding can sometimes create -1 or 16, just snap int to the nearest
         // valid position and move on.
         return Math.min(Math.max(0, x), 15);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BitLocation that = (BitLocation) o;
+        return bitX == that.bitX &&
+                bitY == that.bitY &&
+                bitZ == that.bitZ &&
+                Objects.equals(blockPos, that.blockPos);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(blockPos, bitX, bitY, bitZ);
     }
 
     @Override

@@ -22,9 +22,9 @@ public class ChiselMaterialIterator extends BaseChiselIterator implements Chisel
     private Iterator<Integer> list; //List of bits that we will iterate over.
     private int value; //Currently selected bit
 
-    public ChiselMaterialIterator(final BlockPos pos, final IVoxelSrc source, final Direction side, final boolean place) {
+    public ChiselMaterialIterator(final BlockPos partial, final IVoxelSrc source, final Direction side, final boolean place) {
         super(side);
-        int x = pos.getX(), y = pos.getY(), z = pos.getZ();
+        int x = partial.getX(), y = partial.getY(), z = partial.getZ();
         List<Integer> selectedpositions = new ArrayList<>();
 
         int tx = side.getXOffset(), ty = side.getYOffset(), tz = side.getZOffset();
@@ -36,9 +36,9 @@ public class ChiselMaterialIterator extends BaseChiselIterator implements Chisel
             x -= tx;
             y -= ty;
             z -= tz;
-            placeoffsetX = side.getAxis() == Axis.X ? side.getAxisDirection() == AxisDirection.POSITIVE ? 1 : -1 : 0;
-            placeoffsetY = side.getAxis() == Axis.Y ? side.getAxisDirection() == AxisDirection.POSITIVE ? 1 : -1 : 0;
-            placeoffsetZ = side.getAxis() == Axis.Z ? side.getAxisDirection() == AxisDirection.POSITIVE ? 1 : -1 : 0;
+            placeoffsetX = side.getAxis() == Axis.X ? (side.getAxisDirection() == AxisDirection.POSITIVE ? 1 : -1) : 0;
+            placeoffsetY = side.getAxis() == Axis.Y ? (side.getAxisDirection() == AxisDirection.POSITIVE ? 1 : -1) : 0;
+            placeoffsetZ = side.getAxis() == Axis.Z ? (side.getAxisDirection() == AxisDirection.POSITIVE ? 1 : -1) : 0;
         }
 
         int target = source.getSafe(x, y, z);

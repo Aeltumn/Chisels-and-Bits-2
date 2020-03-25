@@ -9,9 +9,9 @@ import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
  */
 public class BitIterator {
     public final static float ONE_16_TH = 1.0f / VoxelBlob.DIMENSION;
-    private int bit;
     private boolean done;
-    public int x, y, z;
+    public int x = -1, y, z;
+    public int bit;
 
     public boolean hasNext() {
         if(done) return false;

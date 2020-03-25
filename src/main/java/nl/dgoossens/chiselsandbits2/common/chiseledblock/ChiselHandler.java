@@ -211,13 +211,13 @@ public class ChiselHandler {
         BlockPos actualPos = pkt.pos; //Placement block for non-offgird placement
         boolean canPlace = true;
         if (player.isCrouching() && !ClientItemPropertyUtil.getChiseledBlockMode().equals(PlayerItemMode.CHISELED_BLOCK_GRID)) {
-            if (!BlockPlacementLogic.isPlaceableOffgrid(player, player.world, face, pkt.location, player.getHeldItemMainhand()))
+            if (BlockPlacementLogic.isNotPlaceableOffGrid(player, player.world, face, pkt.location, player.getHeldItemMainhand()))
                 canPlace = false;
         } else {
-            if((!ChiselUtil.isBlockReplaceable(player.world, actualPos, player, face, false) && ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_GRID) || (!(player.world.getTileEntity(actualPos) instanceof ChiseledBlockTileEntity) && !BlockPlacementLogic.isNormallyPlaceable(player, player.world, actualPos, face, nbt, mode)))
+            if((!ChiselUtil.isBlockReplaceable(player.world, actualPos, player, face, false) && ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_GRID) || (!(player.world.getTileEntity(actualPos) instanceof ChiseledBlockTileEntity) && BlockPlacementLogic.isNotPlaceable(player, player.world, actualPos, face, nbt, mode)))
                 actualPos = actualPos.offset(face);
 
-            if(!BlockPlacementLogic.isNormallyPlaceable(player, player.world, actualPos, face, nbt, mode))
+            if(BlockPlacementLogic.isNotPlaceable(player, player.world, actualPos, face, nbt, mode))
                 canPlace = false;
         }
         if(!canPlace) {

@@ -88,8 +88,15 @@ public class ChiselUtil {
      * Raytraces from the player's eyes to a block, uses COLLIDER mode.
      */
     public static RayTraceResult rayTrace(final Entity entity) {
-        Vec3d vec3d = entity.getEyePosition(1.0f);
-        Vec3d vec3d1 = entity.getLook(1.0f);
+        return rayTrace(entity, 1.0f);
+    }
+
+    /**
+     * Raytraces from the player's eyes to a block, uses COLLIDER mode.
+     */
+    public static RayTraceResult rayTrace(final Entity entity, final float partialTicks) {
+        Vec3d vec3d = entity.getEyePosition(partialTicks);
+        Vec3d vec3d1 = entity.getLook(partialTicks);
         double d = Minecraft.getInstance().playerController.getBlockReachDistance();
         Vec3d vec3d2 = vec3d.add(vec3d1.x * d, vec3d1.y * d, vec3d1.z * d);
         ACTIVELY_TRACING = true;

@@ -2,6 +2,7 @@ package nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators;
 
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 
@@ -61,10 +62,10 @@ public class ChiselTypeIterator extends BaseChiselIterator implements ChiselIter
      * - {@link ItemMode#CHISEL_CUBE7}
      * - {@link ItemMode#CHISEL_SINGLE}
      */
-    public ChiselTypeIterator(final ItemMode mode, BlockPos pos, final Direction side) {
+    public ChiselTypeIterator(final ItemMode mode, final BlockPos partial, final Direction side) {
         super(side);
         int offset = 0;
-        int x = pos.getX(), y = pos.getY(), z = pos.getZ();
+        int x = partial.getX(), y = partial.getY(), z = partial.getZ();
         full_size = VoxelBlob.DIMENSION;
         max_dim = full_size - 1;
 
