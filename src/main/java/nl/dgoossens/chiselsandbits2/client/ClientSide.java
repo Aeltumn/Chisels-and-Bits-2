@@ -1,6 +1,7 @@
 package nl.dgoossens.chiselsandbits2.client;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.PlayerContainer;
@@ -199,8 +200,9 @@ public class ClientSide extends ClientSideHelper {
         if (Minecraft.getInstance().gameSettings.hideGUI) return;
 
         ClientSide client = ChiselsAndBits2.getInstance().getClient();
-        client.renderTapeMeasureBoxes(e.getPartialTicks());
-        client.renderPlacementGhost(e.getPartialTicks());
+        IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        client.renderTapeMeasureBoxes(e.getMatrixStack(), buffers, e.getPartialTicks());
+        client.renderPlacementGhost(e.getMatrixStack(), buffers, e.getPartialTicks());
     }
 
     /**

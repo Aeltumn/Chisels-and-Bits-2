@@ -214,10 +214,10 @@ public class ChiselHandler {
             if (BlockPlacementLogic.isNotPlaceableOffGrid(player, player.world, face, pkt.location, player.getHeldItemMainhand()))
                 canPlace = false;
         } else {
-            if((!ChiselUtil.isBlockReplaceable(player.world, actualPos, player, face, false) && ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_GRID) || (!(player.world.getTileEntity(actualPos) instanceof ChiseledBlockTileEntity) && BlockPlacementLogic.isNotPlaceable(player, player.world, actualPos, face, nbt, mode)))
+            if((!ChiselUtil.isBlockReplaceable(player.world, actualPos, player, face, false) && ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_GRID) || (!(player.world.getTileEntity(actualPos) instanceof ChiseledBlockTileEntity) && BlockPlacementLogic.isNotPlaceable(player, player.world, actualPos, face, mode, () -> nbt)))
                 actualPos = actualPos.offset(face);
 
-            if(BlockPlacementLogic.isNotPlaceable(player, player.world, actualPos, face, nbt, mode))
+            if(BlockPlacementLogic.isNotPlaceable(player, player.world, actualPos, face, mode, () -> nbt))
                 canPlace = false;
         }
         if(!canPlace) {

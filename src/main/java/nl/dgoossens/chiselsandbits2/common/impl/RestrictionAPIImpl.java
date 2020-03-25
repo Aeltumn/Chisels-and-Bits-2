@@ -67,7 +67,6 @@ public class RestrictionAPIImpl implements RestrictionAPI {
             return;
         }
         if (blk.hasTileEntity(block)) return;
-        if (!blk.getDefaultState().isSolid()) return; //TODO re-enable non-solid blocks
         //Can't be a rotatable block without being allowed to be fully rotated.
         if (blk.getDefaultState().has(BlockStateProperties.HORIZONTAL_FACING)) return;
         if (blk.getDefaultState().has(BlockStateProperties.FACING_EXCEPT_UP)) return;

@@ -1,28 +1,12 @@
 package nl.dgoossens.chiselsandbits2.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
-import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockColor;
-import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledTintColor;
-import org.lwjgl.opengl.GL11;
-
-import java.awt.*;
-import java.util.List;
-import java.util.Random;
 
 /**
  * Assists with generic rendering tasks for rendering boxes and lines, mostly those called by the ClientSideHelper.
@@ -37,43 +21,27 @@ public class RenderingAssistant {
             ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
             double x = renderInfo.getProjectedView().x, y = renderInfo.getProjectedView().y, z = renderInfo.getProjectedView().z;
             AxisAlignedBB offsetBoundingBox = bb.offset(location.getX() - x, location.getY() - y, location.getZ() - z);
-            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(RenderType.getLines()), offsetBoundingBox, red, green, blue, 0.4f);
+
+            //Draw one with the normal non-depth lines version and one much lighter with depth test
+            //This makes it much easier to sculpt as you can estimate how many bits you will destroy with this action.
+            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(RenderType.LINES), offsetBoundingBox, red, green, blue, 0.22f);
+            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINE_DEPTH), offsetBoundingBox, red, green, blue, 0.18f);
         }
     }
 
-    public static void drawLine(final Vec3d a, final Vec3d b, final float red, final float green, final float blue) {
+    public static void drawLine(final MatrixStack matrix, final IRenderTypeBuffer buffer, final Vec3d a, final Vec3d b, final float red, final float green, final float blue) {
         if(a != null && b != null) {
             ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
             double x = renderInfo.getProjectedView().x, y = renderInfo.getProjectedView().y, z = renderInfo.getProjectedView().z;
-
-            //TODO Don't know if RenderSystem is the best way to do this.
-            //RenderSystem.enableBlend();
-            //RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-            //GL11.glLineWidth(2.0F);
-            //RenderSystem.disableTexture();
-            //RenderSystem.depthMask(false);
-            //RenderSystem.shadeModel(GL11.GL_FLAT);
-            Vec3d a2 = a.add(-x, -y, -z);
-            Vec3d b2 = b.add(-x, -y, -z);
-            System.out.println("Rendering from "+a+" to "+b+" which translates to "+a2+" to "+b2+" because we have a view at ("+x+", "+y+", "+z+")");
-            renderLine(a2, b2, red, green, blue, 0.4f);
-
-            //RenderSystem.shadeModel(Minecraft.isAmbientOcclusionEnabled() ? GL11.GL_SMOOTH : GL11.GL_FLAT);
-            //RenderSystem.depthMask(true);
-            //RenderSystem.enableTexture();
-            //RenderSystem.disableBlend();
+            renderLine(matrix, buffer, a.add(-x, -y, -z), b.add(-x, -y, -z), red, green, blue);
         }
     }
 
-    private static void renderLine(final Vec3d a, final Vec3d b, final float red, final float green, final float blue, final float alpha) {
-        MatrixStack matrix = new MatrixStack();
-        matrix.push();
-        IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        IVertexBuilder builder = buffer.getBuffer(RenderType.getLines());
-        builder.pos(a.getX(), a.getY(), a.getZ()).color(red, green, blue, alpha).endVertex();
-        builder.pos(b.getX(), b.getY(), b.getZ()).color(red, green, blue, alpha).endVertex();
-        matrix.pop();
-        buffer.finish();
+    private static void renderLine(final MatrixStack matrix, final IRenderTypeBuffer buffer, final Vec3d a, final Vec3d b, final float red, final float green, final float blue) {
+        IVertexBuilder builder = buffer.getBuffer(ChiselsAndBitsRenderTypes.TAPE_MEASURE_DISTANCE);
+        Matrix4f matrix4f = matrix.getLast().getMatrix();
+        builder.pos(matrix4f, (float) a.getX(), (float) a.getY(), (float) a.getZ()).color(red, green, blue, 0.4f).endVertex();
+        builder.pos(matrix4f, (float) b.getX(), (float) b.getY(), (float) b.getZ()).color(red, green, blue, 0.4f).endVertex();
     }
 
     /*public static void renderQuads(final int alpha, final BufferBuilder renderer, final List<BakedQuad> quads, final ChiseledTintColor colorProvider, final boolean showSilhouette) {
