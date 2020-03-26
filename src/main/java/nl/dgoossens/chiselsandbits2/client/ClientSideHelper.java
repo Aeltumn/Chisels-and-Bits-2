@@ -1,24 +1,18 @@
 package nl.dgoossens.chiselsandbits2.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IngameGui;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Quaternion;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.renderer.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -36,12 +30,11 @@ import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
 import nl.dgoossens.chiselsandbits2.client.render.GhostModelRenderer;
 import nl.dgoossens.chiselsandbits2.client.render.RenderingAssistant;
 import nl.dgoossens.chiselsandbits2.client.render.SelectionBoxRenderer;
+import nl.dgoossens.chiselsandbits2.client.render.TapeMeasureRenderer;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.ExtendedAxisAlignedBB;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.ChiselIterator;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockPlacementLogic;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
@@ -204,32 +197,6 @@ public class ClientSideHelper {
     }
 
     /**
-     * Uses the tape measure with a given pre specified ray trace where the player is looking.
-     * Automatically handles whether or not a selection has already started and caching the measurement.
-     */
-    public void useTapeMeasure(BlockRayTraceResult rayTrace) {
-        final BitLocation location = new BitLocation(rayTrace, true, BitOperation.REMOVE);
-        if(tapeMeasureCache == null) {
-            //First Selection
-            tapeMeasureCache = location;
-        } else {
-            //Second Selection
-            final PlayerEntity player = Minecraft.getInstance().player;
-            final ItemStack stack = player.getHeldItemMainhand();
-
-            //Security measure.
-            if(!(stack.getItem() instanceof TapeMeasureItem)) return;
-
-            //Add the new tape measure to the list of actively rendered measurements
-            while(tapeMeasurements.size() >= ChiselsAndBits2.getInstance().getConfig().tapeMeasureLimit.get()) {
-                tapeMeasurements.remove(0); //Remove the oldest one.
-            }
-            tapeMeasurements.add(new Measurement(tapeMeasureCache, location, ((TapeMeasureItem) stack.getItem()).getColour(stack), ((TapeMeasureItem) stack.getItem()).getSelectedMode(stack), player.dimension));
-            tapeMeasureCache = null;
-        }
-    }
-
-    /**
      * Draws the highlights around blocks. Called from RenderWorldLastEvent to render on top of blocks as the normal event renders partially behind them.
      */
     public boolean drawBlockHighlight(MatrixStack matrix, IRenderTypeBuffer buffer, float partialTicks) {
@@ -261,7 +228,7 @@ public class ClientSideHelper {
             if (tapeMeasure || ItemPropertyUtil.isItemMode(stack, ItemMode.CHISEL_DRAWN_REGION)) {
                 final BitLocation other = tapeMeasure ? ChiselsAndBits2.getInstance().getClient().tapeMeasureCache : ChiselsAndBits2.getInstance().getClient().selectionStart;
                 if(other != null) {
-                    ChiselsAndBits2.getInstance().getClient().renderSelectionBox(matrix, buffer, tapeMeasure, location, other, partialTicks, operation, mode, tapeMeasure ? new Color(((TapeMeasureItem) stack.getItem()).getColour(stack).getColour()) : new Color(0, 0, 0));
+                    ChiselsAndBits2.getInstance().getClient().renderSelectionBox(matrix, buffer, tapeMeasure, location, other, partialTicks, mode, tapeMeasure ? new Color(((TapeMeasureItem) stack.getItem()).getColour(stack).getColour()) : new Color(0, 0, 0));
                     return true;
                 }
             }
@@ -276,32 +243,53 @@ public class ClientSideHelper {
     }
 
     /**
+     * Uses the tape measure with a given pre specified ray trace where the player is looking.
+     * Automatically handles whether or not a selection has already started and caching the measurement.
+     */
+    public void useTapeMeasure(BlockRayTraceResult rayTrace) {
+        final BitLocation location = new BitLocation(rayTrace, true, BitOperation.REMOVE);
+        if(tapeMeasureCache == null) {
+            //First Selection
+            tapeMeasureCache = location;
+        } else {
+            //Second Selection
+            final PlayerEntity player = Minecraft.getInstance().player;
+            final ItemStack stack = player.getHeldItemMainhand();
+
+            //Security measure.
+            if(!(stack.getItem() instanceof TapeMeasureItem)) return;
+
+            //Add the new tape measure to the list of actively rendered measurements
+            while(tapeMeasurements.size() >= ChiselsAndBits2.getInstance().getConfig().tapeMeasureLimit.get()) {
+                tapeMeasurements.remove(0); //Remove the oldest one.
+            }
+            tapeMeasurements.add(new Measurement(tapeMeasureCache, location, ((TapeMeasureItem) stack.getItem()).getColour(stack), ((TapeMeasureItem) stack.getItem()).getSelectedMode(stack), player.dimension));
+            tapeMeasureCache = null;
+        }
+    }
+
+    /**
      * Renders the tape measure boxes.
      */
-    public void renderTapeMeasureBoxes(MatrixStack stack, IRenderTypeBuffer buffer, float partialTicks) {
+    void renderTapeMeasureBoxes(MatrixStack stack, IRenderTypeBuffer buffer, float partialTicks) {
         final PlayerEntity player = Minecraft.getInstance().player;
         for(Measurement box : tapeMeasurements) {
             if(!player.dimension.equals(box.dimension)) continue;
-            renderSelectionBox(stack, buffer, true, box.first, box.second, partialTicks, BitOperation.REMOVE, box.mode, new Color(box.colour.getColour()));
+            renderSelectionBox(stack, buffer, true, box.first, box.second, partialTicks, box.mode, new Color(box.colour.getColour()));
         }
     }
 
     /**
      * Renders the selection boxes as used by the tape measure and drawn region mode.
      */
-    public void renderSelectionBox(MatrixStack matrix, IRenderTypeBuffer buffer, boolean tapeMeasure, BitLocation first, BitLocation second, float partialTicks, BitOperation operation, IItemMode mode, Color color) {
-        final ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
-        final double x = renderInfo.getProjectedView().x;
-        final double y = renderInfo.getProjectedView().y;
-        final double z = renderInfo.getProjectedView().z;
-
+    void renderSelectionBox(MatrixStack matrix, IRenderTypeBuffer buffer, boolean tapeMeasure, BitLocation first, BitLocation second, float partialTicks, IItemMode mode, Color color) {
         if(tapeMeasure && ItemMode.TAPEMEASURE_DISTANCE.equals(mode)) {
             final Vec3d a = ChiselUtil.bitLocationToCoordinate(first);
             final Vec3d b = ChiselUtil.bitLocationToCoordinate(second);
             RenderingAssistant.drawLine(matrix, buffer, a, b, color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
 
             final double length = a.distanceTo(b) + ChiselUtil.BIT_SIZE;
-            renderTapeMeasureLabel(matrix, buffer, partialTicks, (a.getX() + b.getX()) * 0.5 - x, (a.getY() + b.getY()) * 0.5 - y, (a.getZ() + b.getZ()) * 0.5 - z, length, color.getRed(), color.getGreen(), color.getBlue());
+            TapeMeasureRenderer.renderTapeMeasureLabel(matrix, buffer, partialTicks, (a.getX() + b.getX()) * 0.5, (a.getY() + b.getY()) * 0.5, (a.getZ() + b.getZ()) * 0.5, length, color.getRed(), color.getGreen(), color.getBlue());
             return;
         }
 
@@ -312,9 +300,9 @@ public class ClientSideHelper {
             final double lengthX = bb.maxX - bb.minX;
             final double lengthY = bb.maxY - bb.minY;
             final double lengthZ = bb.maxZ - bb.minZ;
-            renderTapeMeasureLabel(matrix, buffer, partialTicks, bb.minX - x, (bb.maxY + bb.minY) * 0.5 - y, bb.minZ - z, lengthY, color.getRed(), color.getGreen(), color.getBlue());
-            renderTapeMeasureLabel(matrix, buffer, partialTicks, (bb.minX + bb.maxX) * 0.5 - x, bb.minY - y, bb.minZ - z, lengthX, color.getRed(), color.getGreen(), color.getBlue());
-            renderTapeMeasureLabel(matrix, buffer, partialTicks, bb.minX - x, bb.minY - y, (bb.minZ + bb.maxZ) * 0.5 - z, lengthZ, color.getRed(), color.getGreen(), color.getBlue());
+            TapeMeasureRenderer.renderTapeMeasureLabel(matrix, buffer, partialTicks, bb.minX, (bb.maxY + bb.minY) * 0.5, bb.minZ, lengthY, color.getRed(), color.getGreen(), color.getBlue());
+            TapeMeasureRenderer.renderTapeMeasureLabel(matrix, buffer, partialTicks, (bb.minX + bb.maxX) * 0.5, bb.minY, bb.minZ, lengthX, color.getRed(), color.getGreen(), color.getBlue());
+            TapeMeasureRenderer.renderTapeMeasureLabel(matrix, buffer, partialTicks, bb.minX, bb.minY, (bb.minZ + bb.maxZ) * 0.5, lengthZ, color.getRed(), color.getGreen(), color.getBlue());
         } else {
             //Show the bounding box as red if it's too large
             if (bb.isSmallerThan(ChiselsAndBits2.getInstance().getConfig().maxDrawnRegionSize.get()))
@@ -322,69 +310,6 @@ public class ClientSideHelper {
             else
                 RenderingAssistant.drawBoundingBox(matrix, buffer, bb, BlockPos.ZERO, 1.0f, 0.0f, 0.0f);
         }
-    }
-
-    /**
-     * Renders the label next to the tape measure bounding box.
-     */
-    protected void renderTapeMeasureLabel(final MatrixStack matrix, final IRenderTypeBuffer buffer, final float partialTicks, final double x, final double y, final double z, final double len, final int red, final int green, final int blue) {
-        final double letterSize = 5.0;
-        final float zScale = 0.001f;
-
-        final FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
-        final String size = formatTapeMeasureLabel(len);
-
-        matrix.push();
-        matrix.translate(x, y + getScale(len) * letterSize, z);
-        final Entity view = Minecraft.getInstance().getRenderViewEntity();
-        if (view != null) {
-            final float yaw = view.prevRotationYaw + (view.rotationYaw - view.prevRotationYaw) * partialTicks;
-            matrix.rotate(new Quaternion(180 + -yaw, 0f, 1f, 0f));
-
-            final float pitch = view.prevRotationPitch + (view.rotationPitch - view.prevRotationPitch) * partialTicks;
-            matrix.rotate(new Quaternion(-pitch, 1f, 0f, 0f));
-        }
-        matrix.scale(getScale(len), -getScale(len), zScale);
-        matrix.translate(-fontRenderer.getStringWidth(size) * 0.5, 0, 0);
-        //TODO because fontrenderer is for GUI's it doesn't support Matrices yet
-        fontRenderer.drawStringWithShadow(size, 0, 0, red << 16 | green << 8 | blue);
-        matrix.pop();
-    }
-
-    /**
-     * Get the scale of the tape measure label based on the length of the measured area.
-     */
-    protected float getScale(final double maxLen) {
-        final double maxFontSize = 0.04;
-        final double minFontSize = 0.004;
-
-        final double delta = Math.min(1.0, maxLen / 4.0);
-        double scale = maxFontSize * delta + minFontSize * (1.0 - delta);
-        if (maxLen < 0.25)
-            scale = minFontSize;
-
-        return (float) Math.min(maxFontSize, scale);
-    }
-
-    /**
-     * Format the label of the tape measure into the proper format.
-     */
-    protected String formatTapeMeasureLabel(final double d) {
-        final double blocks = Math.floor(d);
-        final double bits = d - blocks;
-
-        final StringBuilder b = new StringBuilder();
-
-        if (blocks > 0)
-            b.append((int) blocks).append("m");
-
-        if (bits * 16 > 0.9999) {
-            if (b.length() > 0)
-                b.append(" ");
-            b.append((int) (bits * 16)).append("b");
-        }
-
-        return b.toString();
     }
 
     /**

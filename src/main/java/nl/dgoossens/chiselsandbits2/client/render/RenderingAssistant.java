@@ -1,5 +1,6 @@
 package nl.dgoossens.chiselsandbits2.client.render;
 
+import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
@@ -18,22 +19,31 @@ public class RenderingAssistant {
 
     public static void drawBoundingBox(final MatrixStack matrix, final IRenderTypeBuffer builder, final AxisAlignedBB bb, final BlockPos location, final float red, final float green, final float blue) {
         if (bb != null) {
+            Preconditions.checkState(matrix.clear(), "Matrix stack should be cleared!");
             ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
             double x = renderInfo.getProjectedView().x, y = renderInfo.getProjectedView().y, z = renderInfo.getProjectedView().z;
-            AxisAlignedBB offsetBoundingBox = bb.offset(location.getX() - x, location.getY() - y, location.getZ() - z);
 
             //Draw one with the normal non-depth lines version and one much lighter with depth test
             //This makes it much easier to sculpt as you can estimate how many bits you will destroy with this action.
-            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(RenderType.LINES), offsetBoundingBox, red, green, blue, 0.22f);
-            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINE_DEPTH), offsetBoundingBox, red, green, blue, 0.18f);
+            matrix.push();
+            matrix.translate(location.getX() - x, location.getY() - y, location.getZ() - z);
+            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINES), bb, red, green, blue, 0.28f);
+            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINES_BACK_EDGES), bb, red, green, blue, 0.12f);
+            matrix.pop();
+
         }
     }
 
     public static void drawLine(final MatrixStack matrix, final IRenderTypeBuffer buffer, final Vec3d a, final Vec3d b, final float red, final float green, final float blue) {
         if(a != null && b != null) {
+            Preconditions.checkState(matrix.clear(), "Matrix stack should be cleared!");
+
             ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
             double x = renderInfo.getProjectedView().x, y = renderInfo.getProjectedView().y, z = renderInfo.getProjectedView().z;
-            renderLine(matrix, buffer, a.add(-x, -y, -z), b.add(-x, -y, -z), red, green, blue);
+            matrix.push();
+            matrix.translate(-x, -y, -z);
+            renderLine(matrix, buffer, a, b, red, green, blue);
+            matrix.pop();
         }
     }
 

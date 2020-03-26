@@ -1,5 +1,7 @@
 package nl.dgoossens.chiselsandbits2.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.settings.KeyBinding;
@@ -17,6 +19,7 @@ import nl.dgoossens.chiselsandbits2.api.cache.CacheType;
 import nl.dgoossens.chiselsandbits2.api.item.*;
 import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IItemScrollWheel;
+import nl.dgoossens.chiselsandbits2.client.render.ChiselsAndBitsRenderTypes;
 import nl.dgoossens.chiselsandbits2.client.render.color.ColourableItemColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockItemColor;
@@ -200,9 +203,12 @@ public class ClientSide extends ClientSideHelper {
         if (Minecraft.getInstance().gameSettings.hideGUI) return;
 
         ClientSide client = ChiselsAndBits2.getInstance().getClient();
-        IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        client.renderTapeMeasureBoxes(e.getMatrixStack(), buffers, e.getPartialTicks());
-        client.renderPlacementGhost(e.getMatrixStack(), buffers, e.getPartialTicks());
+        MatrixStack matrix = e.getMatrixStack();
+
+        IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        client.renderTapeMeasureBoxes(matrix, buffer, e.getPartialTicks());
+        client.renderPlacementGhost(matrix, buffer, e.getPartialTicks());
+        buffer.finish();
     }
 
     /**
