@@ -37,6 +37,7 @@ import nl.dgoossens.chiselsandbits2.client.render.GhostModelRenderer;
 import nl.dgoossens.chiselsandbits2.client.render.RenderingAssistant;
 import nl.dgoossens.chiselsandbits2.client.render.SelectionBoxRenderer;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.ExtendedAxisAlignedBB;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.ChiselIterator;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
@@ -65,10 +66,6 @@ import java.util.List;
  */
 public class ClientSideHelper {
     //--- GENERAL ---
-    //General Constants
-    protected static final double BIT_SIZE = 1.0 / 16.0;
-    protected static final double HALF_BIT = BIT_SIZE / 2.0f;
-
     //Resource Locations for Icons
     protected static final HashMap<IItemMode, ResourceLocation> modeIconLocations = new HashMap<>();
     protected static final HashMap<IMenuAction, ResourceLocation> menuActionLocations = new HashMap<>();
@@ -299,32 +296,16 @@ public class ClientSideHelper {
         final double z = renderInfo.getProjectedView().z;
 
         if(tapeMeasure && ItemMode.TAPEMEASURE_DISTANCE.equals(mode)) {
-            final Vec3d a = buildTapeMeasureDistanceVector(first);
-            final Vec3d b = buildTapeMeasureDistanceVector(second);
-
+            final Vec3d a = ChiselUtil.bitLocationToCoordinate(first);
+            final Vec3d b = ChiselUtil.bitLocationToCoordinate(second);
             RenderingAssistant.drawLine(matrix, buffer, a, b, color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
 
-            final double length = a.distanceTo(b) + BIT_SIZE;
+            final double length = a.distanceTo(b) + ChiselUtil.BIT_SIZE;
             renderTapeMeasureLabel(matrix, buffer, partialTicks, (a.getX() + b.getX()) * 0.5 - x, (a.getY() + b.getY()) * 0.5 - y, (a.getZ() + b.getZ()) * 0.5 - z, length, color.getRed(), color.getGreen(), color.getBlue());
             return;
         }
 
-        ChiselIterator oneEnd, otherEnd;
-        if(ItemMode.TAPEMEASURE_BLOCK.equals(mode)) {
-            boolean t = first.blockPos.getX() > second.blockPos.getX(), s = first.blockPos.getY() > second.blockPos.getY(), u = first.blockPos.getZ() > second.blockPos.getZ();
-            oneEnd = ItemMode.CHISEL_SINGLE.getIterator(new BlockPos(t ? 15 : 0, s ? 15 : 0, u ? 15 : 0), Direction.UP, operation, null);
-            otherEnd = ItemMode.CHISEL_SINGLE.getIterator(new BlockPos(t ? 15 : 0, s ? 15 : 0, u ? 15 : 0), Direction.UP, operation, null);
-        } else {
-            oneEnd = ItemMode.CHISEL_SINGLE.getIterator(new BlockPos(first.bitX, first.bitY, first.bitZ), Direction.UP, operation, null);
-            otherEnd = ItemMode.CHISEL_SINGLE.getIterator(new BlockPos(second.bitX, second.bitY, second.bitZ), Direction.UP, operation, null);
-        }
-
-        Optional<AxisAlignedBB> blobA = oneEnd.getBoundingBox(VoxelBlob.FULL_BLOCK), blobB = otherEnd.getBoundingBox(VoxelBlob.FULL_BLOCK);
-        if(!blobA.isPresent() || !blobB.isPresent()) return;
-        final AxisAlignedBB a = blobA.get().offset(first.blockPos.getX(), first.blockPos.getY(), first.blockPos.getZ());
-        final AxisAlignedBB b = blobB.get().offset(second.blockPos.getX(), second.blockPos.getY(), second.blockPos.getZ());
-        AxisAlignedBB bb = a.union(b);
-
+        ExtendedAxisAlignedBB bb = ChiselUtil.getBoundingBox(first, second, mode);
         if(tapeMeasure) {
             RenderingAssistant.drawBoundingBox(matrix, buffer, bb, BlockPos.ZERO, color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
 
@@ -335,9 +316,11 @@ public class ClientSideHelper {
             renderTapeMeasureLabel(matrix, buffer, partialTicks, (bb.minX + bb.maxX) * 0.5 - x, bb.minY - y, bb.minZ - z, lengthX, color.getRed(), color.getGreen(), color.getBlue());
             renderTapeMeasureLabel(matrix, buffer, partialTicks, bb.minX - x, bb.minY - y, (bb.minZ + bb.maxZ) * 0.5 - z, lengthZ, color.getRed(), color.getGreen(), color.getBlue());
         } else {
-            final double maxSize = ChiselsAndBits2.getInstance().getConfig().maxDrawnRegionSize.get() + 0.001;
-            if (bb.maxX - bb.minX <= maxSize && bb.maxY - bb.minY <= maxSize && bb.maxZ - bb.minZ <= maxSize)
-                RenderingAssistant.drawBoundingBox(matrix, buffer, bb, BlockPos.ZERO);
+            //Show the bounding box as red if it's too large
+            if (bb.isSmallerThan(ChiselsAndBits2.getInstance().getConfig().maxDrawnRegionSize.get()))
+                RenderingAssistant.drawBoundingBox(matrix, buffer, bb, BlockPos.ZERO, 1.0f, 1.0f, 1.0f);
+            else
+                RenderingAssistant.drawBoundingBox(matrix, buffer, bb, BlockPos.ZERO, 1.0f, 0.0f, 0.0f);
         }
     }
 
@@ -402,16 +385,6 @@ public class ClientSideHelper {
         }
 
         return b.toString();
-    }
-
-    /**
-     * Builds the vector pointing to a bit location's bit.
-     */
-    protected Vec3d buildTapeMeasureDistanceVector(BitLocation a) {
-        final double ax = a.blockPos.getX() + BIT_SIZE * a.bitX + HALF_BIT;
-        final double ay = a.blockPos.getY() + BIT_SIZE * a.bitY + HALF_BIT;
-        final double az = a.blockPos.getZ() + BIT_SIZE * a.bitZ + HALF_BIT;
-        return new Vec3d(ax, ay, az);
     }
 
     /**

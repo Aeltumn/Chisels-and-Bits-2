@@ -3,8 +3,10 @@ package nl.dgoossens.chiselsandbits2.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,6 +17,7 @@ import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
 import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.ExtendedAxisAlignedBB;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
@@ -138,18 +141,22 @@ public class ChiselEvent {
         final BitLocation location = new BitLocation((BlockRayTraceResult) rayTrace, true, operation);
 
         //Start drawn region selection if applicable
-        if(ItemPropertyUtil.isItemMode(player.getHeldItemMainhand(), ItemMode.CHISEL_DRAWN_REGION)) {
+        if(mode.equals(ItemMode.CHISEL_DRAWN_REGION)) {
             ClientSide clientSide = ChiselsAndBits2.getInstance().getClient();
             //If we don't have a selection start yet select the clicked location.
             if(!clientSide.hasSelectionStart(operation)) {
                 clientSide.setSelectionStart(operation, location);
                 return;
             }
-        }
 
-        //Send correct packet depending on whether this is drawn region or not
-        if(ItemPropertyUtil.isItemMode(player.getHeldItemMainhand(), ItemMode.CHISEL_DRAWN_REGION)) {
-            final CChiselBlockPacket pc = new CChiselBlockPacket(operation, ChiselsAndBits2.getInstance().getClient().getSelectionStart(operation), location,  ((BlockRayTraceResult) rayTrace).getFace());
+            ExtendedAxisAlignedBB bb = ChiselUtil.getBoundingBox(ChiselsAndBits2.getInstance().getClient().getSelectionStart(operation), location, mode);
+            //We check if the bounding box is too big on the client too so you can keep the selection if you aren't allowed to chisel.
+            if (bb.isLargerThan(ChiselsAndBits2.getInstance().getConfig().maxDrawnRegionSize.get())) {
+                player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.drawn_region_too_big"), true);
+                return;
+            }
+
+            final CChiselBlockPacket pc = new CChiselBlockPacket(operation, ChiselsAndBits2.getInstance().getClient().getSelectionStart(operation), location, ((BlockRayTraceResult) rayTrace).getFace());
             ChiselsAndBits2.getInstance().getClient().resetSelectionStart();
             ChiselsAndBits2.getInstance().getNetworkRouter().sendToServer(pc);
         } else if(mode instanceof ItemMode) {

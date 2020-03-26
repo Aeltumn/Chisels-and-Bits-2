@@ -10,6 +10,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -45,6 +46,8 @@ import nl.dgoossens.chiselsandbits2.common.network.client.CChiselBlockPacket;
 import nl.dgoossens.chiselsandbits2.common.util.InventoryUtils;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.util.RotationUtil;
+
+import java.util.Optional;
 
 /**
  * Handles incoming packets that relate to interacting with voxelblobs.
@@ -96,6 +99,15 @@ public class ChiselHandler {
             //Well actually this can happen if you drop the bags and instantly click before the routine updating catches up to you. tl;dr this can only happen if the cached value isn't updated on time
             if (inventory.getAvailableMaterial() <= 0 && !player.isCreative()) {
                 player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.need_bits"), true);
+                return;
+            }
+        }
+
+        //If this is drawn region we check if the selected area isn't too big
+        if (mode.equals(ItemMode.CHISEL_DRAWN_REGION)) {
+            ExtendedAxisAlignedBB bb = ChiselUtil.getBoundingBox(pkt.from, pkt.to, mode);
+            if (bb.isLargerThan(ChiselsAndBits2.getInstance().getConfig().maxDrawnRegionSize.get())) {
+                player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.drawn_region_too_big"), true);
                 return;
             }
         }

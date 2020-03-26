@@ -16,11 +16,16 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
+import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
+import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.ExtendedAxisAlignedBB;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A util that handles everything related to the chiseleling process with some extra
@@ -29,6 +34,8 @@ import javax.annotation.Nonnull;
 public class ChiselUtil {
     public static boolean ACTIVELY_TRACING = false;
     public static final String NBT_BLOCKENTITYTAG = "BlockEntityTag";
+    public static final double BIT_SIZE = 1.0 / 16.0;
+    public static final double HALF_BIT = BIT_SIZE / 2.0f;
     private static long memory = -1; //The amount of memory allocated to Minecraft.
 
     /**
@@ -158,5 +165,28 @@ public class ChiselUtil {
             return true;
 
         return ChiselsAndBits2.getInstance().getAPI().getRestrictions().canChiselBlock(originalState) || isBlockReplaceable(world, pos, player, face, false);
+    }
+
+    /**
+     * Builds the vector pointing to a bit location's bit.
+     */
+    public static Vec3d bitLocationToCoordinate(BitLocation a) {
+        final double ax = a.blockPos.getX() + BIT_SIZE * a.bitX + HALF_BIT;
+        final double ay = a.blockPos.getY() + BIT_SIZE * a.bitY + HALF_BIT;
+        final double az = a.blockPos.getZ() + BIT_SIZE * a.bitZ + HALF_BIT;
+        return new Vec3d(ax, ay, az);
+    }
+
+    /**
+     * Get a bounding box from the two corner bit locations.
+     *
+     * @param mode Optional parameter that makes the bounding box snap to block edges if equal to {@link ItemMode#TAPEMEASURE_BLOCK}
+     */
+    public static ExtendedAxisAlignedBB getBoundingBox(BitLocation start, BitLocation end, @Nullable IItemMode mode) {
+        final Vec3d a = ChiselUtil.bitLocationToCoordinate(start);
+        final Vec3d b = ChiselUtil.bitLocationToCoordinate(end);
+        ExtendedAxisAlignedBB bb = new ExtendedAxisAlignedBB(a.getX(), a.getY(), a.getZ(), b.getX(), b.getY(), b.getZ());
+        if(ItemMode.TAPEMEASURE_BLOCK.equals(mode)) bb = bb.snapToBlocks();
+        return bb;
     }
 }
