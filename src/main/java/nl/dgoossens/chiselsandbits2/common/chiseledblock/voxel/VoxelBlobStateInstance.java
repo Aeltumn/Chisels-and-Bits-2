@@ -3,7 +3,9 @@ package nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Blocks;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.BitIterator;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
@@ -15,14 +17,20 @@ import java.util.*;
 import java.util.zip.InflaterInputStream;
 
 public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance> {
-    public final int hash;
-    public final byte[] voxelBytes;
+    protected final int hash;
+    protected final byte[] voxelBytes;
     protected SoftReference<VoxelBlob> blob;
+
     private int format = Integer.MIN_VALUE;
+    private VoxelShape selectionShape, collisionShape;
 
     public VoxelBlobStateInstance(final byte[] data) {
         voxelBytes = data;
         hash = Arrays.hashCode(voxelBytes);
+
+        //TODO setup default voxel shape based on the data
+        selectionShape = VoxelShapes.empty();
+        collisionShape = VoxelShapes.empty();
     }
 
     @Override
@@ -75,24 +83,12 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
         return new VoxelBlob(vb);
     }
 
-    public Collection<VoxelShape> getBoxes() {
-        return generateBoxes(getBlob(), true);
+    public VoxelShape getCollisionShape() {
+        return collisionShape;
     }
 
-    public Collection<VoxelShape> getCollidableBoxes() {
-        return generateBoxes(getBlob(), false);
-    }
-
-    private Collection<VoxelShape> generateBoxes(final VoxelBlob blob, boolean includeFluids) {
-        final Set<VoxelShape> boxes = new HashSet<>();
-        final BitIterator boi = new BitIterator();
-
-        while (boi.hasNext()) {
-            int i = boi.getNext(blob);
-            if(i != VoxelBlob.AIR_BIT && (includeFluids || !VoxelType.isFluid(i)))
-                boxes.add(boi.getShape());
-        }
-        return boxes;
+    public VoxelShape getSelectionShape() {
+        return selectionShape;
     }
 
     public int getFormat() {

@@ -77,7 +77,8 @@ public class ChiseledBlock extends Block {
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.ENTITYBLOCK_ANIMATED; //Set it to TESR only mode so there's no normal model.
+        //Set it to custom entity renderer mode
+        return BlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
     //Redirect getSoundType to the primary block.
@@ -158,7 +159,7 @@ public class ChiseledBlock extends Block {
         try {
             //Add landing effects of the bit type right below the entity.
             BitLocation location = new BitLocation(entity);
-            VoxelBlob tar = ((ChiseledBlockTileEntity) worldserver.getTileEntity(location.getBlockPos())).getVoxelReference().getVoxelBlob();
+            VoxelBlob tar = ((ChiseledBlockTileEntity) worldserver.getTileEntity(location.getBlockPos())).getVoxelBlob();
             int i = tar.getSafe(location.bitX, location.bitY, location.bitZ);
             if(i == VoxelBlob.AIR_BIT)
                 return true; //No particles if you land on air. (on edges of blocks)
@@ -184,7 +185,7 @@ public class ChiseledBlock extends Block {
     @Override
     public boolean addDestroyEffects(BlockState state, World world, BlockPos pos, ParticleManager manager) {
         try {
-            VoxelBlob tar = ((ChiseledBlockTileEntity) world.getTileEntity(pos)).getVoxelReference().getVoxelBlob();
+            VoxelBlob tar = ((ChiseledBlockTileEntity) world.getTileEntity(pos)).getVoxelBlob();
             int i = tar.getMostCommonStateId();
             if(i == VoxelBlob.AIR_BIT)
                 return true; //No most common state (which shouldn't happen really), no particles.
@@ -194,7 +195,7 @@ public class ChiseledBlock extends Block {
                     addBlockDestroyEffects(manager, world, pos, BitUtil.getBlockState(i));
                     return true;
                 case FLUIDSTATE:
-                    addBlockDestroyEffects(manager, world, pos, BitUtil.getBlockState(i));
+                    addBlockDestroyEffects(manager, world, pos, BitUtil.getFluidState(i).getBlockState());
                     return true;
                 case COLOURED:
                     Color c = BitUtil.getColourState(i);
@@ -255,7 +256,7 @@ public class ChiseledBlock extends Block {
     public boolean addHitEffects(BlockState state, World world, RayTraceResult target, ParticleManager manager) {
         try {
             BitLocation location = new BitLocation((BlockRayTraceResult) target, true, BitOperation.REMOVE);
-            VoxelBlob tar = ((ChiseledBlockTileEntity) world.getTileEntity(location.getBlockPos())).getVoxelReference().getVoxelBlob();
+            VoxelBlob tar = ((ChiseledBlockTileEntity) world.getTileEntity(location.getBlockPos())).getVoxelBlob();
             int i = tar.getSafe(location.bitX, location.bitY, location.bitZ);
 
             //If you're not hitting a bit we take the most common type.
@@ -331,7 +332,7 @@ public class ChiseledBlock extends Block {
             //Add running effects of the bit type right below the entity.
             Vec3d vec3d = entity.getMotion();
             BitLocation location = new BitLocation(entity);
-            VoxelBlob tar = ((ChiseledBlockTileEntity) world.getTileEntity(location.getBlockPos())).getVoxelReference().getVoxelBlob();
+            VoxelBlob tar = ((ChiseledBlockTileEntity) world.getTileEntity(location.getBlockPos())).getVoxelBlob();
             int i = tar.getSafe(location.bitX, location.bitY, location.bitZ);
             if(i == VoxelBlob.AIR_BIT)
                 return true; //Running particles are not shown if you are not above a bit

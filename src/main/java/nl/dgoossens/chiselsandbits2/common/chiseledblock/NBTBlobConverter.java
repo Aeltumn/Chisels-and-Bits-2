@@ -94,7 +94,7 @@ public class NBTBlobConverter {
     }
 
     public VoxelBlobStateReference getReference() {
-        if (voxelBlobRef == null) voxelBlobRef = new VoxelBlobStateReference(0);
+        if (voxelBlobRef == null) voxelBlobRef = new VoxelBlobStateReference();
         return voxelBlobRef;
     }
 

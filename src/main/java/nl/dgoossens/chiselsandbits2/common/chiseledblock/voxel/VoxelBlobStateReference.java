@@ -10,12 +10,15 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.*;
 
-public final class VoxelBlobStateReference implements IStateRef {
+public class VoxelBlobStateReference implements IStateRef {
     private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> serverRefs = Collections.synchronizedMap(new WeakHashMap<>());
     private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> clientRefs = Collections.synchronizedMap(new WeakHashMap<>());
 
-    private static byte[] airBlob;
     private final VoxelBlobStateInstance data;
+
+    protected VoxelBlobStateReference(VoxelBlobStateInstance data) {
+        this.data = data;
+    }
 
     public VoxelBlobStateReference() {
         //Build the default voxel state reference
@@ -27,12 +30,8 @@ public final class VoxelBlobStateReference implements IStateRef {
         data.blob = new SoftReference<>(new VoxelBlob(blob));
     }
 
-    public VoxelBlobStateReference(final int stateId) {
-        this(findBytesFor(stateId));
-    }
-
     public VoxelBlobStateReference(final byte[] v) {
-        data = findReference(v);
+        this(findReference(v));
     }
 
     private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> getReferences() {
@@ -44,19 +43,14 @@ public final class VoxelBlobStateReference implements IStateRef {
     }
 
     private static byte[] findBytesFor(final int stateId) {
-        if (stateId == 0) {
-            if (airBlob == null) {
-                final VoxelBlob vb = new VoxelBlob();
-                airBlob = vb.write(VoxelVersions.getDefault());
-            }
-            return airBlob;
-        }
-
-        final VoxelBlob vb = new VoxelBlob();
-        vb.fill(stateId);
+        final VoxelBlob vb = new VoxelBlob(stateId);
         return vb.write(VoxelVersions.getDefault());
     }
 
+    /**
+     * Create the default chiseled block to use in the statistics menu
+     * and for cheated in items.
+     */
     private static byte[] findDefaultBytes() {
         final VoxelBlob vb = new VoxelBlob();
         int b = BitUtil.getBlockId(Blocks.YELLOW_WOOL.getDefaultState());

@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
  * general utility methods.
  */
 public class ChiselUtil {
-    public static boolean ACTIVELY_TRACING = false;
     public static final String NBT_BLOCKENTITYTAG = "BlockEntityTag";
     public static final double BIT_SIZE = 1.0 / 16.0;
     public static final double HALF_BIT = BIT_SIZE / 2.0f;
@@ -106,10 +105,7 @@ public class ChiselUtil {
         Vec3d vec3d1 = entity.getLook(partialTicks);
         double d = Minecraft.getInstance().playerController.getBlockReachDistance();
         Vec3d vec3d2 = vec3d.add(vec3d1.x * d, vec3d1.y * d, vec3d1.z * d);
-        ACTIVELY_TRACING = true;
-        RayTraceResult r = entity.world.rayTraceBlocks(new RayTraceContext(vec3d, vec3d2, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, entity));
-        ACTIVELY_TRACING = false;
-        return r;
+        return entity.world.rayTraceBlocks(new RayTraceContext(vec3d, vec3d2, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, entity));
     }
 
     /**

@@ -248,7 +248,8 @@ public final class VoxelBlob implements IVoxelSrc {
      * Clears this voxelblob, fills it with air.
      */
     public VoxelBlob clear() {
-        fill(AIR_BIT);
+        for (int x = 0; x < ARRAY_SIZE; x++)
+            values[x] = AIR_BIT;
         return this;
     }
 
