@@ -30,12 +30,14 @@ Compilation
 --------------
 1) Clone this repository and check out the branch of the version you want to build. (master is 1.14)
 2) Load it into an IDE of your choice and import the project.
-3) Run `build` using gradle
-4) You'll find the built jar in the `/build/libs/` folder.
+3) Run `genIntellijRuns`, `genVSCodeRuns` or `genEclipseRuns` depending on the IDE you use.
+4) Run `runData` to generate all model, recipe and advancement files.
+5) Run `build` using gradle
+6) You'll find the built jar in the `/build/libs/` folder.
 
 Extra steps if you want to setup a C&B development environment:
 
-5) Create an empty file called `settings.gradle` file and enter the path to the built C&B jar to it as key "gradle.ext.buildJar". The file should contain something similar to this:
+7) Create an empty file called `settings.gradle` file and enter the path to the built C&B jar to it as key "gradle.ext.buildJar". The file should contain something similar to this:
 ```gradle.ext.buildJar = "C:\\Chisels-and-Bits-2\\build\\libs\\chiselsandbits2-0.5.2a.jar"```
-6) Run `genIntellijRuns`, `genVSCodeRuns` or `genEclipseRuns` depending on the IDE you use.
-7) Run `runClient` to start the mod.
+8) Run `genIntellijRuns`, `genVSCodeRuns` or `genEclipseRuns` depending on the IDE you use.
+9) Run `runClient` to start the mod.
