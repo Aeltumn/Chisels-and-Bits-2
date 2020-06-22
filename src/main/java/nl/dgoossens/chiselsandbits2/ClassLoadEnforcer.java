@@ -1,8 +1,6 @@
 package nl.dgoossens.chiselsandbits2;
 
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLLoader;
-import net.minecraftforge.fml.loading.LibraryFinder;
 
 import java.io.File;
 import java.net.URL;
@@ -14,14 +12,16 @@ import java.util.jar.JarFile;
 /**
  * Loads every single C&B class by force.
  *
- * Forge's new 1.13+ classloader has this fun thing
- * where the order of classloading is somehow not deterministic so
- * on some start-ups classes are loaded by the rendering
- * thread but by the main thread on other start-ups.
- * (even though both threads have the same class loader)
+ * Forge's new 1.13+ classloader has an issue where it sometimes
+ * breaks when loading classes with nested classes or switch
+ * statements.
  *
- * This has the effect that ~30% of startups crash completely but
- * 70% of the time nothing goes wrong.
+ * Related issues:
+ * MinecraftForge/MinecraftForge#6719
+ * cpw/modlauncher#42
+ *
+ * This has the effect that some startups the mod crashes completely
+ * and some startups it works perfectly fine.
  *
  * To address this issue I force java to load every single class
  * in C&B.
