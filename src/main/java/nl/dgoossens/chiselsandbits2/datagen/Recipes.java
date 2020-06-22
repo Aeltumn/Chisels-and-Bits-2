@@ -20,6 +20,11 @@ public class Recipes extends RecipeProvider {
     }
 
     @Override
+    public String getName() {
+        return "Chisels & Bits 2: Recipes";
+    }
+
+    @Override
     protected void registerRecipes(Consumer<IFinishedRecipe> consumer) {
         Registration m = ChiselsAndBits2.getInstance().getRegister();
         ShapedRecipeBuilder.shapedRecipe(m.CHISEL.get())

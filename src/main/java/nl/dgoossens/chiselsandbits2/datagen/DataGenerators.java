@@ -11,6 +11,11 @@ public class DataGenerators {
     public static void gatherData(GatherDataEvent e) {
         DataGenerator generator = e.getGenerator();
         generator.addProvider(new Recipes(generator));
+        generator.addProvider(new Advancements(generator));
         generator.addProvider(new ItemModels(generator, e.getExistingFileHelper()));
+        generator.addProvider(new BlockModels(generator, e.getExistingFileHelper()));
+        generator.addProvider(new BlockStates(generator, e.getExistingFileHelper()));
+
+        //TODO add tag data generator
     }
 }

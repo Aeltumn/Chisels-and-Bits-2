@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[28,)"
+loaderVersion="[31,)"
 issueTrackerURL="https://github.com/Aeltumn/Chisels-and-Bits2/issues"
 
 [[mods]]
@@ -15,7 +15,7 @@ description="The successor to the original Chisels and Bits mod. A mod about scu
 [[dependencies.chiselsandbits2]]
     modId="forge"
     mandatory=true
-    versionRange="[28.1.105,)"
+    versionRange="[31.2.22,)"
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -23,14 +23,14 @@ description="The successor to the original Chisels and Bits mod. A mod about scu
 [[dependencies.chiselsandbits2]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.14.4,)"
+    versionRange="[1.15.2,)"
     ordering="NONE"
     side="BOTH"
 
-# Soft dependency on JEI versions 6.0.0.10 or newer for mc 1.14
+# Soft dependency on JEI versions 6.0.2.11 or newer for mc 1.15
 [[dependencies.chiselsandbits2]]
     modId="jei"
     mandatory=false
-    versionRange="[6.0.0.26,)"
+    versionRange="[6.0.2.11,)"
     ordering="BEFORE"
     side="BOTH"
