@@ -13,17 +13,20 @@ import nl.dgoossens.chiselsandbits2.client.render.chiseledblock.model.ChiseledBl
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class BackgroundRenderer implements Callable<Tessellator> {
-    private final Collection<ChiseledBlockTileEntity> myPrivateList;
+    private final Set<ChiseledBlockTileEntity> myPrivateList;
     private final Region cache;
     private final BlockPos chunkOffset;
 
     BackgroundRenderer(final Region cache, final BlockPos chunkOffset, final Collection<ChiseledBlockTileEntity> myList) {
-        this.myPrivateList = myList;
+        this.myPrivateList = new HashSet<>(myList);
         this.cache = cache;
         this.chunkOffset = chunkOffset;
     }

@@ -56,7 +56,7 @@ public class MorphingBitSmartModel extends BaseSmartModel {
         if(!(stack.getItem() instanceof MorphingBitItem)) return getCachedModel(VoxelBlob.AIR_BIT, false);
         MorphingBitItem mbi = (MorphingBitItem) stack.getItem();
         if(mbi.isLocked(stack))
-            return getCachedModel(mbi.getSelected(stack).getId(), entity.isSneaking() || KeyModifier.SHIFT.isActive(KeyConflictContext.GUI));
+            return getCachedModel(mbi.getSelected(stack).getId(), (entity != null && entity.isSneaking()) || KeyModifier.SHIFT.isActive(KeyConflictContext.GUI));
         return getCachedModel(entity instanceof PlayerEntity ? ItemPropertyUtil.getGlobalSelectedVoxelWrapper((PlayerEntity) entity).getId() : world == null || world.isRemote ? ItemPropertyUtil.getGlobalSelectedVoxelWrapper().getId() : VoxelBlob.AIR_BIT, false);
     }
 }

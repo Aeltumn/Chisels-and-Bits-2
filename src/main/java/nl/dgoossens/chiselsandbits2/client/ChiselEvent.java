@@ -49,7 +49,6 @@ public class ChiselEvent {
                 final ItemStack i = e.getPlayer().getHeldItemMainhand();
                 boolean b = ((MorphingBitItem) i.getItem()).isLocked(i);
                 ClientItemPropertyUtil.setLockState(!b);
-                e.setCanceled(true);
                 return;
             }
         }

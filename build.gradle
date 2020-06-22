@@ -22,7 +22,7 @@ repositories {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'maven-publish'
 
-version = '0.5.0a'
+version = '0.5.2a'
 group = 'nl.dgoossens.chiselsandbits2'
 archivesBaseName = 'chiselsandbits2'
 
@@ -50,6 +50,8 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'info'
             property 'fml.earlyprogresswindow', 'false'
+            property 'chiselsandbits2.buildJar', gradle.ext.buildJar
+            property 'development', 'true'
             ideaModule "${project.name}.main"
 
             //CREDIT TO https://github.com/mekanism/Mekanism/blob/1.14.x/build.gradle for this gradle setup!
@@ -87,6 +89,8 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'info'
             property 'fml.earlyprogresswindow', 'false'
+            property 'chiselsandbits2.buildJar', gradle.ext.buildJar
+            property 'development', 'true'
             ideaModule "${project.name}.main"
             args 'nogui'
 
@@ -102,6 +106,8 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'info'
             property 'fml.earlyprogresswindow', 'false'
+            property 'chiselsandbits2.buildJar', gradle.ext.buildJar
+            property 'development', 'true'
             ideaModule "${project.name}.main"
             args '--mod', 'chiselsandbits2', '--all', '--output', file('src/main/generated/'), '--existing', file('src/main/resources')
 

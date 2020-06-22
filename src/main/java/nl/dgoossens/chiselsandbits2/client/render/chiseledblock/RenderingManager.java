@@ -5,6 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import cpw.mods.modlauncher.Launcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.Vector3f;
@@ -46,6 +47,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * The general manager for the Chiseled Block TileEntityRenderers.
@@ -84,10 +86,12 @@ public class RenderingManager {
 
     public RenderingManager() {
         //Initialise our rendering thread
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         ThreadFactory threadFactory = (r) -> {
             final Thread t = new Thread(r);
             t.setPriority(Thread.NORM_PRIORITY - 1);
             t.setName("C&B2 Render Thread");
+            t.setContextClassLoader(classLoader);
             return t;
         };
 

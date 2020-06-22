@@ -42,18 +42,21 @@ public class ChiselsAndBits2 {
     private ModKeybindings KEYBINDINGS;
 
     public ChiselsAndBits2() {
+        //Temporary solution until FML stops being a PITA
+        ClassLoadEnforcer.loadAllClasses();
+
         instance = this;
         API = new ChiselsAndBitsAPIImpl();
         CONFIGURATION = new ModConfiguration();
         NETWORK_ROUTER = new NetworkRouter();
         STATISTICS = new ModStatistics();
         UNDO = new UndoTracker();
-        KEYBINDINGS = new ModKeybindings();
         REGISTER = new Registration();
 
         //Only initialise the client class when on the CLIENT distribution.
         DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> {
             CLIENT = new ClientSide();
+            KEYBINDINGS = new ModKeybindings();
         });
 
         //Register to mod bus

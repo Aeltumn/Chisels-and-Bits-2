@@ -6,6 +6,9 @@ bin
 .classpath
 .project
 
+# custom
+settings.gradle
+
 # idea
 out
 *.ipr

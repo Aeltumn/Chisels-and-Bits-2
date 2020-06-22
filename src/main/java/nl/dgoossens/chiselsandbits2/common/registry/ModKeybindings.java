@@ -28,8 +28,6 @@ public class ModKeybindings {
 
     private static final String CATEGORY = "Chisels & Bits 2";
 
-    private static final InputMappings.Input NONE = InputMappings.INPUT_INVALID;
-
     public KeyBinding modeMenu = new KeyBinding("Radial Menu", CONFLICT, KeyModifier.NONE, getKey(342), CATEGORY); //Left Alt
 
     public Map<MenuAction, KeyBinding> actionHotkeys = new HashMap<>();
@@ -39,7 +37,7 @@ public class ModKeybindings {
         //Generate Hotkeys
         for (MenuAction ma : MenuAction.values())
             if (ma.hasHotkey()) {
-                InputMappings.Input def = NONE;
+                InputMappings.Input def = InputMappings.INPUT_INVALID;;
                 KeyModifier mod = KeyModifier.NONE;
                 //Undo and redo are set by default to Ctl+Z and Ctl+Y
                 if(ma.equals(MenuAction.UNDO)) {
@@ -56,7 +54,7 @@ public class ModKeybindings {
 
         for (ItemMode im : ItemMode.values())
             if (im.hasHotkey()) {
-                KeyBinding kb = new KeyBinding("general.chiselsandbits2.itemmode." + im.getTypelessName().toLowerCase() + ".hotkey", CONFLICT, NONE, CATEGORY);
+                KeyBinding kb = new KeyBinding("general.chiselsandbits2.itemmode." + im.getTypelessName().toLowerCase() + ".hotkey", CONFLICT, InputMappings.INPUT_INVALID, CATEGORY);
                 modeHotkeys.put(im, kb);
             }
 
