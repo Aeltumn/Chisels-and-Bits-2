@@ -9,8 +9,8 @@ import net.minecraftforge.client.model.generators.ModelBuilder;
 import net.minecraftforge.client.model.generators.ModelFile;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 
-public class ItemModels extends ItemModelProvider {
-    public ItemModels(DataGenerator dataGenerator, ExistingFileHelper existingFileHandler) {
+public class ItemModelsGenerator extends ItemModelProvider {
+    public ItemModelsGenerator(DataGenerator dataGenerator, ExistingFileHelper existingFileHandler) {
         super(dataGenerator, ChiselsAndBits2.MOD_ID, existingFileHandler);
     }
 

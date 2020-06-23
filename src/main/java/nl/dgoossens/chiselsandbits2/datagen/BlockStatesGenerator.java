@@ -6,11 +6,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ExistingFileHelper;
-import net.minecraftforge.client.model.generators.ModelFile;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 
-public class BlockStates extends BlockStateProvider {
-    public BlockStates(DataGenerator dataGenerator, ExistingFileHelper existingFileHandler) {
+public class BlockStatesGenerator extends BlockStateProvider {
+    public BlockStatesGenerator(DataGenerator dataGenerator, ExistingFileHelper existingFileHandler) {
         super(dataGenerator, ChiselsAndBits2.MOD_ID, existingFileHandler);
     }
 
@@ -22,10 +21,7 @@ public class BlockStates extends BlockStateProvider {
     @Override
     protected void registerStatesAndModels() {
         Block chiseledBlock =  ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get();
-        //TODO Change from unchecked model file to checked model file and add generated output to input
-        // so it can find those files.
-        getVariantBuilder(chiseledBlock).partialState()
-                .setModels(new ConfiguredModel(new ModelFile.UncheckedModelFile(path(chiseledBlock))));
+        getVariantBuilder(chiseledBlock).partialState().setModels(new ConfiguredModel(models().getExistingFile(path(chiseledBlock))));
     }
 
     private ResourceLocation path(Block block) {

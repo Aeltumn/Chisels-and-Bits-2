@@ -10,7 +10,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.SpecialRecipeSerializer;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -69,6 +72,9 @@ public class Registration {
     public final RegistryObject<ContainerType<BagContainer>> BIT_BAG_CONTAINER = CONTAINERS.register("bit_bag", () -> IForgeContainerType.create(BagContainer::new));
 
     public final RegistryObject<IRecipeSerializer<RecoloringRecipe>> CRAFTING_SPECIAL_RECOLOR = RECIPES.register("crafting_special_recolor", () -> new SpecialRecipeSerializer<>(RecoloringRecipe::new));
+
+    public final Tag<Item> BIT_BAGS = new ItemTags.Wrapper(new ResourceLocation(ChiselsAndBits2.MOD_ID, "bit_bags"));
+    public final Tag<Item> BIT_CONTAINERS = new ItemTags.Wrapper(new ResourceLocation(ChiselsAndBits2.MOD_ID, "bit_containers"));
 
     public Registration() {
         BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());

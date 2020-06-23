@@ -98,7 +98,7 @@ minecraft {
             property 'chiselsandbits2.buildJar', gradle.ext.buildJar
             property 'development', 'true'
             ideaModule "${project.name}.main"
-            args '--mod', 'chiselsandbits2', '--all', '--output', file('src/main/generated/'), '--existing', file('src/main/resources')
+            args '--mod', 'chiselsandbits2', '--all', '--output', file('src/main/generated/'), '--existing', file('src/main/resources'), '--existing', file('src/main/generated')
 
             mods {
                 chiselsandbits2 {

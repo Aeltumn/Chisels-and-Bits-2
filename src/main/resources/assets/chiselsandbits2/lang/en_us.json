@@ -141,15 +141,15 @@
 
   "general.chiselsandbits2.undo.nothing_to_undo": "Nothing to undo...",
   "general.chiselsandbits2.undo.nothing_to_redo": "Nothing to redo...",
-  "general.chiselsandbits2.undo.error_undo": "Undo couldn't be performed successfully, block must have changed",
-  "general.chiselsandbits2.undo.error_redo": "Redo couldn't be performed successfully, block must have changed",
+  "general.chiselsandbits2.undo.error_undo": "Undo couldn't be performed, block must have changed",
+  "general.chiselsandbits2.undo.error_redo": "Redo couldn't be performed, block must have changed",
   "general.chiselsandbits2.undo.missing_bits": "Your bits ran out whilst performing this action",
   "general.chiselsandbits2.undo.missing_durability": "Your chisel broke whilst performing this action",
 
   "advancements.story.craft_chisel.title": "A World of Bits",
   "advancements.story.craft_chisel.description": "Obtain a chisel",
-  "advancements.story.get_bag.title": "Portable Bit Storage",
-  "advancements.story.get_bag.description": "Craft a bit bag to store bits in",
+  "advancements.story.store_bits.title": "Portable Bit Storage",
+  "advancements.story.store_bits.description": "Craft a bit container to store bits in",
 
   "button.chiselsandbits2.trash": "Clear bag contents; hold item to filter",
   "button.chiselsandbits2.trash.confirm": "Are you sure you want to void all bag contents?",

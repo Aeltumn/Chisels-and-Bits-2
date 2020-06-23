@@ -28,6 +28,7 @@ import nl.dgoossens.chiselsandbits2.client.util.ItemTooltipWriter;
 import javax.annotation.Nullable;
 import java.util.List;
 
+@Deprecated
 public class BitBeakerItem extends StorageItem {
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {

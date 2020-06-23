@@ -14,8 +14,8 @@ import nl.dgoossens.chiselsandbits2.common.registry.Registration;
 
 import java.util.function.Consumer;
 
-public class Recipes extends RecipeProvider {
-    public Recipes(DataGenerator dataGenerator) {
+public class RecipesGenerator extends RecipeProvider {
+    public RecipesGenerator(DataGenerator dataGenerator) {
         super(dataGenerator);
     }
 
