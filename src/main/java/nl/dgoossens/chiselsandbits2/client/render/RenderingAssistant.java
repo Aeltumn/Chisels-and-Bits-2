@@ -27,10 +27,9 @@ public class RenderingAssistant {
             //This makes it much easier to sculpt as you can estimate how many bits you will destroy with this action.
             matrix.push();
             matrix.translate(location.getX() - x, location.getY() - y, location.getZ() - z);
-            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINES), bb, red, green, blue, 0.28f);
-            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINES_BACK_EDGES), bb, red, green, blue, 0.12f);
+            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINES), bb, red, green, blue, 0.4f);
+            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINES_BACK_EDGES), bb, red, green, blue, 0.05f);
             matrix.pop();
-
         }
     }
 

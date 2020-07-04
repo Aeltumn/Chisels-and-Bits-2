@@ -9,6 +9,16 @@ import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
  */
 public interface IBitModifyItem {
     /**
+     * Whether or not this item can be used to perform all given modification types.
+     */
+    public default boolean canPerformModification(final ModificationType... types) {
+        for(ModificationType type : types) {
+            if(!canPerformModification(type)) return false;
+        }
+        return true;
+    }
+
+    /**
      * Whether or not this item can be used to perform a given modification type.
      */
     boolean canPerformModification(final ModificationType type);

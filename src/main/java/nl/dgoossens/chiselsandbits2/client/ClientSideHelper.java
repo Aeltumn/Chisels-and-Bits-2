@@ -202,44 +202,43 @@ public class ClientSideHelper {
     public boolean drawBlockHighlight(MatrixStack matrix, IRenderTypeBuffer buffer, float partialTicks) {
         final PlayerEntity player = Minecraft.getInstance().player;
         final ItemStack stack = player.getHeldItemMainhand();
-        //As this is rendering code and it gets called many times per tick, I try to minimise local variables.
+
+        //If it's not a typed item we can't do anything
+        if(!(stack.getItem() instanceof TypedItem)) return false;
+
+        //If it's not a tape measure and not an IBitModifyItem capable of either BUILD/EXTRACT we don't render either
         boolean tapeMeasure = stack.getItem() instanceof TapeMeasureItem;
-        boolean renderHighlight = tapeMeasure;
-        if(!renderHighlight && stack.getItem() instanceof IBitModifyItem) {
-            IBitModifyItem i = (IBitModifyItem) stack.getItem();
-            renderHighlight = i.canPerformModification(IBitModifyItem.ModificationType.BUILD) || i.canPerformModification(IBitModifyItem.ModificationType.EXTRACT);
-        }
-        if (renderHighlight && stack.getItem() instanceof TypedItem) { //has to be a typed item
-            final RayTraceResult rayTrace = ChiselUtil.rayTrace(player, partialTicks);
-            if (rayTrace.getType() != RayTraceResult.Type.BLOCK)
-                return false;
+        if(!tapeMeasure && !(((stack.getItem() instanceof IBitModifyItem)) && ((IBitModifyItem) stack.getItem()).canPerformModification(IBitModifyItem.ModificationType.BUILD, IBitModifyItem.ModificationType.EXTRACT))) return false;
 
-            final World world = Minecraft.getInstance().world;
+        //If you aren't looking at a block we don't render anything either
+        final RayTraceResult rayTrace = ChiselUtil.rayTrace(player, partialTicks);
+        if (rayTrace.getType() != RayTraceResult.Type.BLOCK)
+            return false;
 
-            //We only show this box if this block is chiselable and this block at this position is chiselable.
-            if (!tapeMeasure && !ChiselsAndBits2.getInstance().getAPI().getRestrictions().canChiselBlock(world.getBlockState(((BlockRayTraceResult) rayTrace).getPos()))) return false;
+        //If we're looking at a block we can't chisel we don't render either
+        final World world = Minecraft.getInstance().world;
+        if (!tapeMeasure && !ChiselsAndBits2.getInstance().getAPI().getRestrictions().canChiselBlock(world.getBlockState(((BlockRayTraceResult) rayTrace).getPos()))) return false;
 
-            final IItemMode mode = ((TypedItem) stack.getItem()).getSelectedMode(stack);
-            final BitOperation operation = tapeMeasure ? BitOperation.REMOVE : ChiselsAndBits2.getInstance().getClient().getOperation(mode);
-            final BitLocation location = new BitLocation((BlockRayTraceResult) rayTrace, true, operation);
+        final IItemMode mode = ((TypedItem) stack.getItem()).getSelectedMode(stack);
+        final BitOperation operation = tapeMeasure ? BitOperation.REMOVE : ChiselsAndBits2.getInstance().getClient().getOperation(mode);
+        final BitLocation location = new BitLocation((BlockRayTraceResult) rayTrace, true, operation);
 
-            //Rendering drawn region bounding box
-            //This is not cached as we only need to draw rectangles, we can keep doing that each tick. There are no maths/iterators involved in contrast to the normal selection boxes.
-            if (tapeMeasure || ItemPropertyUtil.isItemMode(stack, ItemMode.CHISEL_DRAWN_REGION)) {
-                final BitLocation other = tapeMeasure ? ChiselsAndBits2.getInstance().getClient().tapeMeasureCache : ChiselsAndBits2.getInstance().getClient().selectionStart;
-                if(other != null) {
-                    ChiselsAndBits2.getInstance().getClient().renderSelectionBox(matrix, buffer, tapeMeasure, location, other, partialTicks, mode, tapeMeasure ? new Color(((TapeMeasureItem) stack.getItem()).getColour(stack).getColour()) : new Color(0, 0, 0));
-                    return true;
-                }
+        //Rendering drawn region bounding box
+        //This is not cached as we only need to draw rectangles, we can keep doing that each tick. There are no maths/iterators involved in contrast to the normal selection boxes.
+        if (tapeMeasure || ItemPropertyUtil.isItemMode(stack, ItemMode.CHISEL_DRAWN_REGION)) {
+            final BitLocation other = tapeMeasure ? ChiselsAndBits2.getInstance().getClient().tapeMeasureCache : ChiselsAndBits2.getInstance().getClient().selectionStart;
+            if(other != null) {
+                ChiselsAndBits2.getInstance().getClient().renderSelectionBox(matrix, buffer, tapeMeasure, location, other, partialTicks, mode, tapeMeasure ? new Color(((TapeMeasureItem) stack.getItem()).getColour(stack).getColour()) : new Color(0, 0, 0));
+                return true;
             }
-            //Tape measure never displays the small cube.
-            if(tapeMeasure) return false;
-
-            //Render the selection box, this caches the calculated bounding box and only updates if if any of the variables change.
-            showSelectionBox(matrix, buffer, stack, player, location, ((BlockRayTraceResult) rayTrace).getFace(), operation, mode, partialTicks);
-            return true;
         }
-        return false;
+
+        //Tape measure never displays the small cube.
+        if(tapeMeasure) return false;
+
+        //Render the selection box, this caches the calculated bounding box and only updates if if any of the variables change.
+        showSelectionBox(matrix, buffer, stack, player, location, ((BlockRayTraceResult) rayTrace).getFace(), operation, mode, partialTicks);
+        return true;
     }
 
     /**

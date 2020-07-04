@@ -28,20 +28,20 @@ public class ChiselsAndBitsRenderTypes extends RenderType {
 
     public static final RenderType LINES = makeType(ChiselsAndBits2.MOD_ID+":lines", DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
             RenderType.State.getBuilder()
-                    .line(LINE)
-                    .layer(PROJECTION_LAYERING)
                     .transparency(TRANSLUCENT_TRANSPARENCY)
-                    .writeMask(COLOR_WRITE)
                     .depthTest(DEPTH_FRONT)
+                    .layer(PROJECTION_LAYERING)
+                    .writeMask(COLOR_WRITE)
+                    .line(LINE)
                     .build(false));
 
     public static final RenderType LINES_BACK_EDGES = makeType(ChiselsAndBits2.MOD_ID+":lines_back_edges", DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
             RenderType.State.getBuilder()
-                    .line(LINE)
-                    .layer(PROJECTION_LAYERING)
                     .transparency(TRANSLUCENT_TRANSPARENCY)
                     .depthTest(DEPTH_BACK)
+                    .layer(PROJECTION_LAYERING)
                     .writeMask(COLOR_WRITE)
+                    .line(LINE)
                     .build(false));
 
     public static final RenderType TAPE_MEASURE_DISTANCE = makeType(ChiselsAndBits2.MOD_ID+":tape_measure_distance", DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
