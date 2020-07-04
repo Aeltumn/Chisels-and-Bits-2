@@ -8,6 +8,10 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
+import nl.dgoossens.chiselsandbits2.OptifineCompatibility;
+
+import java.lang.reflect.Method;
 
 /**
  * Assists with generic rendering tasks for rendering boxes and lines, mostly those called by the ClientSideHelper.
@@ -27,8 +31,13 @@ public class RenderingAssistant {
             //This makes it much easier to sculpt as you can estimate how many bits you will destroy with this action.
             matrix.push();
             matrix.translate(location.getX() - x, location.getY() - y, location.getZ() - z);
-            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINES), bb, red, green, blue, 0.4f);
-            WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINES_BACK_EDGES), bb, red, green, blue, 0.05f);
+            if(OptifineCompatibility.isUsingShaders()) {
+                //FIXME Shaders doesn't currently support our custom render types so we have to use the default lines.
+                WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(RenderType.getLines()), bb, red, green, blue, 0.4f);
+            } else {
+                WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINES), bb, red, green, blue, 0.4f);
+                WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(ChiselsAndBitsRenderTypes.LINES_BACK_EDGES), bb, red, green, blue, 0.05f);
+            }
             matrix.pop();
         }
     }
@@ -47,7 +56,13 @@ public class RenderingAssistant {
     }
 
     private static void renderLine(final MatrixStack matrix, final IRenderTypeBuffer buffer, final Vec3d a, final Vec3d b, final float red, final float green, final float blue) {
-        IVertexBuilder builder = buffer.getBuffer(ChiselsAndBitsRenderTypes.TAPE_MEASURE_DISTANCE);
+        IVertexBuilder builder;
+        //FIXME Shaders doesn't support our custom render types.
+        if(OptifineCompatibility.isUsingShaders()) {
+            builder = buffer.getBuffer(RenderType.getLines());
+        } else {
+            builder = buffer.getBuffer(ChiselsAndBitsRenderTypes.TAPE_MEASURE_DISTANCE);
+        }
         Matrix4f matrix4f = matrix.getLast().getMatrix();
         builder.pos(matrix4f, (float) a.getX(), (float) a.getY(), (float) a.getZ()).color(red, green, blue, 0.4f).endVertex();
         builder.pos(matrix4f, (float) b.getX(), (float) b.getY(), (float) b.getZ()).color(red, green, blue, 0.4f).endVertex();
