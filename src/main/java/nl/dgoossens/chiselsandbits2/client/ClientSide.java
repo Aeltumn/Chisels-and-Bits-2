@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
@@ -20,9 +21,11 @@ import nl.dgoossens.chiselsandbits2.api.item.*;
 import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IItemScrollWheel;
 import nl.dgoossens.chiselsandbits2.client.render.ChiselsAndBitsRenderTypes;
+import nl.dgoossens.chiselsandbits2.client.render.chiseledblock.ChiseledBlockTileEntityRenderer;
 import nl.dgoossens.chiselsandbits2.client.render.color.ColourableItemColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockItemColor;
+import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
@@ -56,6 +59,14 @@ public class ClientSide extends ClientSideHelper {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerBlockColors);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerIconTextures);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clearCaches);
+    }
+
+    /**
+     * Register custom tile entity renderers.
+     */
+    public void registerTileRenderers() {
+        ClientRegistry.bindTileEntityRenderer(ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK_TILE.get(),
+                ChiseledBlockTileEntityRenderer::new);
     }
 
     /**

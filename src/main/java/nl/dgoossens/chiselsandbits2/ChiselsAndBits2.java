@@ -60,7 +60,7 @@ public class ChiselsAndBits2 {
         //Register to mod bus
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> CLIENT::initialise);
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> CLIENT::initialise);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, CONFIGURATION.SERVER);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CONFIGURATION.CLIENT);
@@ -76,6 +76,9 @@ public class ChiselsAndBits2 {
         CapabilityManager.INSTANCE.register(BitStorage.class, new StorageCapability(), BitStorageImpl::new);
         CapabilityManager.INSTANCE.register(PlayerItemModeManager.class, new PlayerItemModeCapability(), PlayerItemModeManager::new);
         NETWORK_ROUTER.init();
+
+        //Register tile renderers
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> CLIENT::registerTileRenderers);
 
         //Setup vanilla restrictions
         getAPI().getRestrictions().restrictBlockStateProperty(BlockStateProperties.SNOWY, false, true); //Make all snowy grass not snowy automatically
