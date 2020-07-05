@@ -25,7 +25,7 @@ public class SyncPlayerItemModeCapability {
 
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent e) {
-        if(e.getPlayer().getEntityWorld().isRemote) return;
+        if (e.getPlayer().getEntityWorld().isRemote) return;
 
         //Only send player the capability on a server.
         e.getPlayer().getCapability(PlayerItemModeCapabilityProvider.PIMM).ifPresent(cap -> {
@@ -36,7 +36,7 @@ public class SyncPlayerItemModeCapability {
     @SubscribeEvent
     public static void attachCapability(AttachCapabilitiesEvent<Entity> e) {
         //Attach the capability where we store the global chiseled block mode
-        if(e.getObject().getType() == EntityType.PLAYER)
+        if (e.getObject().getType() == EntityType.PLAYER)
             e.addCapability(new ResourceLocation(ChiselsAndBits2.MOD_ID, "global_cbm"), new PlayerItemModeCapabilityProvider());
     }
 }

@@ -45,6 +45,7 @@ public interface ChiselIterator {
 
     /**
      * Moves to the next step.
+     *
      * @return False if there are no more steps.
      */
     boolean hasNext();

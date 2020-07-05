@@ -12,18 +12,22 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
 import nl.dgoossens.chiselsandbits2.api.bit.BitStorage;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
+import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
+import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.StorageCapabilityProvider;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselItem;
 import nl.dgoossens.chiselsandbits2.common.items.StorageItem;
 import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import static nl.dgoossens.chiselsandbits2.api.block.BitOperation.PLACE;
@@ -36,7 +40,7 @@ public class InventoryUtils {
     /**
      * Builds a calculated inventory which can be queried for information. The calculated inventory should be seen as a snapshot
      * taken at a time. It ignores any changes to the inventory unrelated to this calculation.
-     *
+     * <p>
      * This method should be called on the server otherwise changes won't synchronize.
      */
     public static CalculatedInventory buildInventory(ServerPlayerEntity player) {
@@ -58,13 +62,13 @@ public class InventoryUtils {
             //Scan for storages
             for (int i = 0; i < player.inventory.mainInventory.size(); i++) {
                 ItemStack item = player.inventory.mainInventory.get(i);
-                if(item.getItem() instanceof StorageItem)
+                if (item.getItem() instanceof StorageItem)
                     bitStorages.put(i, item.getCapability(StorageCapabilityProvider.STORAGE).orElse(null));
             }
             for (int i = 0; i < player.inventory.offHandInventory.size(); i++) {
                 ItemStack item = player.inventory.offHandInventory.get(i);
                 //Negative slot numbers for offhand item(s)
-                if(item.getItem() instanceof StorageItem)
+                if (item.getItem() instanceof StorageItem)
                     bitStorages.put(-i, item.getCapability(StorageCapabilityProvider.STORAGE).orElse(null));
             }
 
@@ -74,7 +78,7 @@ public class InventoryUtils {
         /**
          * Starts tracking how much of the bit type to place is stored, these will be used
          * when placement happens.
-         *
+         * <p>
          * Can be set multiple times to switch tracked materials.
          */
         public void trackMaterialUsage(VoxelWrapper wrapper) {
@@ -83,13 +87,13 @@ public class InventoryUtils {
             bitsUsed = 0;
 
             //You have infinite coloured bits
-            if(VoxelType.isColoured(wrapper.getId())) {
+            if (VoxelType.isColoured(wrapper.getId())) {
                 bitsAvailable = Long.MAX_VALUE;
                 return;
             }
 
             //Calculate available bits
-            for(BitStorage store : bitStorages.values())
+            for (BitStorage store : bitStorages.values())
                 bitsAvailable += store.get(wrapper);
         }
 
@@ -97,7 +101,7 @@ public class InventoryUtils {
          * Returns whether there is still at least one bit worth of material to use.
          */
         public boolean hasMaterial() {
-            if(getPlayer().isCreative()) return true;
+            if (getPlayer().isCreative()) return true;
             return bitsUsed < bitsAvailable;
         }
 
@@ -105,8 +109,8 @@ public class InventoryUtils {
          * Returns whether or not a bit can currently be placed.
          */
         public boolean canPlaceBit() {
-            if(!getPlayer().isCreative()) {
-                if(bitsUsed >= bitsAvailable) return false;
+            if (!getPlayer().isCreative()) {
+                if (bitsUsed >= bitsAvailable) return false;
                 bitsUsed++;
             }
             return true;
@@ -123,7 +127,7 @@ public class InventoryUtils {
          * Get the player involved.
          */
         public PlayerEntity getPlayer() {
-           return player;
+            return player;
         }
     }
 
@@ -168,16 +172,17 @@ public class InventoryUtils {
          * Removes 1 point worth of durability from the chisels in the inventory. Chisel in selected slot is preferred.
          * Items are moved to keep a chisel in the selected slot if there is already a chisel in the selected slot.
          * This method also adds one use to the chisel item use statistic.
+         *
          * @return False if the inventory didn't have any chisels available.
          */
         public boolean damageChisel() {
             //We ignore chisel durability completely in creative.
-            if(getPlayer().isCreative()) {
+            if (getPlayer().isCreative()) {
                 usedDurability++; //for the statistics
                 return true;
             }
 
-            if(usedDurability >= durability) return false;
+            if (usedDurability >= durability) return false;
             usedDurability++;
             return true;
         }
@@ -187,7 +192,7 @@ public class InventoryUtils {
          */
         public void addMaterial(VoxelWrapper w, long amount) {
             changed = true;
-            if(w == null) return; //Don't do coloured bits
+            if (w == null) return; //Don't do coloured bits
             extracted.put(w, extracted.getOrDefault(w, 0L) + amount);
         }
 
@@ -196,7 +201,7 @@ public class InventoryUtils {
          * Desyncs are ignored in the player's favor. (e.g. if the total durability decreased since the calculated inventory was made we don't mind the difference and take as much as available)
          */
         public void apply() {
-            if(!getPlayer().isCreative()) //We don't need to take materials for creative players.
+            if (!getPlayer().isCreative()) //We don't need to take materials for creative players.
                 addMaterial(bitPlaced, -bitsUsed);
 
             final NonNullList<ItemStack> inventory = getPlayer().inventory.mainInventory;
@@ -207,26 +212,26 @@ public class InventoryUtils {
             //Update selected slot without updating timestamp, "passive selection"
             VoxelWrapper m = ItemPropertyUtil.getGlobalSelectedVoxelWrapper(getPlayer());
             long t = ItemPropertyUtil.getHighestSelectionTimestamp(getPlayer());
-            for(int i : lastModifiedSlot.keySet()) {
-                if(!m.isEmpty() && ItemPropertyUtil.getSelectionTime(inventory.get(i)) == t) continue; //Don't change it for the currently selected one.
+            for (int i : lastModifiedSlot.keySet()) {
+                if (!m.isEmpty() && ItemPropertyUtil.getSelectionTime(inventory.get(i)) == t) continue; //Don't change it for the currently selected one.
                 int bagSlot = lastModifiedSlot.get(i);
                 final BitStorage bs = bitStorages.get(i);
-                if(bagSlot < 0 || bagSlot > bs.getMaximumSlots()) continue; //Invalid slot
+                if (bagSlot < 0 || bagSlot > bs.getMaximumSlots()) continue; //Invalid slot
                 ItemPropertyUtil.setSelectedVoxelWrapper(getPlayer(), inventory.get(i), bs.getSlotContent(bagSlot), false);
             }
 
             //Select the nextSelect if applicable
-            if(nextSelect != -1)
+            if (nextSelect != -1)
                 ItemPropertyUtil.setSelectedVoxelWrapper(getPlayer(), inventory.get(nextSelect), selectedMode, true);
 
             //Send updates for all modified bit bags
-            for(int i : modifiedBitStorages)
+            for (int i : modifiedBitStorages)
                 ItemPropertyUtil.updateStackCapability(inventory.get(i), bitStorages.get(i), getPlayer());
             modifiedBitStorages.clear();
 
             //Notify of bits wasted
-            if(wastingBits)
-                getPlayer().sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.wasting_bits"), true);
+            if (wastingBits)
+                getPlayer().sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.wasting_bits"), true);
         }
 
         /**
@@ -237,11 +242,11 @@ public class InventoryUtils {
             long t = ItemPropertyUtil.getHighestSelectionTimestamp(getPlayer());
             VoxelWrapper m = ItemPropertyUtil.getGlobalSelectedVoxelWrapper(getPlayer());
 
-            for(VoxelWrapper w : extracted.keySet()) {
-                if(VoxelType.isColoured(w.getId())) continue; //Ignore giving coloured bits
+            for (VoxelWrapper w : extracted.keySet()) {
+                if (VoxelType.isColoured(w.getId())) continue; //Ignore giving coloured bits
 
                 long added = extracted.get(w);
-                if(added == 0) continue; //We don't need do nothing here.
+                if (added == 0) continue; //We don't need do nothing here.
 
                 //can stop is used to determine if we're done with our problem
                 Function<Long, Boolean> canStop = added < 0 ? ((i) -> i >= 0) : ((i) -> i <= 0);
@@ -251,46 +256,46 @@ public class InventoryUtils {
                 added = addToStorage(i, w, added, t, m, true);
 
                 //Now try to take from any random other bit storage that contains it
-                for(int invSlot : bitStorages.keySet()) {
-                    if(i == invSlot) continue;
-                    if(canStop.apply(added)) break; //If we no longer have a problem we're done.
-                    added = addToStorage(invSlot, w, added, t, m,true);
+                for (int invSlot : bitStorages.keySet()) {
+                    if (i == invSlot) continue;
+                    if (canStop.apply(added)) break; //If we no longer have a problem we're done.
+                    added = addToStorage(invSlot, w, added, t, m, true);
                 }
 
                 //For adding we also try storages that don't contain it
-                if(added > 0) {
-                    for(int invSlot : bitStorages.keySet()) {
-                        if(canStop.apply(added)) break; //If we no longer have a problem we're done.
-                        added = addToStorage(invSlot, w, added, t, m,false);
+                if (added > 0) {
+                    for (int invSlot : bitStorages.keySet()) {
+                        if (canStop.apply(added)) break; //If we no longer have a problem we're done.
+                        added = addToStorage(invSlot, w, added, t, m, false);
                     }
                 }
 
                 //If we still have stuff to add we are wasting bits, notify the user!
-                if(added > 0) wastingBits = true;
+                if (added > 0) wastingBits = true;
             }
         }
 
         //Interal method for modifying storage contents for a given storage in a given slot.
         private long addToStorage(int invSlot, VoxelWrapper w, long added, long t, VoxelWrapper m, boolean requireContains) {
-            if(!bitStorages.containsKey(invSlot)) return added; //If invalid we return instantly
+            if (!bitStorages.containsKey(invSlot)) return added; //If invalid we return instantly
             BitStorage bs = bitStorages.get(invSlot);
-            if(bs.getOccupiedSlotCount() >= bs.getMaximumSlots()) return added; //If we have no space, return!
-            if(requireContains && !bs.has(w)) return added; //If we can't take any more items we stop
+            if (bs.getOccupiedSlotCount() >= bs.getMaximumSlots()) return added; //If we have no space, return!
+            if (requireContains && !bs.has(w)) return added; //If we can't take any more items we stop
             long capacity = added < 0 ? Math.max(added, -bs.get(bitPlaced)) : Math.min(added, bs.queryRoom(w));
             bs.add(w, capacity);
             //If adding select this slot passively
-            if(capacity > 0) lastModifiedSlot.put(invSlot, bs.findSlot(w));
+            if (capacity > 0) lastModifiedSlot.put(invSlot, bs.findSlot(w));
             modifiedBitStorages.add(invSlot);
             //Always lower added
             added += capacity > 0 ? -capacity : capacity;
 
             //If this is the currently selected one, keep the selection going by re-selecting this bit type elsewhere.
             //Also make sure this is the type currently being placed!
-            if(bs.get(w) <= 0 && !m.isEmpty() && w.equals(m) && ItemPropertyUtil.getSelectionTime(getPlayer().inventory.mainInventory.get(invSlot)) == t) {
-                for(int otherInvSlot : bitStorages.keySet()) {
+            if (bs.get(w) <= 0 && !m.isEmpty() && w.equals(m) && ItemPropertyUtil.getSelectionTime(getPlayer().inventory.mainInventory.get(invSlot)) == t) {
+                for (int otherInvSlot : bitStorages.keySet()) {
                     BitStorage otherBs = bitStorages.get(invSlot);
                     //Does this one have this bit?
-                    if(otherBs.get(w) > 0) {
+                    if (otherBs.get(w) > 0) {
                         //Select the other bag now
                         nextSelect = otherInvSlot;
                         selectedMode = w;
@@ -357,13 +362,14 @@ public class InventoryUtils {
 
         /**
          * Finds the first slot a chisel is in.
+         *
          * @param exclude A specific slot to be excluded from the search.
          * @return -1 if no chisel can be found.
          */
         public int findNextChisel(int exclude) {
-            for(int i = 0; i < getPlayer().inventory.mainInventory.size(); i++) {
-                if(i == exclude) continue;
-                if(getPlayer().inventory.mainInventory.get(i).getItem() instanceof ChiselItem)
+            for (int i = 0; i < getPlayer().inventory.mainInventory.size(); i++) {
+                if (i == exclude) continue;
+                if (getPlayer().inventory.mainInventory.get(i).getItem() instanceof ChiselItem)
                     return i;
             }
             return -1;
@@ -396,8 +402,8 @@ public class InventoryUtils {
          * Plays the correct sound effect when updating a chiseled block but only if the block was actually modified.
          */
         public void playEffects(final World world, final BlockPos pos) {
-            if(!changed) return;
-            if(effectState != null)
+            if (!changed) return;
+            if (effectState != null)
                 ChiselUtil.playModificationSound(world, pos, delta >= 0, effectState);
             else
                 ChiselUtil.playModificationSound(world, pos, delta >= 0);
@@ -405,6 +411,7 @@ public class InventoryUtils {
 
         /**
          * Removes a bit from the voxel blob and does all necessary surrounding logic.
+         *
          * @return true If the while loop can be broken. As soon as one true is returned false will never again be returned.
          */
         public boolean removeBit(final VoxelBlob vb, final int x, final int y, final int z) {
@@ -424,10 +431,11 @@ public class InventoryUtils {
 
         /**
          * Places a bit of a given type in a given spot on the voxel blob, automatically handles using durability/extracting.
+         *
          * @return Can return various status codes with different meaning:
-         *          0 - peaceful return, nothing was changed but there's no problem
-         *          1 - chisel didn't have durability
-         *          2 - didn't have materials to do placement
+         * 0 - peaceful return, nothing was changed but there's no problem
+         * 1 - chisel didn't have durability
+         * 2 - didn't have materials to do placement
          */
         public int placeBit(final VoxelBlob vb, final int x, final int y, final int z, final BitOperation operation, final int placedBit) {
             final int blk = vb.get(x, y, z);
@@ -444,7 +452,7 @@ public class InventoryUtils {
             if (damageChisel()) {
                 //These two ifs need to be separate so one can fail but the other doesn't have to.
                 //However we check hasMaterial early to ensure that this one will succeed true to avoid damage loss.
-                if(canPlaceBit()) {
+                if (canPlaceBit()) {
                     vb.set(x, y, z, placedBit);
                     delta++;
 

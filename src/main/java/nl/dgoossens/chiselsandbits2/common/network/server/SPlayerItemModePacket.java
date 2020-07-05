@@ -12,7 +12,9 @@ import java.util.function.Supplier;
 public class SPlayerItemModePacket implements IPacket<SPlayerItemModePacket> {
     private PlayerItemMode mode;
 
-    public SPlayerItemModePacket() {}
+    public SPlayerItemModePacket() {
+    }
+
     public SPlayerItemModePacket(final PlayerItemMode cbm) {
         this.mode = cbm;
     }
@@ -34,7 +36,7 @@ public class SPlayerItemModePacket implements IPacket<SPlayerItemModePacket> {
     @Override
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->
-            ClientItemPropertyUtil.readPlayerItemModes(this)
+                ClientItemPropertyUtil.readPlayerItemModes(this)
         );
         ctx.get().setPacketHandled(true);
     }

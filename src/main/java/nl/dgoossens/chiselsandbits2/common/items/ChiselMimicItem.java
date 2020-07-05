@@ -16,6 +16,7 @@ import java.util.Set;
 
 public class ChiselMimicItem extends TypedItem implements IBitModifyItem {
     protected int PROPERTY_PLACEMENT; //false = place, true = swap
+
     public ChiselMimicItem(Item.Properties builder) {
         super(builder);
 
@@ -57,10 +58,12 @@ public class ChiselMimicItem extends TypedItem implements IBitModifyItem {
     @Override
     public Set<ItemModeMenu.MenuButton> getMenuButtons(final ItemStack item) {
         Set<ItemModeMenu.MenuButton> ret = new HashSet<>();
-        if(isSwapping(item))
+        if (isSwapping(item))
             ret.add(new ItemModeMenu.MenuButton(MenuAction.PLACE, -ItemModeMenu.TEXT_DISTANCE - 18, -20, Direction.WEST));
         else
             ret.add(new ItemModeMenu.MenuButton(MenuAction.SWAP, -ItemModeMenu.TEXT_DISTANCE - 18, -20, Direction.WEST));
         return ret;
-    };
+    }
+
+    ;
 }

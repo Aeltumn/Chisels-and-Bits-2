@@ -32,8 +32,8 @@ public enum VoxelVersions {
      * Get the voxel version using the id specified.
      */
     public static VoxelVersions getVersion(int i) {
-        for(VoxelVersions vv : VoxelVersions.values()) {
-            if(vv.id == i) return vv;
+        for (VoxelVersions vv : VoxelVersions.values()) {
+            if (vv.id == i) return vv;
         }
         return ANY;
     }

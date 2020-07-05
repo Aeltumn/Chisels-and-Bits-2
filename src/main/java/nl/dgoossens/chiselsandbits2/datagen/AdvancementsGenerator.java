@@ -76,24 +76,24 @@ public class AdvancementsGenerator extends AdvancementProvider {
     /**
      * Custom method for registering an advancement.
      *
-     * @param id The id of this advancement, e.g. "collect_chisel" or "dye_bag"
-     * @param section The name of the section to put this advancement in, e.g. "story" or "end"
-     * @param parent Parent advancement, may be null if there is no parent or if a vanilla advancement is the parent.
-     * @param criterion Criterion for this advancement to be given to the player.
+     * @param id          The id of this advancement, e.g. "collect_chisel" or "dye_bag"
+     * @param section     The name of the section to put this advancement in, e.g. "story" or "end"
+     * @param parent      Parent advancement, may be null if there is no parent or if a vanilla advancement is the parent.
+     * @param criterion   Criterion for this advancement to be given to the player.
      * @param postProcess Optional post-processing value, can be used to add vanilla advancement as parent.
      * @return Generated advancement, instance can be used as parent for other advancement.
      */
     private Advancement register(DirectoryCache cache, String id, String section, @Nullable Advancement parent, Item display, FrameType frameType, boolean showToast, boolean announceToChat, boolean hidden, CriterionInstance criterion, Function<JsonElement, JsonElement> postProcess) throws IOException {
         Advancement advancement = Advancement.Builder.builder().withParent(parent)
-                .withDisplay(display, new TranslationTextComponent("advancements."+section+"."+id+".title"),
-                        new TranslationTextComponent("advancements."+section+"."+id+".description"), null,
+                .withDisplay(display, new TranslationTextComponent("advancements." + section + "." + id + ".title"),
+                        new TranslationTextComponent("advancements." + section + "." + id + ".description"), null,
                         frameType, showToast, announceToChat, hidden)
                 .withCriterion("criterion", criterion)
                 .build(new ResourceLocation(ChiselsAndBits2.MOD_ID, id));
 
         Path path1 = this.generator.getOutputFolder().resolve("data/" + ChiselsAndBits2.MOD_ID + "/advancements/" + section + "/" + id + ".json");
         JsonElement jsonElement = advancement.copy().serialize();
-        if(postProcess != null)
+        if (postProcess != null)
             jsonElement = postProcess.apply(jsonElement);
         IDataProvider.save(GSON, cache, jsonElement, path1);
         return advancement;

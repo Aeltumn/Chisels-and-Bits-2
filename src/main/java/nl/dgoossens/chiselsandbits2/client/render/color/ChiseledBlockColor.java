@@ -13,7 +13,9 @@ public class ChiseledBlockColor extends ChiseledTintColor implements IBlockColor
     private ILightReader world;
     private BlockPos pos;
 
-    public ChiseledBlockColor() {}
+    public ChiseledBlockColor() {
+    }
+
     public ChiseledBlockColor(ILightReader world, BlockPos pos) {
         this.world = world;
         this.pos = pos;
@@ -21,8 +23,8 @@ public class ChiseledBlockColor extends ChiseledTintColor implements IBlockColor
 
     @Override
     public int getColor(BlockState state, @Nullable ILightReader world, @Nullable BlockPos pos, int tint) {
-        if(world != null) this.world = world;
-        if(pos != null) this.pos = pos;
+        if (world != null) this.world = world;
+        if (pos != null) this.pos = pos;
         return getColor(tint);
     }
 

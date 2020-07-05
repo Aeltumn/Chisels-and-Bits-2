@@ -53,6 +53,6 @@ public interface IMenuAction {
      * Get the localized name of this menu action.
      */
     public default String getLocalizedName() {
-        return I18n.format("general."+ChiselsAndBits2.MOD_ID+".menuaction." + name().toLowerCase());
+        return I18n.format("general." + ChiselsAndBits2.MOD_ID + ".menuaction." + name().toLowerCase());
     }
 }

@@ -15,9 +15,12 @@ public class CRotateItemPacket {
     private Direction.Axis axis;
     private boolean clockwise;
 
-    private CRotateItemPacket() {}
+    private CRotateItemPacket() {
+    }
+
     public CRotateItemPacket(final Direction.Axis axis, final boolean clockwise) {
-        this.axis = axis; this.clockwise = clockwise;
+        this.axis = axis;
+        this.clockwise = clockwise;
     }
 
     public static void encode(CRotateItemPacket msg, PacketBuffer buf) {

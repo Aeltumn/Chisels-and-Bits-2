@@ -7,9 +7,8 @@ import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
 import nl.dgoossens.chiselsandbits2.api.block.IVoxelSrc;
 import nl.dgoossens.chiselsandbits2.api.item.IItemModeType;
 import nl.dgoossens.chiselsandbits2.api.item.ItemModeEnum;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.*;
-
-import static nl.dgoossens.chiselsandbits2.api.block.BitOperation.PLACE;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.ChiselIterator;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.ChiselTypeIterator;
 
 /**
  * The current mode the item is using shared between all item mode types in base C&B2.
@@ -50,20 +49,20 @@ public enum ItemMode implements ItemModeEnum {
     //Cache typeless name for improved performance
     @Override
     public String getTypelessName() {
-        if(typelessName == null) getType(); //force load typelessName
+        if (typelessName == null) getType(); //force load typelessName
         return typelessName;
     }
 
     //We don't always calculate the type like this, we cache it.
     private IItemModeType calculateType() {
-        switch(this) {
+        switch (this) {
             case CHISEL_SINGLE:
             case CHISEL_LINE:
             case CHISEL_PLANE:
-            //case CHISEL_CONNECTED_PLANE:
-            //case CHISEL_CONNECTED_MATERIAL:
+                //case CHISEL_CONNECTED_PLANE:
+                //case CHISEL_CONNECTED_MATERIAL:
             case CHISEL_DRAWN_REGION:
-            //case CHISEL_SAME_MATERIAL:
+                //case CHISEL_SAME_MATERIAL:
             case CHISEL_SNAP8:
             case CHISEL_SNAP4:
             case CHISEL_SNAP2:
@@ -80,7 +79,7 @@ public enum ItemMode implements ItemModeEnum {
             case WRENCH_MIRROR:
                 return ItemModeType.WRENCH;
         }
-        throw new UnsupportedOperationException("No type set for item mode "+name());
+        throw new UnsupportedOperationException("No type set for item mode " + name());
     }
 
     @Override
@@ -96,7 +95,7 @@ public enum ItemMode implements ItemModeEnum {
     //We also cache the type.
     @Override
     public IItemModeType getType() {
-        if(type == null) {
+        if (type == null) {
             type = calculateType();
             typelessName = name().substring(getType().name().length() + 1).toLowerCase();
         }

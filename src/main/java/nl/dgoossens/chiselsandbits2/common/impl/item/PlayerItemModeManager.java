@@ -14,7 +14,7 @@ public class PlayerItemModeManager {
     }
 
     public void setChiseledBlockMode(IItemMode mode) {
-        if(mode instanceof PlayerItemMode)
+        if (mode instanceof PlayerItemMode)
             chiseledBlockMode = (PlayerItemMode) mode;
     }
 }

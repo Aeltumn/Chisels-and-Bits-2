@@ -12,7 +12,9 @@ import java.util.function.Supplier;
 public class CUpdatePlayerItemModesPacket implements IPacket<CUpdatePlayerItemModesPacket> {
     private PlayerItemMode cbm;
 
-    public CUpdatePlayerItemModesPacket() {}
+    public CUpdatePlayerItemModesPacket() {
+    }
+
     public CUpdatePlayerItemModesPacket(final PlayerItemMode cbm) {
         this.cbm = cbm;
     }

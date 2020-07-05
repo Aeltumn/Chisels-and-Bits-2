@@ -10,7 +10,7 @@ import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.HashMap;
 
 public class BitStorageImpl implements BitStorage {
     private VoxelType stored;
@@ -19,35 +19,40 @@ public class BitStorageImpl implements BitStorage {
     public BitStorageImpl() {
         this(VoxelType.BLOCKSTATE);
     }
+
     public BitStorageImpl(VoxelType storedType) {
         this.stored = storedType;
 
         contents = new HashMap<>();
-        for(int i = 0; i < getMaximumSlots(); i++)
+        for (int i = 0; i < getMaximumSlots(); i++)
             contents.put(i, null);
     }
 
     private void checkServerside() {
-        if(Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER)
+        if (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER)
             throw new RuntimeException("Code ran on client-side whilst it has to be ran on server-side!");
     }
 
     //Gets the amount of slots this bit storage has
     @Override
     public int getMaximumSlots() {
-        switch(stored) {
-            case BLOCKSTATE: return ChiselsAndBits2.getInstance().getConfig().typeSlotsPerBag.get();
-            case FLUIDSTATE: return ChiselsAndBits2.getInstance().getConfig().typeSlotsPerBeaker.get();
-            case COLOURED: return ChiselsAndBits2.getInstance().getConfig().bookmarksPerPalette.get();
-            default: return 8;
+        switch (stored) {
+            case BLOCKSTATE:
+                return ChiselsAndBits2.getInstance().getConfig().typeSlotsPerBag.get();
+            case FLUIDSTATE:
+                return ChiselsAndBits2.getInstance().getConfig().typeSlotsPerBeaker.get();
+            case COLOURED:
+                return ChiselsAndBits2.getInstance().getConfig().bookmarksPerPalette.get();
+            default:
+                return 8;
         }
     }
 
     @Override
     public int getOccupiedSlotCount() {
         int count = 0;
-        for(int i = 0; i < getMaximumSlots(); i++)
-            if(contents.get(i) != null)
+        for (int i = 0; i < getMaximumSlots(); i++)
+            if (contents.get(i) != null)
                 count++;
         return count;
     }
@@ -59,10 +64,10 @@ public class BitStorageImpl implements BitStorage {
 
     @Override
     public int findSlot(VoxelWrapper w) {
-        if(w.isEmpty()) return -1;
+        if (w.isEmpty()) return -1;
         //Slot is valid if it's empty or already contains this.
-        for(int i = 0; i < getMaximumSlots(); i++)
-            if(contents.get(i) == null || contents.get(i).getLeft().equals(w))
+        for (int i = 0; i < getMaximumSlots(); i++)
+            if (contents.get(i) == null || contents.get(i).getLeft().equals(w))
                 return i;
         return -1;
     }
@@ -81,24 +86,24 @@ public class BitStorageImpl implements BitStorage {
     public void validate() {
         checkServerside();
 
-        for(int i = 0; i < getMaximumSlots(); i++) {
+        for (int i = 0; i < getMaximumSlots(); i++) {
             //Extend the contents if somehow the slots size changed. Remove empty slots.
             //Also remove where we have air (empty) in it which we see as bugged slots
-            if(!contents.containsKey(i) || (contents.get(i) != null && contents.get(i).getRight() <= 0)
+            if (!contents.containsKey(i) || (contents.get(i) != null && contents.get(i).getRight() <= 0)
                     || (contents.get(i) != null && contents.get(i).getLeft().isEmpty()))
                 contents.put(i, null);
         }
 
-        for(int i = 0; i < getMaximumSlots(); i++) {
+        for (int i = 0; i < getMaximumSlots(); i++) {
             Pair<VoxelWrapper, Long> p = contents.get(i);
-            if(p == null) continue;
+            if (p == null) continue;
 
             //Test if this is the only appearance of this voxel wrapper
-            for(int j = 0; j < getMaximumSlots(); j++) {
-                if(i == j) continue;
+            for (int j = 0; j < getMaximumSlots(); j++) {
+                if (i == j) continue;
                 Pair<VoxelWrapper, Long> pa = contents.get(j);
-                if(pa != null) {
-                    if(pa.getLeft().equals(p.getLeft())) {
+                if (pa != null) {
+                    if (pa.getLeft().equals(p.getLeft())) {
                         //We need to fix this! Merge the entries.
                         contents.put(j, null);
                         p = Pair.of(p.getLeft(), p.getValue() + pa.getRight());
@@ -114,16 +119,16 @@ public class BitStorageImpl implements BitStorage {
         checkServerside();
 
         int bagSlot = findSlot(w);
-        if(bagSlot < 0 || bagSlot >= contents.size()) return 0;
+        if (bagSlot < 0 || bagSlot >= contents.size()) return 0;
         Pair<VoxelWrapper, Long> pair = contents.get(bagSlot);
-        if(pair == null) pair = Pair.of(w, 0L);
+        if (pair == null) pair = Pair.of(w, 0L);
 
         long available = getMaxCapacity() - pair.getRight();
         long use = Math.min(amount, available);
         //Limit max that can be removed.
-        if(-use > get(w)) use = -get(w);
+        if (-use > get(w)) use = -get(w);
         //Special case for negative amounts to make sure they don't make negative amounts
-        if(pair.getRight() + use < 0)
+        if (pair.getRight() + use < 0)
             use = -pair.getRight();
 
         pair = Pair.of(pair.getLeft(), pair.getRight() + use);
@@ -134,22 +139,22 @@ public class BitStorageImpl implements BitStorage {
 
     @Override
     public boolean has(VoxelWrapper b) {
-        for(int i = 0; i < getMaximumSlots(); i++) {
-            if(contents.get(i) == null) continue;
+        for (int i = 0; i < getMaximumSlots(); i++) {
+            if (contents.get(i) == null) continue;
             VoxelWrapper a = contents.get(i).getLeft();
-            if(a.getId() == b.getId()) return true;
+            if (a.getId() == b.getId()) return true;
         }
         return false;
     }
 
     @Override
     public long get(final VoxelWrapper w) {
-        if(w.isEmpty()) return 0;
+        if (w.isEmpty()) return 0;
         int slot = findSlot(w);
-        if(slot < 0 || slot >= contents.size()) return 0;
+        if (slot < 0 || slot >= contents.size()) return 0;
         Pair<VoxelWrapper, Long> p = contents.get(slot);
         long current = 0;
-        if(p != null) current = p.getValue();
+        if (p != null) current = p.getValue();
         return current;
     }
 
@@ -160,29 +165,29 @@ public class BitStorageImpl implements BitStorage {
 
     @Override
     public VoxelWrapper getSlotContent(int slot) {
-        if(slot < 0 || slot >= contents.size()) return VoxelWrapper.empty();
+        if (slot < 0 || slot >= contents.size()) return VoxelWrapper.empty();
         Pair<VoxelWrapper, Long> p = contents.get(slot);
-        if(p != null) return p.getLeft();
+        if (p != null) return p.getLeft();
         return VoxelWrapper.empty();
     }
 
     @Override
     public int getSlot(final VoxelWrapper w) {
         int i = findSlot(w);
-        if(i < 0 || i >= contents.size()) return 0;
-        if(contents.get(i) == null) return -1;
+        if (i < 0 || i >= contents.size()) return 0;
+        if (contents.get(i) == null) return -1;
         return i;
     }
 
     @Override
     public void setSlot(final int index, final VoxelWrapper w, final long amount) {
-        if(w.isEmpty() || index < 0 || index >= contents.size()) return;
+        if (w.isEmpty() || index < 0 || index >= contents.size()) return;
         contents.put(index, Pair.of(w, amount));
     }
 
     @Override
     public void clearSlot(final int index) {
-        if(index < 0 || index >= contents.size()) return;
+        if (index < 0 || index >= contents.size()) return;
         contents.put(index, null);
     }
 
@@ -197,7 +202,7 @@ public class BitStorageImpl implements BitStorage {
     @Override
     public void loadFromNBT(INBT nbt) {
         CompoundNBT content = ((CompoundNBT) nbt).getCompound("content");
-        for(String s : content.keySet()) {
+        for (String s : content.keySet()) {
             try {
                 int slot = Integer.valueOf(s);
                 CompoundNBT subcontent = content.getCompound(s);
@@ -211,7 +216,7 @@ public class BitStorageImpl implements BitStorage {
         setType(VoxelType.values()[((CompoundNBT) nbt).getInt("type")]);
 
         //Only validate on server.
-        if(Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER)
+        if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER)
             validate();
     }
 
@@ -219,10 +224,10 @@ public class BitStorageImpl implements BitStorage {
     public INBT toNBT() {
         CompoundNBT compound = new CompoundNBT();
         CompoundNBT content = new CompoundNBT();
-        for(int i = 0; i < getMaximumSlots(); i++) {
+        for (int i = 0; i < getMaximumSlots(); i++) {
             CompoundNBT subcontent = new CompoundNBT();
             VoxelWrapper k = getSlotContent(i);
-            if(k.isEmpty()) continue;
+            if (k.isEmpty()) continue;
             subcontent.putLong(String.valueOf(k.getId()), get(k));
             content.put(String.valueOf(i), subcontent);
         }

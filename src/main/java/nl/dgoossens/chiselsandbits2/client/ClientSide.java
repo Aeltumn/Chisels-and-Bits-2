@@ -1,7 +1,6 @@
 package nl.dgoossens.chiselsandbits2.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.settings.KeyBinding;
@@ -9,7 +8,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.ColorHandlerEvent;
+import net.minecraftforge.client.event.DrawHighlightEvent;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -17,26 +22,20 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.cache.CacheType;
-import nl.dgoossens.chiselsandbits2.api.item.*;
 import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
+import nl.dgoossens.chiselsandbits2.api.item.ItemModeEnum;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.IItemScrollWheel;
-import nl.dgoossens.chiselsandbits2.client.render.ChiselsAndBitsRenderTypes;
 import nl.dgoossens.chiselsandbits2.client.render.chiseledblock.ChiseledBlockTileEntityRenderer;
-import nl.dgoossens.chiselsandbits2.client.render.color.ColourableItemColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockItemColor;
-import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
+import nl.dgoossens.chiselsandbits2.client.render.color.ColourableItemColor;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
+import nl.dgoossens.chiselsandbits2.common.registry.ModKeybindings;
 import nl.dgoossens.chiselsandbits2.common.registry.Registration;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
-import nl.dgoossens.chiselsandbits2.common.registry.ModKeybindings;
-
-import java.lang.reflect.Field;
-
-import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.FOOD;
 
 /**
  * Handles all features triggered by client-sided events.
@@ -45,12 +44,13 @@ import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType
  * - Placement Ghost
  * - Tape Measure
  * - Item Scrolling
- *
+ * <p>
  * Events are located in this class, all methods are put in ClientSideHelper.
  */
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ClientSide extends ClientSideHelper {
     //--- GENERAL SETUP ---
+
     /**
      * Register listeners to mod event bus.
      */
@@ -74,7 +74,7 @@ public class ClientSide extends ClientSideHelper {
      */
     private void registerItemColors(final ColorHandlerEvent.Item e) {
         Registration m = ChiselsAndBits2.getInstance().getRegister();
-        
+
         //Register all items with an item color
         e.getItemColors().register(new ChiseledBlockItemColor(),
                 m.CHISELED_BLOCK_ITEM.get(),
@@ -111,7 +111,7 @@ public class ClientSide extends ClientSideHelper {
      */
     private void registerIconTextures(final TextureStitchEvent.Pre e) {
         //Only register to the texture map.
-        if(!e.getMap().getTextureLocation().equals(PlayerContainer.LOCATION_BLOCKS_TEXTURE))
+        if (!e.getMap().getTextureLocation().equals(PlayerContainer.LOCATION_BLOCKS_TEXTURE))
             return;
 
         //We only do this for our own, addons need to do this themselves.
@@ -167,13 +167,13 @@ public class ClientSide extends ClientSideHelper {
         for (IMenuAction ma : keybindings.actionHotkeys.keySet()) {
             KeyBinding kb = keybindings.actionHotkeys.get(ma);
             if (kb.isPressed() && kb.getKeyModifier().isActive(KeyConflictContext.IN_GAME)) {
-                if(ma.equals(MenuAction.PLACE) || ma.equals(MenuAction.SWAP)) {
+                if (ma.equals(MenuAction.PLACE) || ma.equals(MenuAction.SWAP)) {
                     ItemStack stack = Minecraft.getInstance().player.getHeldItemMainhand();
-                    if(stack.getItem() instanceof ChiselMimicItem) {
+                    if (stack.getItem() instanceof ChiselMimicItem) {
                         if (((ChiselMimicItem) stack.getItem()).isPlacing(stack))
                             MenuAction.PLACE.trigger();
                         else
-                             MenuAction.SWAP.trigger();
+                            MenuAction.SWAP.trigger();
                     }
                     continue;
                 }
@@ -202,7 +202,7 @@ public class ClientSide extends ClientSideHelper {
     @SubscribeEvent
     public static void drawHighlights(final DrawHighlightEvent.HighlightBlock e) {
         //Cancel if the draw blocks highlight method successfully rendered a highlight.
-        if(ChiselsAndBits2.getInstance().getClient().drawBlockHighlight(e.getMatrix(), e.getBuffers(), e.getPartialTicks()))
+        if (ChiselsAndBits2.getInstance().getClient().drawBlockHighlight(e.getMatrix(), e.getBuffers(), e.getPartialTicks()))
             e.setCanceled(true);
     }
 
@@ -234,7 +234,7 @@ public class ClientSide extends ClientSideHelper {
         final ItemStack is = player.getHeldItemMainhand();
 
         if (is.getItem() instanceof IItemScrollWheel && player.isCrouching()) {
-            if(((IItemScrollWheel) is.getItem()).scroll(player, is, dwheel))
+            if (((IItemScrollWheel) is.getItem()).scroll(player, is, dwheel))
                 me.setCanceled(true);
         }
     }

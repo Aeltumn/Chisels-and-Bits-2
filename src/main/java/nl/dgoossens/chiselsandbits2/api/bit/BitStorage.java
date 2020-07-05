@@ -1,10 +1,6 @@
 package nl.dgoossens.chiselsandbits2.api.bit;
 
-import net.minecraft.item.Item;
 import net.minecraft.nbt.INBT;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
-
-import java.util.List;
 
 /**
  * Represents an interface capable of storing bits of any type.
@@ -24,6 +20,7 @@ public interface BitStorage {
 
     /**
      * Adds a wrapper to the first empty slot.
+     *
      * @return How much couldn't be put into the bag.
      */
     long add(final VoxelWrapper w, final long amount);

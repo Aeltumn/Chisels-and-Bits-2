@@ -6,7 +6,7 @@ import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.IngameGui;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.PlayerContainer;
@@ -20,42 +20,43 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
+import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
 import nl.dgoossens.chiselsandbits2.api.item.DyedItemColour;
-import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
 import nl.dgoossens.chiselsandbits2.api.item.IItemMenu;
 import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
-import nl.dgoossens.chiselsandbits2.api.radial.RadialMenu;
 import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
+import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
+import nl.dgoossens.chiselsandbits2.api.radial.RadialMenu;
 import nl.dgoossens.chiselsandbits2.client.render.GhostModelRenderer;
 import nl.dgoossens.chiselsandbits2.client.render.RenderingAssistant;
 import nl.dgoossens.chiselsandbits2.client.render.SelectionBoxRenderer;
 import nl.dgoossens.chiselsandbits2.client.render.TapeMeasureRenderer;
+import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockPlacementLogic;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.ExtendedAxisAlignedBB;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
-import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockPlacementLogic;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
-import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.items.ChiseledBlockItem;
-import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
-import nl.dgoossens.chiselsandbits2.common.network.client.COpenBitBagPacket;
-import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
-import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.items.MorphingBitItem;
 import nl.dgoossens.chiselsandbits2.common.items.TapeMeasureItem;
+import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
+import nl.dgoossens.chiselsandbits2.common.network.client.COpenBitBagPacket;
 import nl.dgoossens.chiselsandbits2.common.util.ChiselUtil;
+import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
  * All client side methods are split into two classes:
- *    - events are in ClientSide
- *    - everything else is in here
+ * - events are in ClientSide
+ * - everything else is in here
  */
 public class ClientSideHelper {
     //--- GENERAL ---
@@ -95,7 +96,7 @@ public class ClientSideHelper {
      */
     void showGhost(MatrixStack matrix, IRenderTypeBuffer buffer, ItemStack item, PlayerEntity player, BitLocation bit, Direction face, float partialTicks, boolean offGrid) {
         //Create a new ghost model if this one is invalid or non-existent
-        if(chiseledBlockGhost == null || !chiseledBlockGhost.isValid(player, bit, face, ClientItemPropertyUtil.getChiseledBlockMode()))
+        if (chiseledBlockGhost == null || !chiseledBlockGhost.isValid(player, bit, face, ClientItemPropertyUtil.getChiseledBlockMode()))
             chiseledBlockGhost = new GhostModelRenderer(item, player, bit, face, offGrid);
 
         //Render the model
@@ -107,7 +108,7 @@ public class ClientSideHelper {
      */
     void showSelectionBox(MatrixStack matrix, IRenderTypeBuffer buffer, ItemStack item, PlayerEntity player, BitLocation bit, Direction face, BitOperation operation, IItemMode mode, float partialTicks) {
         //Create a new object if this one is invalid or non-existent
-        if(selectionBox == null || !selectionBox.isValid(player, bit, face, mode))
+        if (selectionBox == null || !selectionBox.isValid(player, bit, face, mode))
             selectionBox = new SelectionBoxRenderer(item, player, bit, face, operation, mode);
 
         //Render the box
@@ -119,9 +120,9 @@ public class ClientSideHelper {
      */
     protected BitOperation getOperation(final IItemMode mode) {
         //Only return the cached mode if we are in drawn region mode
-        if(operation != null && mode.equals(ItemMode.CHISEL_DRAWN_REGION)) return operation;
+        if (operation != null && mode.equals(ItemMode.CHISEL_DRAWN_REGION)) return operation;
         //Morphing bit is mainly meant for placement so we show the placement highlight preferred over the removal highlight.
-        if(Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof MorphingBitItem) return BitOperation.PLACE;
+        if (Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof MorphingBitItem) return BitOperation.PLACE;
         return BitOperation.REMOVE;
     }
 
@@ -176,7 +177,7 @@ public class ClientSideHelper {
      * a selection was already started.
      */
     public boolean hasSelectionStart(BitOperation operation) {
-        if(!operation.equals(this.operation)) return false;
+        if (!operation.equals(this.operation)) return false;
         return selectionStart != null;
     }
 
@@ -184,7 +185,7 @@ public class ClientSideHelper {
      * Get the starting point of the current selection given the operation.
      */
     public BitLocation getSelectionStart(BitOperation operation) {
-        if(!operation.equals(this.operation)) return null;
+        if (!operation.equals(this.operation)) return null;
         return selectionStart;
     }
 
@@ -204,11 +205,11 @@ public class ClientSideHelper {
         final ItemStack stack = player.getHeldItemMainhand();
 
         //If it's not a typed item we can't do anything
-        if(!(stack.getItem() instanceof TypedItem)) return false;
+        if (!(stack.getItem() instanceof TypedItem)) return false;
 
         //If it's not a tape measure and not an IBitModifyItem capable of either BUILD/EXTRACT we don't render either
         boolean tapeMeasure = stack.getItem() instanceof TapeMeasureItem;
-        if(!tapeMeasure && !(((stack.getItem() instanceof IBitModifyItem)) && ((IBitModifyItem) stack.getItem()).canPerformModification(IBitModifyItem.ModificationType.BUILD, IBitModifyItem.ModificationType.EXTRACT))) return false;
+        if (!tapeMeasure && !(((stack.getItem() instanceof IBitModifyItem)) && ((IBitModifyItem) stack.getItem()).canPerformModification(IBitModifyItem.ModificationType.BUILD, IBitModifyItem.ModificationType.EXTRACT))) return false;
 
         //If you aren't looking at a block we don't render anything either
         final RayTraceResult rayTrace = ChiselUtil.rayTrace(player, partialTicks);
@@ -227,14 +228,14 @@ public class ClientSideHelper {
         //This is not cached as we only need to draw rectangles, we can keep doing that each tick. There are no maths/iterators involved in contrast to the normal selection boxes.
         if (tapeMeasure || ItemPropertyUtil.isItemMode(stack, ItemMode.CHISEL_DRAWN_REGION)) {
             final BitLocation other = tapeMeasure ? ChiselsAndBits2.getInstance().getClient().tapeMeasureCache : ChiselsAndBits2.getInstance().getClient().selectionStart;
-            if(other != null) {
+            if (other != null) {
                 ChiselsAndBits2.getInstance().getClient().renderSelectionBox(matrix, buffer, tapeMeasure, location, other, partialTicks, mode, tapeMeasure ? new Color(((TapeMeasureItem) stack.getItem()).getColour(stack).getColour()) : new Color(0, 0, 0));
                 return true;
             }
         }
 
         //Tape measure never displays the small cube.
-        if(tapeMeasure) return false;
+        if (tapeMeasure) return false;
 
         //Render the selection box, this caches the calculated bounding box and only updates if if any of the variables change.
         showSelectionBox(matrix, buffer, stack, player, location, ((BlockRayTraceResult) rayTrace).getFace(), operation, mode, partialTicks);
@@ -247,7 +248,7 @@ public class ClientSideHelper {
      */
     public void useTapeMeasure(BlockRayTraceResult rayTrace) {
         final BitLocation location = new BitLocation(rayTrace, true, BitOperation.REMOVE);
-        if(tapeMeasureCache == null) {
+        if (tapeMeasureCache == null) {
             //First Selection
             tapeMeasureCache = location;
         } else {
@@ -256,10 +257,10 @@ public class ClientSideHelper {
             final ItemStack stack = player.getHeldItemMainhand();
 
             //Security measure.
-            if(!(stack.getItem() instanceof TapeMeasureItem)) return;
+            if (!(stack.getItem() instanceof TapeMeasureItem)) return;
 
             //Add the new tape measure to the list of actively rendered measurements
-            while(tapeMeasurements.size() >= ChiselsAndBits2.getInstance().getConfig().tapeMeasureLimit.get()) {
+            while (tapeMeasurements.size() >= ChiselsAndBits2.getInstance().getConfig().tapeMeasureLimit.get()) {
                 tapeMeasurements.remove(0); //Remove the oldest one.
             }
             tapeMeasurements.add(new Measurement(tapeMeasureCache, location, ((TapeMeasureItem) stack.getItem()).getColour(stack), ((TapeMeasureItem) stack.getItem()).getSelectedMode(stack), player.dimension));
@@ -272,8 +273,8 @@ public class ClientSideHelper {
      */
     void renderTapeMeasureBoxes(MatrixStack stack, IRenderTypeBuffer buffer, float partialTicks) {
         final PlayerEntity player = Minecraft.getInstance().player;
-        for(Measurement box : tapeMeasurements) {
-            if(!player.dimension.equals(box.dimension)) continue;
+        for (Measurement box : tapeMeasurements) {
+            if (!player.dimension.equals(box.dimension)) continue;
             renderSelectionBox(stack, buffer, true, box.first, box.second, partialTicks, box.mode, new Color(box.colour.getColour()));
         }
     }
@@ -282,7 +283,7 @@ public class ClientSideHelper {
      * Renders the selection boxes as used by the tape measure and drawn region mode.
      */
     void renderSelectionBox(MatrixStack matrix, IRenderTypeBuffer buffer, boolean tapeMeasure, BitLocation first, BitLocation second, float partialTicks, IItemMode mode, Color color) {
-        if(tapeMeasure && ItemMode.TAPEMEASURE_DISTANCE.equals(mode)) {
+        if (tapeMeasure && ItemMode.TAPEMEASURE_DISTANCE.equals(mode)) {
             final Vec3d a = ChiselUtil.bitLocationToCoordinate(first);
             final Vec3d b = ChiselUtil.bitLocationToCoordinate(second);
             RenderingAssistant.drawLine(matrix, buffer, a, b, color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
@@ -293,7 +294,7 @@ public class ClientSideHelper {
         }
 
         ExtendedAxisAlignedBB bb = ChiselUtil.getBoundingBox(first, second, mode);
-        if(tapeMeasure) {
+        if (tapeMeasure) {
             RenderingAssistant.drawBoundingBox(matrix, buffer, bb, BlockPos.ZERO, color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
 
             final double lengthX = bb.maxX - bb.minX;
@@ -320,11 +321,11 @@ public class ClientSideHelper {
         final PlayerEntity player = Minecraft.getInstance().player;
         final ItemStack currentItem = player.getHeldItemMainhand();
 
-        if(!currentItem.isEmpty() && currentItem.getItem() instanceof ChiseledBlockItem) {
+        if (!currentItem.isEmpty() && currentItem.getItem() instanceof ChiseledBlockItem) {
             if (!currentItem.hasTag()) return;
 
             RayTraceResult rtr = ChiselUtil.rayTrace(player, partialTicks);
-            if(!(rtr instanceof BlockRayTraceResult) || rtr.getType() != RayTraceResult.Type.BLOCK)
+            if (!(rtr instanceof BlockRayTraceResult) || rtr.getType() != RayTraceResult.Type.BLOCK)
                 return;
 
             final BlockRayTraceResult r = (BlockRayTraceResult) rtr;
@@ -340,10 +341,10 @@ public class ClientSideHelper {
                 //If we can already place where we're looking we don't have to move.
                 //In grid mode we take the adjacent block if we can't replace the target block.
                 //TODO make this logic determined by the same method for visuals/internals
-                if(mode == PlayerItemMode.CHISELED_BLOCK_GRID && !ChiselUtil.isBlockReplaceable(player.world, offset, player, face, false)) {
+                if (mode == PlayerItemMode.CHISELED_BLOCK_GRID && !ChiselUtil.isBlockReplaceable(player.world, offset, player, face, false)) {
                     offset = offset.offset(face);
-                } else if(!(player.world.getTileEntity(offset) instanceof ChiseledBlockTileEntity)) {
-                    if(BlockPlacementLogic.isNotPlaceable(player, player.world, offset, face, mode, () -> {
+                } else if (!(player.world.getTileEntity(offset) instanceof ChiseledBlockTileEntity)) {
+                    if (BlockPlacementLogic.isNotPlaceable(player, player.world, offset, face, mode, () -> {
                         final NBTBlobConverter nbt = new NBTBlobConverter();
                         nbt.readChiselData(currentItem.getChildTag(ChiselUtil.NBT_BLOCKENTITYTAG), VoxelVersions.getDefault());
                         return nbt;
@@ -369,7 +370,7 @@ public class ClientSideHelper {
         //Render for each slot in the hotbar
         for (int slot = 8; slot >= -1; --slot) {
             int left = (window.getScaledWidth() / 2 - 87 + slot * 20);
-            if(slot == -1) left -= 9; //Move 9 extra to the left if this is the offhand as it's a bit further away
+            if (slot == -1) left -= 9; //Move 9 extra to the left if this is the offhand as it's a bit further away
             int top = (window.getScaledHeight() - 18);
             ItemStack item = slot == -1 ? player.inventory.offHandInventory.get(0) : player.inventory.mainInventory.get(slot);
             //TODO add support for bit bag preview items
@@ -394,6 +395,7 @@ public class ClientSideHelper {
     }
 
     //--- SUB CLASSES ---
+
     /**
      * Represents a box drawn by the tape measure.
      */

@@ -18,7 +18,7 @@ import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlobStateReference;
 import nl.dgoossens.chiselsandbits2.common.util.InventoryUtils;
 
-import java.util.*;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -31,7 +31,8 @@ public class CUndoPacket {
     private boolean redo; //true = redo, false = undo
     private int groupId;
 
-    private CUndoPacket() {}
+    private CUndoPacket() {
+    }
 
     public CUndoPacket(final BlockPos pos, final VoxelBlobStateReference before, final VoxelBlobStateReference after, final boolean redo, final int groupId) {
         this.pos = pos;
@@ -42,11 +43,11 @@ public class CUndoPacket {
     }
 
     public void handle(final ServerPlayerEntity player) {
-        if(!isValid(groupId))
+        if (!isValid(groupId))
             return; //If this group is invalid, don't even try.
 
-        if(!inRange(player)) {
-            player.sendStatusMessage(new TranslationTextComponent("general."+ ChiselsAndBits2.MOD_ID+".info.out_of_range"), true);
+        if (!inRange(player)) {
+            player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.out_of_range"), true);
             invaliate();
             return;
         }
@@ -54,12 +55,12 @@ public class CUndoPacket {
         try {
             final World world = player.getEntityWorld();
             final Optional<BitAccess> baOpt = ChiselsAndBits2.getInstance().getAPI().getBitAccess(player, world, pos);
-            if(baOpt.isPresent()) {
+            if (baOpt.isPresent()) {
                 final VoxelBlob bbef = before.getVoxelBlob();
                 final VoxelBlob baft = after.getVoxelBlob();
 
                 //If before and after are equal we call it good enough.
-                if(bbef.equals(baft))
+                if (bbef.equals(baft))
                     return;
 
                 final BitAccess ba = baOpt.get();
@@ -68,26 +69,26 @@ public class CUndoPacket {
                 inventory.determineEffectState(world, pos);
 
                 final BitIterator i = new BitIterator();
-                while(i.hasNext()) {
+                while (i.hasNext()) {
                     final int inBef = i.getNext(bbef);
                     final int inAft = i.getNext(baft);
 
                     //If we need to set it to air and it currently isn't air
-                    if(inBef != VoxelBlob.AIR_BIT && inAft == VoxelBlob.AIR_BIT) {
+                    if (inBef != VoxelBlob.AIR_BIT && inAft == VoxelBlob.AIR_BIT) {
                         if (inventory.removeBit(vb, i.x, i.y, i.z)) {
                             player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".undo.missing_durability"), true);
                             invaliate();
                             return; //This will only be false if we have no more chisel in which case we can call it quits.
                         }
-                    } else if(inBef != inAft) {
-                        switch(inventory.placeBit(vb, i.x, i.y, i.z, BitOperation.SWAP, inAft)) {
+                    } else if (inBef != inAft) {
+                        switch (inventory.placeBit(vb, i.x, i.y, i.z, BitOperation.SWAP, inAft)) {
                             case 2:
                                 //If we don't have materials we quit.
-                                player.sendStatusMessage(new TranslationTextComponent("general."+ ChiselsAndBits2.MOD_ID+".undo.missing_bits"), true);
+                                player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".undo.missing_bits"), true);
                                 invaliate();
                                 return;
                             case 1: //If the chisel runs out of durability we can also quit.
-                                player.sendStatusMessage(new TranslationTextComponent("general."+ ChiselsAndBits2.MOD_ID+".undo.missing_durability"), true);
+                                player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".undo.missing_durability"), true);
                                 invaliate();
                                 return;
                         }
@@ -96,20 +97,20 @@ public class CUndoPacket {
 
                 //Actually apply the operation.
                 TileEntity te = world.getTileEntity(pos);
-                if(!(te instanceof ChiseledBlockTileEntity)) {
+                if (!(te instanceof ChiseledBlockTileEntity)) {
                     world.setBlockState(pos, ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get().getDefaultState(), 3);
                     te = world.getTileEntity(pos);
                 }
-                if(te instanceof ChiseledBlockTileEntity)
+                if (te instanceof ChiseledBlockTileEntity)
                     ((ChiseledBlockTileEntity) te).completeEditOperation(player, vb, false);
 
                 inventory.playEffects(world, pos);
                 inventory.apply();
 
             }
-        } catch(Exception x) {
+        } catch (Exception x) {
             x.printStackTrace();
-            player.sendStatusMessage(new TranslationTextComponent("general."+ ChiselsAndBits2.MOD_ID+".undo.error_"+(redo ? "redo" : "undo")), true);
+            player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".undo.error_" + (redo ? "redo" : "undo")), true);
             invaliate();
         }
     }
@@ -171,7 +172,7 @@ public class CUndoPacket {
      * This method will only be called on the server side.
      */
     public static boolean isValid(int groupId) {
-        if(groupId == latestGroupId) {
+        if (groupId == latestGroupId) {
             //Is this the same group we've had previously?
             return !didFail; //Return if this group has failed or not
         }

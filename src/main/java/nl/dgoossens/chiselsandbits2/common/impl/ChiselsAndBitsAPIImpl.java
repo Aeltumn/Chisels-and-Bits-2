@@ -4,12 +4,15 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.IProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import nl.dgoossens.chiselsandbits2.api.ChiselsAndBitsAPI;
 import nl.dgoossens.chiselsandbits2.api.bit.RestrictionAPI;
 import nl.dgoossens.chiselsandbits2.api.block.BitAccess;
-import nl.dgoossens.chiselsandbits2.api.ChiselsAndBitsAPI;
 import nl.dgoossens.chiselsandbits2.common.impl.voxel.BitAccessImpl;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 public class ChiselsAndBitsAPIImpl implements ChiselsAndBitsAPI {
     private RestrictionAPI restrictionAPI = new RestrictionAPIImpl();

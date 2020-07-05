@@ -25,20 +25,20 @@ public enum PlayerItemMode implements ItemModeEnum {
     //Cache typeless name for improved performance
     @Override
     public String getTypelessName() {
-        if(typelessName == null) getType(); //force load typelessName
+        if (typelessName == null) getType(); //force load typelessName
         return typelessName;
     }
 
     //We don't always calculate the type like this, we cache it.
     private IItemModeType calculateType() {
-        switch(this) {
+        switch (this) {
             case CHISELED_BLOCK_GRID:
             case CHISELED_BLOCK_FIT:
             case CHISELED_BLOCK_OVERLAP:
             case CHISELED_BLOCK_MERGE:
                 return ItemModeType.CHISELED_BLOCK;
         }
-        throw new UnsupportedOperationException("No type set for item mode "+name());
+        throw new UnsupportedOperationException("No type set for item mode " + name());
     }
 
     @Override
@@ -54,7 +54,7 @@ public enum PlayerItemMode implements ItemModeEnum {
     //We also cache the type.
     @Override
     public IItemModeType getType() {
-        if(type == null) {
+        if (type == null) {
             type = calculateType();
             typelessName = name().substring(getType().name().length() + 1).toLowerCase();
         }

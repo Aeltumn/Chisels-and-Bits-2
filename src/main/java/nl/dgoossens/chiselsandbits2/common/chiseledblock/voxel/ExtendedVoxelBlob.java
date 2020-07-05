@@ -3,7 +3,9 @@ package nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel;
 import com.google.common.base.Preconditions;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import static nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob.DIMENSION;
 
@@ -46,44 +48,44 @@ public class ExtendedVoxelBlob {
      */
     public void shift(int xBits, int yBits, int zBits) {
         VoxelBlob[][][] newVoxels = new VoxelBlob[width][height][depth];
-        for(int bx = 0; bx < width; bx++) {
-            for(int by = 0; by < height; by++) {
-                for(int bz = 0; bz < depth; bz++) {
+        for (int bx = 0; bx < width; bx++) {
+            for (int by = 0; by < height; by++) {
+                for (int bz = 0; bz < depth; bz++) {
                     final VoxelBlob b = subVoxels[bx][by][bz];
-                    if(b == null) continue; //Can't shift empty voxels.
+                    if (b == null) continue; //Can't shift empty voxels.
 
                     for (int z = 0; z < DIMENSION; z++) {
                         for (int y = 0; y < DIMENSION; y++) {
                             for (int x = 0; x < DIMENSION; x++) {
-                                if(b.get(x, y, z) == VoxelBlob.AIR_BIT) continue; //No use in shifting air.
+                                if (b.get(x, y, z) == VoxelBlob.AIR_BIT) continue; //No use in shifting air.
 
                                 int xx = x + xBits;
                                 int yy = y + yBits;
                                 int zz = z + zBits;
                                 int blobX = xOffset, blobY = yOffset, blobZ = zOffset;
-                                if(xx < 0) {
+                                if (xx < 0) {
                                     xx += DIMENSION;
                                     blobX -= 1;
-                                } else if(xx >= DIMENSION) {
+                                } else if (xx >= DIMENSION) {
                                     xx -= DIMENSION;
                                     blobX += 1;
                                 }
-                                if(yy < 0) {
+                                if (yy < 0) {
                                     yy += DIMENSION;
                                     blobY -= 1;
-                                } else if(yy >= DIMENSION) {
+                                } else if (yy >= DIMENSION) {
                                     yy -= DIMENSION;
                                     blobY += 1;
                                 }
-                                if(zz < 0) {
+                                if (zz < 0) {
                                     zz += DIMENSION;
                                     blobZ -= 1;
-                                } else if(zz >= DIMENSION) {
+                                } else if (zz >= DIMENSION) {
                                     zz -= DIMENSION;
                                     blobZ += 1;
                                 }
                                 VoxelBlob target = newVoxels[blobX][blobY][blobZ];
-                                if(target == null) target = VoxelBlob.getAirBlob();
+                                if (target == null) target = VoxelBlob.getAirBlob();
                                 target.set(xx, yy, zz, b.get(x, y, z));
                                 newVoxels[blobX][blobY][blobZ] = target;
                             }
@@ -95,11 +97,11 @@ public class ExtendedVoxelBlob {
 
         //Set subvoxels to new values
         subVoxels = new VoxelBlob[width][height][depth]; //Clear subvoxels
-        for(int x = 0; x < width; x++) {
-            for(int y = 0; y < height; y++) {
-                for(int z = 0; z < depth; z++) {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                for (int z = 0; z < depth; z++) {
                     final VoxelBlob b = subVoxels[x][y][z];
-                    if(b == null)
+                    if (b == null)
                         subVoxels[x][y][z] = newVoxels[x][y][z];
                     else
                         subVoxels[x][y][z] = b.merge(newVoxels[x][y][z]);
@@ -122,10 +124,10 @@ public class ExtendedVoxelBlob {
      */
     public Collection<BlockPos> listBlocks() {
         Set<BlockPos> ret = new HashSet<>();
-        for(int x = 0; x < width; x++) {
+        for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 for (int z = 0; z < depth; z++) {
-                    if(subVoxels[x][y][z] != null)
+                    if (subVoxels[x][y][z] != null)
                         ret.add(new BlockPos(x - xOffset, y - yOffset, z - zOffset));
                 }
             }

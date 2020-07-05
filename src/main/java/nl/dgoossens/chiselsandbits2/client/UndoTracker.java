@@ -13,7 +13,8 @@ import nl.dgoossens.chiselsandbits2.common.network.client.CUndoPacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SAddUndoStepPacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SGroupMethod;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tracks recent bit operations and allows you to undo them!
@@ -40,22 +41,22 @@ public class UndoTracker {
      * Adds a new set of bits changed to be tracked.
      */
     public void add(final PlayerEntity player, final World world, final BlockPos pos, final VoxelBlobStateReference before, final VoxelBlobStateReference after) {
-        if(pos != null && world != null) {
-            if(world.isRemote) {
+        if (pos != null && world != null) {
+            if (world.isRemote) {
                 //Client
                 //Fix level pointer
-                if(undoLevels.size() > level && !undoLevels.isEmpty()) {
+                if (undoLevels.size() > level && !undoLevels.isEmpty()) {
                     final int end = Math.max(-1, level);
-                    for(int x = undoLevels.size() - 1; x > end; --x)
+                    for (int x = undoLevels.size() - 1; x > end; --x)
                         undoLevels.remove(x);
                 }
-                while(undoLevels.size() > ChiselsAndBits2.getInstance().getConfig().maxUndoLevel.get())
+                while (undoLevels.size() > ChiselsAndBits2.getInstance().getConfig().maxUndoLevel.get())
                     undoLevels.remove(0);
 
-                if(level >= undoLevels.size()) level = undoLevels.size() - 1;
+                if (level >= undoLevels.size()) level = undoLevels.size() - 1;
 
                 //Check if group, otherwise add new step.
-                if(grouping && hasCreatedGroup) {
+                if (grouping && hasCreatedGroup) {
                     final UndoStep current = undoLevels.get(undoLevels.size() - 1);
                     final UndoStep newest = new UndoStep(world, pos, before, after);
                     undoLevels.set(undoLevels.size() - 1, newest);
@@ -78,11 +79,11 @@ public class UndoTracker {
      */
     public void undo() {
         PlayerEntity player = ChiselsAndBits2.getInstance().getClient().getPlayer();
-        if(level > -1) {
+        if (level > -1) {
             final UndoStep step = undoLevels.get(level);
-            if(step.isCorrect(player) && replayChanges(step, true)) level--;
+            if (step.isCorrect(player) && replayChanges(step, true)) level--;
         } else {
-            player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".undo.nothing_to_undo"), true);
+            player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".undo.nothing_to_undo"), true);
         }
     }
 
@@ -91,11 +92,11 @@ public class UndoTracker {
      */
     public void redo() {
         PlayerEntity player = ChiselsAndBits2.getInstance().getClient().getPlayer();
-        if(level + 1 < undoLevels.size()) {
+        if (level + 1 < undoLevels.size()) {
             final UndoStep step = undoLevels.get(level + 1);
-            if(step.isCorrect(player) && replayChanges(step, false)) level++;
+            if (step.isCorrect(player) && replayChanges(step, false)) level++;
         } else {
-            player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".undo.nothing_to_redo"), true);
+            player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".undo.nothing_to_redo"), true);
         }
     }
 
@@ -104,13 +105,13 @@ public class UndoTracker {
      * undo operation until the group is closed.
      */
     public void beginGroup(PlayerEntity player) {
-        if(!player.getEntityWorld().isRemote) {
+        if (!player.getEntityWorld().isRemote) {
             ChiselsAndBits2.getInstance().getNetworkRouter().sendTo(new SGroupMethod.BeginGroupPacket(), (ServerPlayerEntity) player);
             return;
         }
-        if(ignorePlayer(player)) return;
+        if (ignorePlayer(player)) return;
 
-        if(grouping) throw new RuntimeException("Exception opening a group, previous group already started.", groupStarted);
+        if (grouping) throw new RuntimeException("Exception opening a group, previous group already started.", groupStarted);
 
         groupStarted = new RuntimeException("Group was not closed properly");
         groupStarted.fillInStackTrace();
@@ -123,13 +124,13 @@ public class UndoTracker {
      * Closes the current group.
      */
     public void endGroup(PlayerEntity player) {
-        if(!player.getEntityWorld().isRemote) {
+        if (!player.getEntityWorld().isRemote) {
             ChiselsAndBits2.getInstance().getNetworkRouter().sendTo(new SGroupMethod.EndGroupPacket(), (ServerPlayerEntity) player);
             return;
         }
-        if(ignorePlayer(player)) return;
+        if (ignorePlayer(player)) return;
 
-        if(!grouping) throw new RuntimeException("Closing undo group, but no undo group was started!");
+        if (!grouping) throw new RuntimeException("Closing undo group, but no undo group was started!");
 
         groupStarted = null;
         grouping = false;
@@ -150,10 +151,10 @@ public class UndoTracker {
         boolean done = false;
 
         int groupId = CUndoPacket.nextGroupId();
-        while(step != null) {
+        while (step != null) {
             replayAction(step.getPosition(), backwards ? step.getAfter() : step.getBefore(), backwards ? step.getBefore() : step.getAfter(), !backwards, groupId);
             step = step.getChained();
-            if(step == null)
+            if (step == null)
                 done = true;
         }
 

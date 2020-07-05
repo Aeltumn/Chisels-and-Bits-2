@@ -5,7 +5,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.generators.BlockModelProvider;
 import net.minecraftforge.client.model.generators.ExistingFileHelper;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.common.registry.Registration;
 
 public class BlockModelsGenerator extends BlockModelProvider {
     public BlockModelsGenerator(DataGenerator dataGenerator, ExistingFileHelper existingFileHandler) {

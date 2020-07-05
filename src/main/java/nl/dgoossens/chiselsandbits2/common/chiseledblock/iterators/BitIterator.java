@@ -14,15 +14,15 @@ public class BitIterator {
     public int bit;
 
     public boolean hasNext() {
-        if(done) return false;
+        if (done) return false;
         x++;
-        if(x >= VoxelBlob.DIMENSION) {
+        if (x >= VoxelBlob.DIMENSION) {
             x = 0;
             y++;
-            if(y >= VoxelBlob.DIMENSION) {
+            if (y >= VoxelBlob.DIMENSION) {
                 y = 0;
                 z++;
-                if(z >= VoxelBlob.DIMENSION) {
+                if (z >= VoxelBlob.DIMENSION) {
                     done = true;
                     return false;
                 }

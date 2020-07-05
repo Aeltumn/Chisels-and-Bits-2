@@ -11,8 +11,7 @@ import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlock;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
 
 /**
  * A util that converts bit ids to BlockStates, FluidStates and colours.
@@ -53,9 +52,9 @@ public class BitUtil {
      * Get a blockstate's id.
      */
     public static <T extends Comparable<T>, V extends T> int getBlockId(BlockState state) {
-        if(state.getBlock() instanceof ChiseledBlock) return VoxelBlob.AIR_BIT; //Avoid infinite recursion.
+        if (state.getBlock() instanceof ChiseledBlock) return VoxelBlob.AIR_BIT; //Avoid infinite recursion.
         //Remove ignored block states
-        for(final IProperty<?> property : ChiselsAndBits2.getInstance().getAPI().getIgnoredBlockStates()) {
+        for (final IProperty<?> property : ChiselsAndBits2.getInstance().getAPI().getIgnoredBlockStates()) {
             final IProperty<T> prop = (IProperty<T>) property;
             if (state.has(prop))
                 state = state.with(prop, prop.getAllowedValues().iterator().next());

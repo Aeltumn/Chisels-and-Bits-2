@@ -1,7 +1,6 @@
 package nl.dgoossens.chiselsandbits2.api.item;
 
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.ResourceLocation;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 
 /**
@@ -17,7 +16,7 @@ public interface ItemModeEnum extends IItemMode {
      * Get the localized key from this Item Mode.
      */
     public default String getLocalizedName() {
-        return I18n.format("general."+ChiselsAndBits2.MOD_ID+".itemmode." + getTypelessName());
+        return I18n.format("general." + ChiselsAndBits2.MOD_ID + ".itemmode." + getTypelessName());
     }
 
     /**

@@ -10,7 +10,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -32,22 +31,24 @@ import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.ExtendedVoxelBlob
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
-import nl.dgoossens.chiselsandbits2.common.impl.item.*;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemModeCapabilityProvider;
+import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemModeManager;
 import nl.dgoossens.chiselsandbits2.common.impl.voxel.VoxelRegionSrc;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
 import nl.dgoossens.chiselsandbits2.common.items.MorphingBitItem;
 import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
+import nl.dgoossens.chiselsandbits2.common.network.client.CChiselBlockPacket;
 import nl.dgoossens.chiselsandbits2.common.network.client.CPlaceBlockPacket;
-import nl.dgoossens.chiselsandbits2.common.network.client.CWrenchBlockPacket;
 import nl.dgoossens.chiselsandbits2.common.network.client.CRotateItemPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CWrenchBlockPacket;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 import nl.dgoossens.chiselsandbits2.common.util.ChiselUtil;
-import nl.dgoossens.chiselsandbits2.common.network.client.CChiselBlockPacket;
 import nl.dgoossens.chiselsandbits2.common.util.InventoryUtils;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.util.RotationUtil;
-
-import java.util.Optional;
 
 /**
  * Handles incoming packets that relate to interacting with voxelblobs.
@@ -58,11 +59,11 @@ public class ChiselHandler {
      */
     public static void handle(final CChiselBlockPacket pkt, final ServerPlayerEntity player) {
         final ItemStack stack = player.getHeldItemMainhand();
-        if(!(stack.getItem() instanceof ChiselMimicItem))
+        if (!(stack.getItem() instanceof ChiselMimicItem))
             return;
 
         ChiselMimicItem tit = (ChiselMimicItem) stack.getItem();
-        if(!tit.canPerformModification(IBitModifyItem.ModificationType.BUILD) && !tit.canPerformModification(IBitModifyItem.ModificationType.EXTRACT))
+        if (!tit.canPerformModification(IBitModifyItem.ModificationType.BUILD) && !tit.canPerformModification(IBitModifyItem.ModificationType.EXTRACT))
             return; //Make sure this item can do the operations
 
         final IItemMode mode = tit.getSelectedMode(stack);
@@ -75,20 +76,20 @@ public class ChiselHandler {
 
         //Cancel chiseling early on if possible (but not if creative)
         if (inventory.getAvailableDurability() <= 0 && !player.isCreative()) {
-            player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.need_chisel"), true);
+            player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.need_chisel"), true);
             return;
         }
 
         //Default is -1 for remove operations, we only get a placed bit when not removing
         int placedBit = -1;
-        if(!pkt.operation.equals(BitOperation.REMOVE)) {
+        if (!pkt.operation.equals(BitOperation.REMOVE)) {
             //If this is a locked morphing bit place that specific item
-            if(stack.getItem() instanceof MorphingBitItem && ((MorphingBitItem) stack.getItem()).isLocked(stack)) placedBit = ((MorphingBitItem) stack.getItem()).getSelected(stack).getId();
+            if (stack.getItem() instanceof MorphingBitItem && ((MorphingBitItem) stack.getItem()).isLocked(stack)) placedBit = ((MorphingBitItem) stack.getItem()).getSelected(stack).getId();
             else placedBit = ItemPropertyUtil.getGlobalSelectedVoxelWrapper(player).getPlacementBitId(buildContext(player, pkt.to.blockPos, pkt.side)); //We'll use the block position of the target location
 
             //If we couldn't find a selected type, don't chisel.
             if (placedBit == VoxelBlob.AIR_BIT) {
-                player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.no_selected_type"), true);
+                player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.no_selected_type"), true);
                 return;
             }
 
@@ -98,7 +99,7 @@ public class ChiselHandler {
             //This shouldn't ever happen because you can't have a material selected that you don't have.
             //Well actually this can happen if you drop the bags and instantly click before the routine updating catches up to you. tl;dr this can only happen if the cached value isn't updated on time
             if (inventory.getAvailableMaterial() <= 0 && !player.isCreative()) {
-                player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.need_bits"), true);
+                player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.need_bits"), true);
                 return;
             }
         }
@@ -107,7 +108,7 @@ public class ChiselHandler {
         if (mode.equals(ItemMode.CHISEL_DRAWN_REGION)) {
             ExtendedAxisAlignedBB bb = ChiselUtil.getBoundingBox(pkt.from, pkt.to, mode);
             if (bb.isLargerThan(ChiselsAndBits2.getInstance().getConfig().maxDrawnRegionSize.get())) {
-                player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.drawn_region_too_big"), true);
+                player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.drawn_region_too_big"), true);
                 return;
             }
         }
@@ -154,12 +155,12 @@ public class ChiselHandler {
                                 case PLACE: {
                                     inventory.setEffectState(BitUtil.getBlockState(placedBit)); //TODO add support for fluids/coloured bits
                                     while (i.hasNext())
-                                        if(inventory.placeBit(vb, i.x(), i.y(), i.z(), pkt.operation, placedBit) != 0) break;
+                                        if (inventory.placeBit(vb, i.x(), i.y(), i.z(), pkt.operation, placedBit) != 0) break;
                                 }
                                 break;
                                 case REMOVE: {
                                     while (i.hasNext())
-                                        if(inventory.removeBit(vb, i.x(), i.y(), i.z())) break;
+                                        if (inventory.removeBit(vb, i.x(), i.y(), i.z())) break;
                                     inventory.setEffectState(inventory.getMostCommonState());
                                 }
                                 break;
@@ -192,11 +193,11 @@ public class ChiselHandler {
     public static void handle(final CRotateItemPacket pkt, final ServerPlayerEntity player) {
         //Try to rotate both hands if possible
         ItemStack it = player.getHeldItemMainhand();
-        if(it.getItem() instanceof IRotatableItem)
+        if (it.getItem() instanceof IRotatableItem)
             ((IRotatableItem) it.getItem()).rotate(it, pkt.getAxis(), pkt.isClockwise());
         else {
             it = player.getHeldItemOffhand();
-            if(it.getItem() instanceof IRotatableItem)
+            if (it.getItem() instanceof IRotatableItem)
                 ((IRotatableItem) it.getItem()).rotate(it, pkt.getAxis(), pkt.isClockwise());
         }
     }
@@ -206,7 +207,7 @@ public class ChiselHandler {
      */
     public static void handle(final CPlaceBlockPacket pkt, final ServerPlayerEntity player) {
         final ItemStack stack = player.getHeldItemMainhand();
-        if(!(stack.getItem() instanceof IVoxelStorer) || !(stack.getItem() instanceof IBitModifyItem))
+        if (!(stack.getItem() instanceof IVoxelStorer) || !(stack.getItem() instanceof IBitModifyItem))
             return;
 
         if (!((IBitModifyItem) stack.getItem()).canPerformModification(IBitModifyItem.ModificationType.PLACE))
@@ -226,18 +227,18 @@ public class ChiselHandler {
             if (BlockPlacementLogic.isNotPlaceableOffGrid(player, player.world, face, pkt.location, player.getHeldItemMainhand()))
                 canPlace = false;
         } else {
-            if((!ChiselUtil.isBlockReplaceable(player.world, actualPos, player, face, false) && ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_GRID) || (!(player.world.getTileEntity(actualPos) instanceof ChiseledBlockTileEntity) && BlockPlacementLogic.isNotPlaceable(player, player.world, actualPos, face, mode, () -> nbt)))
+            if ((!ChiselUtil.isBlockReplaceable(player.world, actualPos, player, face, false) && ClientItemPropertyUtil.getChiseledBlockMode() == PlayerItemMode.CHISELED_BLOCK_GRID) || (!(player.world.getTileEntity(actualPos) instanceof ChiseledBlockTileEntity) && BlockPlacementLogic.isNotPlaceable(player, player.world, actualPos, face, mode, () -> nbt)))
                 actualPos = actualPos.offset(face);
 
-            if(BlockPlacementLogic.isNotPlaceable(player, player.world, actualPos, face, mode, () -> nbt))
+            if (BlockPlacementLogic.isNotPlaceable(player, player.world, actualPos, face, mode, () -> nbt))
                 canPlace = false;
         }
-        if(!canPlace) {
-            player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.not_placeable"), true);
+        if (!canPlace) {
+            player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.not_placeable"), true);
             return;
         }
 
-        if(player.isCrouching()) {
+        if (player.isCrouching()) {
             //Offgrid mode, place in all blockpositions concerned
             final ExtendedVoxelBlob evb = new ExtendedVoxelBlob(3, 3, 3, -1, -1, -1);
             final VoxelBlob placedBlob = it.getVoxelBlob(stack);
@@ -246,7 +247,7 @@ public class ChiselHandler {
             final BlockPos partialOffset = BlockPlacementLogic.getPartialOffset(pkt.side, new BlockPos(pkt.location.bitX, pkt.location.bitY, pkt.location.bitZ), bounds);
             evb.shift(partialOffset.getX(), partialOffset.getY(), partialOffset.getZ());
 
-            for(BlockPos pos : evb.listBlocks()) {
+            for (BlockPos pos : evb.listBlocks()) {
                 final VoxelBlob slice = evb.getSubVoxel(pos.getX(), pos.getY(), pos.getZ());
                 pos = pos.add(pkt.location.blockPos);
                 //If we can't chisel here, don't chisel.
@@ -260,12 +261,12 @@ public class ChiselHandler {
                 if (te instanceof ChiseledBlockTileEntity) {
                     final ChiseledBlockTileEntity tec = (ChiseledBlockTileEntity) te;
 
-                    switch(mode) {
+                    switch (mode) {
                         case CHISELED_BLOCK_FIT:
                         case CHISELED_BLOCK_MERGE:
                         case CHISELED_BLOCK_OVERLAP:
                             final VoxelBlob vb = tec.getVoxelBlob();
-                            if(mode.equals(PlayerItemMode.CHISELED_BLOCK_OVERLAP))
+                            if (mode.equals(PlayerItemMode.CHISELED_BLOCK_OVERLAP))
                                 vb.overlap(slice);
                             else
                                 vb.merge(slice);
@@ -276,7 +277,7 @@ public class ChiselHandler {
                 }
             }
 
-            if(!player.isCreative())
+            if (!player.isCreative())
                 stack.setCount(stack.getCount() - 1);
             ChiselUtil.playModificationSound(world, pkt.location.blockPos, true); //Placement can play sound normally as block should be set already.
         } else {
@@ -286,7 +287,7 @@ public class ChiselHandler {
             final TileEntity te = world.getTileEntity(actualPos);
             if (te instanceof ChiseledBlockTileEntity) {
                 final ChiseledBlockTileEntity tec = (ChiseledBlockTileEntity) te;
-                switch(mode) {
+                switch (mode) {
                     case CHISELED_BLOCK_GRID:
                         tec.setBlob(it.getVoxelBlob(stack));
                         break;
@@ -294,14 +295,14 @@ public class ChiselHandler {
                     case CHISELED_BLOCK_MERGE:
                     case CHISELED_BLOCK_OVERLAP:
                         final VoxelBlob vb = tec.getVoxelBlob();
-                        if(mode.equals(PlayerItemMode.CHISELED_BLOCK_OVERLAP))
+                        if (mode.equals(PlayerItemMode.CHISELED_BLOCK_OVERLAP))
                             vb.overlap(it.getVoxelBlob(stack));
                         else
                             vb.merge(it.getVoxelBlob(stack));
                         tec.completeEditOperation(player, vb, false);
                         break;
                 }
-                if(!player.isCreative())
+                if (!player.isCreative())
                     stack.setCount(stack.getCount() - 1);
                 ChiselUtil.playModificationSound(world, actualPos, true); //Placement can play sound normally as block should be set already.
             }
@@ -313,11 +314,11 @@ public class ChiselHandler {
      */
     public static void handle(final CWrenchBlockPacket pkt, final ServerPlayerEntity player) {
         final ItemStack stack = player.getHeldItemMainhand();
-        if(!(stack.getItem() instanceof TypedItem) && !(stack.getItem() instanceof IBitModifyItem))
+        if (!(stack.getItem() instanceof TypedItem) && !(stack.getItem() instanceof IBitModifyItem))
             return;
 
         final TypedItem tit = (TypedItem) stack.getItem();
-        if(!((IBitModifyItem) tit).canPerformModification(IBitModifyItem.ModificationType.ROTATE) && !((IBitModifyItem) tit).canPerformModification(IBitModifyItem.ModificationType.MIRROR))
+        if (!((IBitModifyItem) tit).canPerformModification(IBitModifyItem.ModificationType.ROTATE) && !((IBitModifyItem) tit).canPerformModification(IBitModifyItem.ModificationType.MIRROR))
             return; //Make sure this item can do the operations
 
         final World world = player.world;
@@ -328,30 +329,30 @@ public class ChiselHandler {
 
         if (!ChiselUtil.canChiselPosition(pos, player, state, face)) return;
 
-        if(!(mode instanceof ItemMode))
+        if (!(mode instanceof ItemMode))
             return; //We don't accept other modes for rotation.
 
         if (mode.equals(ItemMode.WRENCH_MIRROR)) {
             if (!RotationUtil.hasMirrorableState(state)) {
-                player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.not_mirrorable"), true);
+                player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.not_mirrorable"), true);
                 return;
             }
-        } else if(mode.equals(ItemMode.WRENCH_ROTATE) || mode.equals(ItemMode.WRENCH_ROTATECCW)) {
+        } else if (mode.equals(ItemMode.WRENCH_ROTATE) || mode.equals(ItemMode.WRENCH_ROTATECCW)) {
             if (!RotationUtil.hasRotatableState(state)) {
-                player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.not_rotatable"), true);
+                player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.not_rotatable"), true);
                 return;
             }
         }
 
         //Custom chiseled block
-        if(state.getBlock() instanceof ChiseledBlock) {
+        if (state.getBlock() instanceof ChiseledBlock) {
             final TileEntity te = world.getTileEntity(pos);
-            if(te instanceof ChiseledBlockTileEntity) {
+            if (te instanceof ChiseledBlockTileEntity) {
                 final ChiseledBlockTileEntity cte = (ChiseledBlockTileEntity) te;
                 VoxelBlob voxel = cte.getVoxelBlob();
-                if(mode.equals(ItemMode.WRENCH_MIRROR)) voxel = voxel.mirror(pkt.side.getAxis());
-                else if(mode.equals(ItemMode.WRENCH_ROTATE)) voxel = voxel.spin(pkt.side.getAxis());
-                else if(mode.equals(ItemMode.WRENCH_ROTATECCW)) voxel = voxel.spinCCW(pkt.side.getAxis());
+                if (mode.equals(ItemMode.WRENCH_MIRROR)) voxel = voxel.mirror(pkt.side.getAxis());
+                else if (mode.equals(ItemMode.WRENCH_ROTATE)) voxel = voxel.spin(pkt.side.getAxis());
+                else if (mode.equals(ItemMode.WRENCH_ROTATECCW)) voxel = voxel.spinCCW(pkt.side.getAxis());
                 cte.setBlob(voxel);
             }
         } else {
@@ -365,7 +366,7 @@ public class ChiselHandler {
             };
             if (state.getBlockHardness(dummyWorld, BlockPos.ZERO) < 0) return; //Can't move unbreakable blocks. (they have -1 hardness)
 
-            if(mode.equals(ItemMode.WRENCH_MIRROR)) world.setBlockState(pos, state.mirror(RotationUtil.getMirror(pkt.side.getAxis())));
+            if (mode.equals(ItemMode.WRENCH_MIRROR)) world.setBlockState(pos, state.mirror(RotationUtil.getMirror(pkt.side.getAxis())));
             else world.setBlockState(pos, state.rotate(world, pos, mode.equals(ItemMode.WRENCH_ROTATECCW) ? Rotation.COUNTERCLOCKWISE_90 : Rotation.CLOCKWISE_90));
         }
 

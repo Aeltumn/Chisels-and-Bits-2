@@ -12,7 +12,11 @@ import net.minecraft.item.ItemUseContext;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
@@ -61,9 +65,9 @@ public class ChiselUtil {
      */
     public static BlockState getChiseledTileMainState(final World world, final BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        if(world.getTileEntity(pos) instanceof ChiseledBlockTileEntity) {
+        if (world.getTileEntity(pos) instanceof ChiseledBlockTileEntity) {
             int a = ((ChiseledBlockTileEntity) world.getTileEntity(pos)).getPrimaryBlock();
-            if(a != VoxelBlob.AIR_BIT) state = BitUtil.getBlockState(a);
+            if (a != VoxelBlob.AIR_BIT) state = BitUtil.getBlockState(a);
         }
         return state;
     }
@@ -129,7 +133,7 @@ public class ChiselUtil {
     public static void replaceWithChiseled(final @Nonnull World world, final @Nonnull BlockPos pos, final @Nonnull PlayerEntity player, final BlockState originalState, final Direction face) {
         Block target = originalState.getBlock();
         BlockState placementState = ChiselsAndBits2.getInstance().getAPI().getRestrictions().getPlacementState(originalState);
-        if(target.equals(ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get()) || placementState == null) return;
+        if (target.equals(ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get()) || placementState == null) return;
 
         IFluidState fluid = world.getFluidState(pos);
         boolean isAir = isBlockReplaceable(world, pos, player, face, true);
@@ -157,7 +161,7 @@ public class ChiselUtil {
     public static boolean isBlockChiselable(final @Nonnull World world, final @Nonnull BlockPos pos, final @Nonnull PlayerEntity player, final BlockState originalState, final Direction face) {
         Block target = originalState.getBlock();
         BlockState placementState = ChiselsAndBits2.getInstance().getAPI().getRestrictions().getPlacementState(originalState);
-        if(target.equals(ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get()) || placementState == null)
+        if (target.equals(ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get()) || placementState == null)
             return true;
 
         return ChiselsAndBits2.getInstance().getAPI().getRestrictions().canChiselBlock(originalState) || isBlockReplaceable(world, pos, player, face, false);
@@ -182,7 +186,7 @@ public class ChiselUtil {
         final Vec3d a = ChiselUtil.bitLocationToCoordinate(start);
         final Vec3d b = ChiselUtil.bitLocationToCoordinate(end);
         ExtendedAxisAlignedBB bb = new ExtendedAxisAlignedBB(a.getX(), a.getY(), a.getZ(), b.getX(), b.getY(), b.getZ());
-        if(ItemMode.TAPEMEASURE_BLOCK.equals(mode)) bb = bb.snapToBlocks();
+        if (ItemMode.TAPEMEASURE_BLOCK.equals(mode)) bb = bb.snapToBlocks();
         return bb;
     }
 }

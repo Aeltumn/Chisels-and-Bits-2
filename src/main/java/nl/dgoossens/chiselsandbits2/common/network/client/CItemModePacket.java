@@ -15,13 +15,15 @@ import java.util.function.Supplier;
 public class CItemModePacket {
     private IItemMode state;
 
-    private CItemModePacket() {}
+    private CItemModePacket() {
+    }
+
     public CItemModePacket(final IItemMode state) {
         this.state = state;
     }
 
     public static void encode(CItemModePacket msg, PacketBuffer buf) {
-        if(msg.state instanceof ItemMode) {
+        if (msg.state instanceof ItemMode) {
             buf.writeBoolean(true);
             buf.writeVarInt(((ItemMode) msg.state).ordinal());
         } else buf.writeBoolean(false);
@@ -30,7 +32,7 @@ public class CItemModePacket {
     public static CItemModePacket decode(PacketBuffer buffer) {
         CItemModePacket pc = new CItemModePacket();
         boolean useEnum = buffer.readBoolean();
-        if(useEnum) pc.state = ItemMode.values()[buffer.readVarInt()];
+        if (useEnum) pc.state = ItemMode.values()[buffer.readVarInt()];
         else throw new UnsupportedOperationException("We don't support addons adding item modes yet."); //TODO add support!
         return pc;
     }

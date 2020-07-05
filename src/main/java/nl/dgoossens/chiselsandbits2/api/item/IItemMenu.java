@@ -23,7 +23,7 @@ public interface IItemMenu {
     /**
      * Get a set of all menu buttons this item should have in the radial menu.
      * Undo/redo are always present regardless of this set.
-     *
+     * <p>
      * Returns null by default.
      */
     public default Set<ItemModeMenu.MenuButton> getMenuButtons(final ItemStack item) {

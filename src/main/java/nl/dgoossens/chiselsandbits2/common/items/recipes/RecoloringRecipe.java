@@ -21,7 +21,7 @@ public class RecoloringRecipe extends SpecialRecipe {
         int i = 0;
         int j = 0;
 
-        for(int k = 0; k < inv.getSizeInventory(); ++k) {
+        for (int k = 0; k < inv.getSizeInventory(); ++k) {
             ItemStack itemstack = inv.getStackInSlot(k);
             if (!itemstack.isEmpty()) {
                 if (itemstack.getItem() instanceof BitBagItem) {
@@ -48,7 +48,7 @@ public class RecoloringRecipe extends SpecialRecipe {
         ItemStack itemstack = ItemStack.EMPTY;
         net.minecraft.item.DyeColor dyecolor = net.minecraft.item.DyeColor.WHITE;
 
-        for(int i = 0; i < inv.getSizeInventory(); ++i) {
+        for (int i = 0; i < inv.getSizeInventory(); ++i) {
             ItemStack itemstack1 = inv.getStackInSlot(i);
             if (!itemstack1.isEmpty()) {
                 Item item = itemstack1.getItem();

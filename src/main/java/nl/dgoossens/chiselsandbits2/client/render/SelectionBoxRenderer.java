@@ -1,7 +1,6 @@
 package nl.dgoossens.chiselsandbits2.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -28,7 +27,7 @@ public class SelectionBoxRenderer extends CachedRenderedObject {
 
     public SelectionBoxRenderer(ItemStack item, PlayerEntity player, BitLocation location, Direction face, BitOperation operation, IItemMode mode) {
         super(item, player, location, face, mode);
-        if(isEmpty())
+        if (isEmpty())
             return;
 
         final TileEntity data = player.world.getTileEntity(location.blockPos);
@@ -36,13 +35,13 @@ public class SelectionBoxRenderer extends CachedRenderedObject {
         VoxelBlob blob = data instanceof ChiseledBlockTileEntity ? ((ChiseledBlockTileEntity) data).getVoxelBlob() : new VoxelBlob(BitUtil.getBlockId(player.world.getBlockState(location.blockPos)));
         selectionBoundingBox = iterator.getBoundingBox(blob).orElse(null);
 
-        if(selectionBoundingBox == null)
+        if (selectionBoundingBox == null)
             invalidate();
     }
 
     @Override
     public void render(MatrixStack matrix, IRenderTypeBuffer buffer, float partialTicks) {
-        if(isEmpty()) return;
+        if (isEmpty()) return;
         RenderingAssistant.drawBoundingBox(matrix, buffer, selectionBoundingBox, getLocation().blockPos);
     }
 }

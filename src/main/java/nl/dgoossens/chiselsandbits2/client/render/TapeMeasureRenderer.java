@@ -33,7 +33,7 @@ public class TapeMeasureRenderer {
         //matrix.rotate(new Quaternion(-renderInfo.getPitch(), 1f, 0f, 0f));
 
 
-        fontRenderer.renderString(text, (float)(-fontRenderer.getStringWidth(text) / 2), 0, red << 16 | green << 8 | blue, true, matrix.getLast().getMatrix(), buffer, false, 0, 15728880);
+        fontRenderer.renderString(text, (float) (-fontRenderer.getStringWidth(text) / 2), 0, red << 16 | green << 8 | blue, true, matrix.getLast().getMatrix(), buffer, false, 0, 15728880);
         matrix.pop();
     }
 

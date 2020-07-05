@@ -15,7 +15,9 @@ public class CVoxelWrapperPacket {
     private VoxelWrapper state;
     private boolean timestamp;
 
-    private CVoxelWrapperPacket() {}
+    private CVoxelWrapperPacket() {
+    }
+
     public CVoxelWrapperPacket(final VoxelWrapper state, final boolean timestamp) {
         this.state = state;
         this.timestamp = timestamp;

@@ -13,7 +13,10 @@ import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlock;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RestrictionAPIImpl implements RestrictionAPI {
@@ -33,14 +36,14 @@ public class RestrictionAPIImpl implements RestrictionAPI {
 
     @Override
     public <T extends Comparable<T>> BlockState getPlacementState(BlockState block) {
-        for(IProperty<?> property : restrictedProperties.keySet()) {
-            if(block.has(property)) {
+        for (IProperty<?> property : restrictedProperties.keySet()) {
+            if (block.has(property)) {
                 Pair<Object, Object[]> dat = restrictedProperties.get(property);
                 Object content = block.get(property);
-                for(Object val : dat.getRight()) {
-                    if(val == null) continue;
-                    if(val.equals(content)) {
-                        if(dat.getLeft() == null) return null; //You can't chisel here!
+                for (Object val : dat.getRight()) {
+                    if (val == null) continue;
+                    if (val.equals(content)) {
+                        if (dat.getLeft() == null) return null; //You can't chisel here!
                         return block.with((Property<T>) property, (T) dat.getLeft());
                     }
                 }
@@ -59,7 +62,7 @@ public class RestrictionAPIImpl implements RestrictionAPI {
         //We determine if a block can be chiseled by whether or not the shape of it can be turned into a VoxelBlob.
         final Block blk = block.getBlock();
         //Don't test twice!
-        if(testedBlocks.contains(blk)) return;
+        if (testedBlocks.contains(blk)) return;
         testedBlocks.add(blk);
 
         if (blk instanceof ChiseledBlock) {

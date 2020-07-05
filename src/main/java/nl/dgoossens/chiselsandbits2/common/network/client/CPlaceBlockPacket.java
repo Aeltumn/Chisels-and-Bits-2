@@ -4,9 +4,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.NetworkEvent;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.ChiselHandler;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.ChiselHandler;
 
 import java.util.function.Supplier;
 
@@ -19,7 +18,8 @@ public class CPlaceBlockPacket {
     public BlockPos pos;
     public Direction side;
 
-    private CPlaceBlockPacket() {}
+    private CPlaceBlockPacket() {
+    }
 
     public CPlaceBlockPacket(final BlockPos pos, final BitLocation location, final Direction side) {
         this.pos = pos;

@@ -19,8 +19,8 @@ import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlobStateReference;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelNeighborRenderTracker;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
-import nl.dgoossens.chiselsandbits2.common.util.ChiselUtil;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
+import nl.dgoossens.chiselsandbits2.common.util.ChiselUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -81,7 +81,7 @@ public class ChiseledBlockTileEntity extends TileEntity {
      */
     public ItemStack getItemStack() {
         //We cache the item because apparently Waila spammed getPickBlock at some point in the past causing lag. Caching can't hurt though.
-        if(itemCache == null)
+        if (itemCache == null)
             itemCache = buildItemStack();
         return itemCache;
     }
@@ -116,7 +116,7 @@ public class ChiseledBlockTileEntity extends TileEntity {
      */
     public ItemStack buildItemStack() {
         VoxelBlob blob = getVoxelBlob();
-        if(blob.filled() == 0)
+        if (blob.filled() == 0)
             return ItemStack.EMPTY;
 
         final NBTBlobConverter c = new NBTBlobConverter();
@@ -180,18 +180,18 @@ public class ChiseledBlockTileEntity extends TileEntity {
         iteration++;
         final VoxelBlobStateReference before = voxelBlobReference;
         //Empty voxelblob = we need to destroy this block.
-        if(vb.filled() <= 0) {
+        if (vb.filled() <= 0) {
             world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
-            if(updateUndoTracker)
+            if (updateUndoTracker)
                 ChiselsAndBits2.getInstance().getUndoTracker().add(player, getWorld(), getPos(), before, NullVoxelBlobStateReference.NULL_REFERENCE);
             return;
         }
 
         //Turn to full block if made of one type.
         int singleType = vb.singleType();
-        if(singleType != VoxelBlob.AIR_BIT) {
+        if (singleType != VoxelBlob.AIR_BIT) {
             boolean destroy = false;
-            switch(VoxelType.getType(singleType)) {
+            switch (VoxelType.getType(singleType)) {
                 case BLOCKSTATE:
                     world.setBlockState(pos, BitUtil.getBlockState(singleType), 3);
                     destroy = true;
@@ -202,14 +202,14 @@ public class ChiseledBlockTileEntity extends TileEntity {
                     break;
             }
             //Removing also needs to add to the undo tracker!
-            if(destroy) {
-                if(updateUndoTracker)
+            if (destroy) {
+                if (updateUndoTracker)
                     ChiselsAndBits2.getInstance().getUndoTracker().add(player, getWorld(), getPos(), before, NullVoxelBlobStateReference.NULL_REFERENCE);
                 return;
             }
         }
 
-        if(updateUndoTracker) {
+        if (updateUndoTracker) {
             setBlob(vb);
             ChiselsAndBits2.getInstance().getUndoTracker().add(player, getWorld(), getPos(), before, NullVoxelBlobStateReference.NULL_REFERENCE);
         } else setBlob(vb);

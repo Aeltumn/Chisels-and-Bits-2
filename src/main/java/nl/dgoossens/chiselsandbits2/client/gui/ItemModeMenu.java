@@ -1,46 +1,11 @@
 package nl.dgoossens.chiselsandbits2.client.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.StringTextComponent;
-import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMenu;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
-import nl.dgoossens.chiselsandbits2.api.bit.BitStorage;
-import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
-import nl.dgoossens.chiselsandbits2.api.item.IItemModeType;
 import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
-import nl.dgoossens.chiselsandbits2.api.radial.RadialMenu;
-import nl.dgoossens.chiselsandbits2.client.ClientSide;
 import nl.dgoossens.chiselsandbits2.client.ClientSideHelper;
-import nl.dgoossens.chiselsandbits2.common.bitstorage.StorageCapabilityProvider;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
-import nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction;
-import nl.dgoossens.chiselsandbits2.common.items.ChiseledBlockItem;
-import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
-import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
-import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
-import nl.dgoossens.chiselsandbits2.common.items.StorageItem;
-import org.lwjgl.opengl.GL11;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class ItemModeMenu { //extends RadialMenu {
     public final static double RING_INNER_EDGE = 20;

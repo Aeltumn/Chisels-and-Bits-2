@@ -17,7 +17,8 @@ public class SAddUndoStepPacket {
     private BlockPos pos;
     private VoxelBlobStateReference before, after;
 
-    private SAddUndoStepPacket() {}
+    private SAddUndoStepPacket() {
+    }
 
     public SAddUndoStepPacket(final BlockPos pos, final VoxelBlobStateReference before, final VoxelBlobStateReference after) {
         this.pos = pos;

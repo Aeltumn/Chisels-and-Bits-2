@@ -6,6 +6,7 @@ import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 
 public class ColourableItemColor implements IItemColor {
     private int layer;
+
     public ColourableItemColor(int layer) {
         this.layer = layer;
     }

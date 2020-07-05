@@ -29,16 +29,16 @@ public class ItemModelsGenerator extends ItemModelProvider {
 
         withExistingParent("tool", "item/handheld")
                 .transforms()
-                    .transform(ModelBuilder.Perspective.THIRDPERSON_RIGHT)
-                        .rotation(0, -90, 55)
-                        .translation(0, 3.5f, 0.75f)
-                        .scale(0.55f, 0.55f, 0.55f)
-                    .end()
-                    .transform(ModelBuilder.Perspective.THIRDPERSON_LEFT)
-                        .rotation(0, 90, 55)
-                        .translation(0, 3.5f, 0.75f)
-                        .scale(0.55f, 0.55f, 0.55f)
-                    .end().end();
+                .transform(ModelBuilder.Perspective.THIRDPERSON_RIGHT)
+                .rotation(0, -90, 55)
+                .translation(0, 3.5f, 0.75f)
+                .scale(0.55f, 0.55f, 0.55f)
+                .end()
+                .transform(ModelBuilder.Perspective.THIRDPERSON_LEFT)
+                .rotation(0, 90, 55)
+                .translation(0, 3.5f, 0.75f)
+                .scale(0.55f, 0.55f, 0.55f)
+                .end().end();
         ResourceLocation tool = new ResourceLocation(ChiselsAndBits2.MOD_ID, "tool");
 
         withExistingParent("bit_bag", "item/generated")
@@ -74,7 +74,7 @@ public class ItemModelsGenerator extends ItemModelProvider {
 
     //Utility method to generate colored bit bag files easily
     private void coloredBitBag(String id) {
-        withExistingParent(id+"_bit_bag", "item/generated")
+        withExistingParent(id + "_bit_bag", "item/generated")
                 .texture("layer0", new ResourceLocation(ChiselsAndBits2.MOD_ID, "item/bit_bag_string"))
                 .texture("layer1", new ResourceLocation(ChiselsAndBits2.MOD_ID, "item/bit_bag_dyeable"));
     }
@@ -82,34 +82,34 @@ public class ItemModelsGenerator extends ItemModelProvider {
     private void addTransforms(ItemModelBuilder builder) {
         builder.transforms()
                 .transform(ModelBuilder.Perspective.GUI)
-                    .rotation(30, 255, 0)
-                    .translation(0, 0f, 0)
-                    .scale(0.625f, 0.625f, 0.625f)
+                .rotation(30, 255, 0)
+                .translation(0, 0f, 0)
+                .scale(0.625f, 0.625f, 0.625f)
                 .end()
                 .transform(ModelBuilder.Perspective.GROUND)
-                    .rotation(0, 0, 0)
-                    .translation(0, 3, 0)
-                    .scale(0.25f, 0.25f, 0.25f)
+                .rotation(0, 0, 0)
+                .translation(0, 3, 0)
+                .scale(0.25f, 0.25f, 0.25f)
                 .end()
-                    .transform(ModelBuilder.Perspective.FIXED)
-                    .rotation(0, 0, 0)
-                    .translation(0, 0, 0)
+                .transform(ModelBuilder.Perspective.FIXED)
+                .rotation(0, 0, 0)
+                .translation(0, 0, 0)
                 .scale(0.5f, 0.5f, 0.5f)
                 .end()
                 .transform(ModelBuilder.Perspective.THIRDPERSON_RIGHT)
-                    .rotation(75, 45, 0)
-                    .translation(0, 2.5f, 0)
-                    .scale(0.375f, 0.375f, 0.375f)
+                .rotation(75, 45, 0)
+                .translation(0, 2.5f, 0)
+                .scale(0.375f, 0.375f, 0.375f)
                 .end()
                 .transform(ModelBuilder.Perspective.FIRSTPERSON_RIGHT)
-                    .rotation(0, 45, 0)
-                    .translation(0, 0, 0)
-                    .scale(0.4f, 0.4f, 0.4f)
+                .rotation(0, 45, 0)
+                .translation(0, 0, 0)
+                .scale(0.4f, 0.4f, 0.4f)
                 .end()
                 .transform(ModelBuilder.Perspective.FIRSTPERSON_LEFT)
-                    .rotation(0, 225, 0)
-                    .translation(0, 0, 0)
-                    .scale(0.4f, 0.4f, 0.4f)
+                .rotation(0, 225, 0)
+                .translation(0, 0, 0)
+                .scale(0.4f, 0.4f, 0.4f)
                 .end().end();
     }
 }

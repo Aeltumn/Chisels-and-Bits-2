@@ -15,10 +15,10 @@ public class ChiseledTintColor {
      * Get the tint colour to display based on the bit type embedded in the tint.
      */
     public int getColor(int tint) {
-        if(VoxelType.isColoured(tint))
+        if (VoxelType.isColoured(tint))
             return BitUtil.getColourState(tint).hashCode();
 
-        if(VoxelType.isFluid(tint)) {
+        if (VoxelType.isFluid(tint)) {
             final IFluidState fstate = BitUtil.getFluidState(tint);
             FluidStack f = new FluidStack(fstate.getFluid(), 1);
             return fstate.getFluid().getAttributes().getColor(f);

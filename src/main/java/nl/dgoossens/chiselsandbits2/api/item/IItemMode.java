@@ -41,7 +41,7 @@ public interface IItemMode {
      * Only applicable if the type is {@link nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType#CHISEL}!
      *
      * @param bitPosition The position of the bit being chiseled. The block being chiseled should be passed through the voxel source.
-     * @param source Optionally the block actually being chiseled. Some modes won't need this but the ones that depend on the block do.
+     * @param source      Optionally the block actually being chiseled. Some modes won't need this but the ones that depend on the block do.
      */
     public default ChiselIterator getIterator(final BlockPos bitPosition, final Direction side, final BitOperation place, @Nullable final IVoxelSrc source) {
         return getIterator(bitPosition, side, place, source, null, null);
@@ -50,11 +50,12 @@ public interface IItemMode {
     /**
      * Variant of the normal {@link #getIterator(BlockPos, Direction, BitOperation, IVoxelSrc)} where an entire
      * region can be passed to look at.
+     *
      * @param from Start of the iterator's area
-     * @param to End of the iterator's area
+     * @param to   End of the iterator's area
      */
     public default ChiselIterator getIterator(final BlockPos bitPosition, final Direction side, final BitOperation place, @Nullable final IVoxelSrc source, @Nullable final BitLocation from, @Nullable final BitLocation to) {
-        if(getType().equals(ItemModeType.CHISEL)) throw new UnsupportedOperationException("Mode "+toString()+" doesn't have an implementation for its iterator!");
+        if (getType().equals(ItemModeType.CHISEL)) throw new UnsupportedOperationException("Mode " + toString() + " doesn't have an implementation for its iterator!");
         else return null; //Shouldn't ask a non-chisel mode for it's CHISEL-iterator.
     }
 

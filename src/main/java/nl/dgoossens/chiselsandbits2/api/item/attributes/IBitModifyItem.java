@@ -12,8 +12,8 @@ public interface IBitModifyItem {
      * Whether or not this item can be used to perform all given modification types.
      */
     public default boolean canPerformModification(final ModificationType... types) {
-        for(ModificationType type : types) {
-            if(!canPerformModification(type)) return false;
+        for (ModificationType type : types) {
+            if (!canPerformModification(type)) return false;
         }
         return true;
     }
@@ -25,13 +25,16 @@ public interface IBitModifyItem {
 
     /**
      * Performs an optional custom modification.
+     *
      * @param attack If the left mouse button was clicked, false if right mouse button.
      */
-    public default void performCustomModification(final boolean attack, final ItemStack item) {}
+    public default void performCustomModification(final boolean attack, final ItemStack item) {
+    }
 
     /**
      * Validates whether or not this item's allowed modification type can be triggered by the
      * given mouse button.
+     *
      * @param leftClick If the left mouse button was clicked, false if right mouse button.
      */
     public default boolean validateUsedButton(final ModificationType modificationType, final boolean leftClick, final ItemStack item) {
@@ -53,13 +56,16 @@ public interface IBitModifyItem {
 
         //Internal validation method for standard modification types
         private boolean validateUsedButton(boolean leftClick, ItemStack item) {
-            switch(this) {
-                case EXTRACT: return leftClick; //Left Click
+            switch (this) {
+                case EXTRACT:
+                    return leftClick; //Left Click
                 case PLACE:
                 case BUILD:
                     return !leftClick; //Right Click
-                case ROTATE: return ItemPropertyUtil.isItemMode(item, ItemMode.WRENCH_ROTATE, ItemMode.WRENCH_ROTATECCW) && !leftClick; //Right Click
-                case MIRROR: return ItemPropertyUtil.isItemMode(item, ItemMode.WRENCH_MIRROR) && !leftClick; //Right Click
+                case ROTATE:
+                    return ItemPropertyUtil.isItemMode(item, ItemMode.WRENCH_ROTATE, ItemMode.WRENCH_ROTATECCW) && !leftClick; //Right Click
+                case MIRROR:
+                    return ItemPropertyUtil.isItemMode(item, ItemMode.WRENCH_MIRROR) && !leftClick; //Right Click
             }
             return false;
         }

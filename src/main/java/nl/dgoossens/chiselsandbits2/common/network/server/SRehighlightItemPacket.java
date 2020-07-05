@@ -7,7 +7,8 @@ import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import java.util.function.Supplier;
 
 public class SRehighlightItemPacket {
-    public static void encode(SRehighlightItemPacket msg, PacketBuffer buf) {}
+    public static void encode(SRehighlightItemPacket msg, PacketBuffer buf) {
+    }
 
     public static SRehighlightItemPacket decode(PacketBuffer buffer) {
         return new SRehighlightItemPacket();

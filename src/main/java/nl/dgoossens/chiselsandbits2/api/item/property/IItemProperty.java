@@ -25,7 +25,7 @@ public abstract class IItemProperty<T> {
      */
     public void set(final PlayerEntity player, final ItemStack stack, final T value) {
         //Ignore this whilst building the creative tab
-        if(!PropertyOwner.BUILDING_CREATIVE_TAB && Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER)
+        if (!PropertyOwner.BUILDING_CREATIVE_TAB && Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER)
             throw new UnsupportedOperationException("Can't interact with properties from client side!");
     }
 
@@ -38,10 +38,10 @@ public abstract class IItemProperty<T> {
      * selected item.
      */
     protected void updateStack(final PlayerEntity player, final ItemStack stack) {
-        if(PropertyOwner.BUILDING_CREATIVE_TAB) return;
+        if (PropertyOwner.BUILDING_CREATIVE_TAB) return;
 
         //Is this item being held?
-        if(player.getHeldItemMainhand().equals(stack, true)) {
+        if (player.getHeldItemMainhand().equals(stack, true)) {
             //Reshow the item's name as it has changed now
             ChiselsAndBits2.getInstance().getNetworkRouter().sendTo(new SRehighlightItemPacket(), (ServerPlayerEntity) player);
         }

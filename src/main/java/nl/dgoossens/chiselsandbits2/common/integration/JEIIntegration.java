@@ -26,7 +26,7 @@ public class JEIIntegration implements IModPlugin {
     private void addDescriptions(IRecipeRegistration registration, Item... items) {
         IIngredientType<ItemStack> i = registration.getIngredientManager().getIngredientType(ItemStack.class);
         for (Item it : items) {
-            if(it == null) continue;
+            if (it == null) continue;
             registration.addIngredientInfo(new ItemStack(it), i, "jei." + it.getTranslationKey());
         }
     }

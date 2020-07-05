@@ -17,17 +17,15 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMenu;
-import nl.dgoossens.chiselsandbits2.client.gui.ItemModeMenu;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.*;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
  * From Chisels & Bits by AlgorithmX2
  * Rewritten into abstract by Aeltumn
- *
+ * <p>
  * Note: this is still a work in progress and the rendering parts will be abstracted too in the future
  */
 public abstract class RadialMenu extends Screen {
@@ -47,7 +45,7 @@ public abstract class RadialMenu extends Screen {
      */
     @Override
     public Minecraft getMinecraft() {
-        if(minecraft == null) minecraft = Minecraft.getInstance();
+        if (minecraft == null) minecraft = Minecraft.getInstance();
         return minecraft;
     }
 
@@ -55,7 +53,7 @@ public abstract class RadialMenu extends Screen {
      * Get the main font renderer that can be used to render texts.
      */
     public FontRenderer getFontRenderer() {
-        if(fontRenderer == null) fontRenderer = getMinecraft().fontRenderer;
+        if (fontRenderer == null) fontRenderer = getMinecraft().fontRenderer;
         return fontRenderer;
     }
 
@@ -178,12 +176,12 @@ public abstract class RadialMenu extends Screen {
             else setPressingButton(getKeyBinding().isKeyDown());
 
             //Update Visibility
-            if(System.currentTimeMillis()-lastSelection > 200 && isPressingButton() && shouldShow(player)) {
+            if (System.currentTimeMillis() - lastSelection > 200 && isPressingButton() && shouldShow(player)) {
                 raiseVisibility();
                 effectHappened = false; //Make sure effect can happen again
             } else {
                 decreaseVisibility();
-                if(!effectHappened) { //Effect can only happen once
+                if (!effectHappened) { //Effect can only happen once
                     lastSelection = System.currentTimeMillis();
                     resetMenu = System.currentTimeMillis(); //Prevent instant resetting.
                     effectHappened = true;
@@ -191,7 +189,7 @@ public abstract class RadialMenu extends Screen {
                 }
 
                 //If we somehow end up in a broken decrease visibility loop
-                if(System.currentTimeMillis()-resetMenu > 20000)
+                if (System.currentTimeMillis() - resetMenu > 20000)
                     cleanup();
             }
         }
@@ -209,7 +207,7 @@ public abstract class RadialMenu extends Screen {
                 if (ChiselsAndBits2.getInstance().getConfig().enableVivecraftCompatibility.get()) getMinecraft().currentScreen = this;
             } else {
                 //Only grab the mouse if we're currently in our menu, so don't grab if someone is in their inventory
-                if(Minecraft.getInstance().currentScreen == null || Minecraft.getInstance().currentScreen == this) {
+                if (Minecraft.getInstance().currentScreen == null || Minecraft.getInstance().currentScreen == this) {
                     getMinecraft().mouseHelper.grabMouse();
                     if (ChiselsAndBits2.getInstance().getConfig().enableVivecraftCompatibility.get())
                         getMinecraft().displayGuiScreen(null);
@@ -219,6 +217,7 @@ public abstract class RadialMenu extends Screen {
     }
 
     //--- METHODS TO OVERWRITE ---
+
     /**
      * Get the key binding that needs to be pressed to turn the menu visible.
      * Needs to be set to Alt by default!
@@ -259,7 +258,7 @@ public abstract class RadialMenu extends Screen {
         @SubscribeEvent
         @OnlyIn(Dist.CLIENT)
         public static void onClickWithGuiOpen(InputEvent.RawMouseEvent e) {
-            if(e.getButton() == GLFW.GLFW_MOUSE_BUTTON_1 && RADIAL_MENU.isPresent() && RADIAL_MENU.get().isVisible()) {
+            if (e.getButton() == GLFW.GLFW_MOUSE_BUTTON_1 && RADIAL_MENU.isPresent() && RADIAL_MENU.get().isVisible()) {
                 RADIAL_MENU.ifPresent(RadialMenu::selectHoverOver);
                 e.setCanceled(true);
             }

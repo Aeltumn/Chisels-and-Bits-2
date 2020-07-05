@@ -8,7 +8,10 @@ import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.WeakHashMap;
 
 public class VoxelBlobStateReference implements IStateRef {
     private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> serverRefs = Collections.synchronizedMap(new WeakHashMap<>());
@@ -49,9 +52,9 @@ public class VoxelBlobStateReference implements IStateRef {
     private static byte[] findDefaultBytes() {
         final VoxelBlob vb = new VoxelBlob();
         int b = BitUtil.getBlockId(Blocks.YELLOW_WOOL.getDefaultState());
-        for(int y = 1; y <= 12; y++)
-            for(int x = 2; x <= 13; x++)
-                for(int z = 2; z <= 13; z++) {
+        for (int y = 1; y <= 12; y++)
+            for (int x = 2; x <= 13; x++)
+                for (int z = 2; z <= 13; z++) {
                     vb.set(x, y, z, b);
                 }
         return vb.write(VoxelVersions.getDefault());

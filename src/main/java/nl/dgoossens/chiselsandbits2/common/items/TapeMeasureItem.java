@@ -5,10 +5,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
@@ -16,9 +13,9 @@ import nl.dgoossens.chiselsandbits2.api.item.DyedItemColour;
 import nl.dgoossens.chiselsandbits2.api.item.IItemModeType;
 import nl.dgoossens.chiselsandbits2.api.item.property.ColourProperty;
 import nl.dgoossens.chiselsandbits2.client.gui.ItemModeMenu;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.client.util.ItemTooltipWriter;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -27,6 +24,7 @@ import java.util.Set;
 
 public class TapeMeasureItem extends TypedItem {
     protected int PROPERTY_COLOR;
+
     public TapeMeasureItem(Properties builder) {
         super(builder);
 

@@ -10,8 +10,8 @@ import nl.dgoossens.chiselsandbits2.api.item.DyedItemColour;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.network.client.CItemStatePacket;
-import nl.dgoossens.chiselsandbits2.common.network.client.CUpdatePlayerItemModesPacket;
 import nl.dgoossens.chiselsandbits2.common.network.client.CTapeMeasureColourPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CUpdatePlayerItemModesPacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SPlayerItemModePacket;
 
 import java.lang.reflect.Field;
@@ -31,7 +31,7 @@ public class ClientItemPropertyUtil {
     }
 
     /**
-     *  Get the chiseled block mode the main client player is using.
+     * Get the chiseled block mode the main client player is using.
      */
     public static PlayerItemMode getChiseledBlockMode() {
         return cbm;
@@ -76,25 +76,25 @@ public class ClientItemPropertyUtil {
             IngameGui ig = Minecraft.getInstance().ingameGUI;
             //IngameGui#highlightingItemStack
             Field f = null;
-            for(Field fe : IngameGui.class.getDeclaredFields()) {
+            for (Field fe : IngameGui.class.getDeclaredFields()) {
                 //We abuse the fact that IngameGui only has one ItemStack and that's the one we need.
-                if(ItemStack.class.isAssignableFrom(fe.getType())) {
+                if (ItemStack.class.isAssignableFrom(fe.getType())) {
                     f = fe;
                     break;
                 }
             }
-            if(f == null) throw new RuntimeException("Unable to lookup textures.");
+            if (f == null) throw new RuntimeException("Unable to lookup textures.");
             f.setAccessible(true);
             f.set(ig, Minecraft.getInstance().player.getHeldItemMainhand());
 
             //IngameGui#remainingHighlightTicks
             Field f2 = null;
             int i = 0;
-            for(Field fe : IngameGui.class.getDeclaredFields()) {
+            for (Field fe : IngameGui.class.getDeclaredFields()) {
                 //We want the third int type field which is remainingHighlightTicks.
-                if(Integer.TYPE.isAssignableFrom(fe.getType())) {
+                if (Integer.TYPE.isAssignableFrom(fe.getType())) {
                     i++;
-                    if(i==3) {
+                    if (i == 3) {
                         f2 = fe;
                         break;
                     }
@@ -102,7 +102,7 @@ public class ClientItemPropertyUtil {
             }
             f2.setAccessible(true);
             f2.set(ig, 40);
-        } catch(Exception x) {
+        } catch (Exception x) {
             x.printStackTrace();
         }
     }

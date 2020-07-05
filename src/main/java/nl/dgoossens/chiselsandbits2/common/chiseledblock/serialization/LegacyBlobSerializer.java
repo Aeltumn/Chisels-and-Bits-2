@@ -15,7 +15,9 @@ import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Legacy compatibility with worlds upgraded by the WorldFixer from 1.12
@@ -62,7 +64,7 @@ public class LegacyBlobSerializer extends BlobSerializer {
                     final String[] nameval = parts[x].split("[=]", 2);
                     nameval[0] = URLDecoder.decode(nameval[0], "UTF-8");
                     nameval[1] = URLDecoder.decode(nameval[1], "UTF-8");
-                    if(state.Properties == null) state.Properties = new HashMap<>();
+                    if (state.Properties == null) state.Properties = new HashMap<>();
                     state.Properties.put(nameval[0], nameval[1]);
                 }
             } catch (final Exception err) {
@@ -79,15 +81,15 @@ public class LegacyBlobSerializer extends BlobSerializer {
             return 0;
 
         Optional<? extends Dynamic<?>> props = dyn.get("Properties").get();
-        if(props.isPresent()) {
-            for(Map.Entry e :  props.get().getMapValues().orElse(new HashMap<>()).entrySet()) {
+        if (props.isPresent()) {
+            for (Map.Entry e : props.get().getMapValues().orElse(new HashMap<>()).entrySet()) {
                 final IProperty prop = blockState.getProperties().stream().filter(f -> f.getName().equalsIgnoreCase(e.getKey().toString())).findAny().orElse(null);
                 if (prop == null) {
                     System.out.println("Couldn't resolve property '" + e.getKey() + "' for block type " + blk);
                     continue;
                 }
                 Optional val = prop.parseValue(e.getValue().toString());
-                if(!val.isPresent()) continue;
+                if (!val.isPresent()) continue;
                 blockState = blockState.with(prop, (Comparable) val.get());
             }
         }

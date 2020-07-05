@@ -17,12 +17,12 @@ import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.PropertyOwner;
 import nl.dgoossens.chiselsandbits2.api.item.property.SelectedProperty;
 import nl.dgoossens.chiselsandbits2.api.item.property.StateProperty;
+import nl.dgoossens.chiselsandbits2.client.util.ItemTooltipWriter;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlock;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
-import nl.dgoossens.chiselsandbits2.client.util.ItemTooltipWriter;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.List;
 
 public class MorphingBitItem extends ChiselMimicItem {
     protected int PROPERTY_LOCKED;
@@ -46,9 +46,9 @@ public class MorphingBitItem extends ChiselMimicItem {
 
     @Override
     public ITextComponent getDisplayName(ItemStack stack) {
-        if(isLocked(stack)) {
+        if (isLocked(stack)) {
             VoxelWrapper s = getSelected(stack);
-            if(s.isEmpty()) return new TranslationTextComponent(getTranslationKey() + ".locked.none");
+            if (s.isEmpty()) return new TranslationTextComponent(getTranslationKey() + ".locked.none");
             return new StringTextComponent(I18n.format(getTranslationKey() + ".locked").replaceAll("\\$", s.getDisplayName()));
         }
         return super.getDisplayName(stack);
@@ -80,8 +80,8 @@ public class MorphingBitItem extends ChiselMimicItem {
             PropertyOwner.BUILDING_CREATIVE_TAB = true;
             final PlayerEntity player = ChiselsAndBits2.getInstance().getClient().getPlayer();
             Registry.BLOCK.forEach(b -> { //We use Registry instead of ForgeRegistries on purpose as ForgeRegistries is sorted by registry key whilst Registry is sorted by registration order. You might say: who cares? Well this way the creative menu looks more similar to the search menu.
-                if(b instanceof ChiseledBlock) return; //Don't create a chiseled block morphing bit.. this will end badly.
-                if(ChiselsAndBits2.getInstance().getAPI().getRestrictions().canChiselBlock(b.getDefaultState())) {
+                if (b instanceof ChiseledBlock) return; //Don't create a chiseled block morphing bit.. this will end badly.
+                if (ChiselsAndBits2.getInstance().getAPI().getRestrictions().canChiselBlock(b.getDefaultState())) {
                     //Only make a locked bit if we can chisel this one
                     ItemStack it = new ItemStack(this);
                     setLocked(player, it, true);

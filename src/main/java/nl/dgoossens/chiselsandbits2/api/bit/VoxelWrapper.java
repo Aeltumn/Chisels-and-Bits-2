@@ -10,7 +10,7 @@ import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * Represents the object of a VoxelType, can be either a Block, Fluid or Color.
@@ -45,11 +45,15 @@ public class VoxelWrapper<T> {
      * Simplifies this voxel wrapper to be the default state.
      */
     public VoxelWrapper simplify() {
-        switch(type) {
-            case BLOCKSTATE: return VoxelWrapper.forBlock((Block) get());
-            case FLUIDSTATE: return VoxelWrapper.forFluid((Fluid) get());
-            case COLOURED: return VoxelWrapper.forColor((Color) get());
-            default: return this;
+        switch (type) {
+            case BLOCKSTATE:
+                return VoxelWrapper.forBlock((Block) get());
+            case FLUIDSTATE:
+                return VoxelWrapper.forFluid((Fluid) get());
+            case COLOURED:
+                return VoxelWrapper.forColor((Color) get());
+            default:
+                return this;
         }
     }
 
@@ -57,11 +61,15 @@ public class VoxelWrapper<T> {
      * Returned the wrapped object, can be either Block, Fluid or Color.
      */
     public T get() {
-        switch(type) {
-            case BLOCKSTATE: return (T) BitUtil.getBlockState(id).getBlock();
-            case FLUIDSTATE: return (T) BitUtil.getFluidState(id).getFluid();
-            case COLOURED: return (T) BitUtil.getColourState(id);
-            default: return (T) Blocks.AIR;
+        switch (type) {
+            case BLOCKSTATE:
+                return (T) BitUtil.getBlockState(id).getBlock();
+            case FLUIDSTATE:
+                return (T) BitUtil.getFluidState(id).getFluid();
+            case COLOURED:
+                return (T) BitUtil.getColourState(id);
+            default:
+                return (T) Blocks.AIR;
         }
     }
 
@@ -75,9 +83,9 @@ public class VoxelWrapper<T> {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof VoxelWrapper) {
+        if (obj instanceof VoxelWrapper) {
             VoxelWrapper o = (VoxelWrapper) obj;
-            if(type != o.type) return false;
+            if (type != o.type) return false;
             //Use equals so we don't have multiple types of the same block in a bag.
             return get().equals(o.get());
         }
@@ -120,11 +128,11 @@ public class VoxelWrapper<T> {
      * Gets the name of this selected item mode.
      */
     public String getDisplayName() {
-        if(!isEmpty()) {
-            switch(type) {
+        if (!isEmpty()) {
+            switch (type) {
                 case COLOURED:
                     Color c = (Color) get();
-                    return "("+c.getRed()+","+c.getGreen()+","+c.getBlue()+","+c.getAlpha()+")";
+                    return "(" + c.getRed() + "," + c.getGreen() + "," + c.getBlue() + "," + c.getAlpha() + ")";
                 case BLOCKSTATE:
                     Block b = (Block) get();
                     return I18n.format("block" + "." + b.getRegistryName().getNamespace() + "." + b.getRegistryName().getPath());
@@ -140,7 +148,7 @@ public class VoxelWrapper<T> {
      * Get the item stack to be shown when this mode is selected.
      */
     public ItemStack getStack() {
-        switch(type) {
+        switch (type) {
             case BLOCKSTATE:
                 return new ItemStack((Block) get());
             case FLUIDSTATE:
@@ -155,7 +163,7 @@ public class VoxelWrapper<T> {
      * or how logs will place rotated.
      */
     public int getPlacementBitId(BlockItemUseContext context) {
-        switch(type) {
+        switch (type) {
             case BLOCKSTATE:
                 return BitUtil.getBlockId(((Block) get()).getStateForPlacement(context));
             default:

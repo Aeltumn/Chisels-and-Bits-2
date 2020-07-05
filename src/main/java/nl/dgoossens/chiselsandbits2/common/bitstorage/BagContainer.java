@@ -39,17 +39,17 @@ public class BagContainer extends Container {
         int numRows = getRowCount();
         int i = (numRows - 4) * 18;
 
-        for(int j = 0; j < numRows; ++j) {
-            for(int k = 0; k < ((slotCount - j * 9) >= 9 ? 9 : slotCount % 9); ++k)
+        for (int j = 0; j < numRows; ++j) {
+            for (int k = 0; k < ((slotCount - j * 9) >= 9 ? 9 : slotCount % 9); ++k)
                 this.addSlot(new ReadonlySlot(bagInventory, k + j * 9, 8 + k * 18, 18 + j * 18));
         }
 
-        for(int l = 0; l < 3; ++l) {
-            for(int j1 = 0; j1 < 9; ++j1)
+        for (int l = 0; l < 3; ++l) {
+            for (int j1 = 0; j1 < 9; ++j1)
                 this.addSlot(new Slot(player.inventory, j1 + l * 9 + 9, 8 + j1 * 18, 103 + l * 18 + i));
         }
 
-        for(int i1 = 0; i1 < 9; ++i1)
+        for (int i1 = 0; i1 < 9; ++i1)
             this.addSlot(new Slot(player.inventory, i1, 8 + i1 * 18, 161 + i));
 
         //Input slot
@@ -63,8 +63,8 @@ public class BagContainer extends Container {
 
     public void updateInventoryContents() {
         final BitStorage store = item.getCapability(StorageCapabilityProvider.STORAGE).orElse(null);
-        if(store == null) return;
-        for(int i = 0; i < bagInventory.getSizeInventory(); i++) {
+        if (store == null) return;
+        for (int i = 0; i < bagInventory.getSizeInventory(); i++) {
             ItemStack s = store.getSlotContent(i).getStack();
             s.setCount(Math.max(1, (int) (store.get(VoxelWrapper.forBlock(Block.getBlockFromItem(s.getItem()))) / 4096.0d)));
             bagInventory.setInventorySlotContents(i, s);

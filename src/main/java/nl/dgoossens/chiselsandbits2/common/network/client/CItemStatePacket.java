@@ -20,7 +20,9 @@ public class CItemStatePacket {
     private boolean state;
     private boolean lock;
 
-    private CItemStatePacket() {}
+    private CItemStatePacket() {
+    }
+
     public CItemStatePacket(final boolean state, final boolean lock) {
         this.state = state;
         this.lock = lock;
@@ -42,19 +44,19 @@ public class CItemStatePacket {
         ctx.get().enqueueWork(() -> {
             PlayerEntity player = ctx.get().getSender();
             ItemStack stack = player.getHeldItemMainhand();
-            if(pkt.lock && stack.getItem() instanceof MorphingBitItem) {
+            if (pkt.lock && stack.getItem() instanceof MorphingBitItem) {
                 //Set the selected type of this stack too just for security sake
                 ItemPropertyUtil.setSelectedVoxelWrapper(player, stack, ItemPropertyUtil.getGlobalSelectedVoxelWrapper(player), false);
                 ((MorphingBitItem) stack.getItem()).setLocked(player, stack, pkt.state);
 
-                if(!pkt.state) player.sendStatusMessage(new TranslationTextComponent("general."+ ChiselsAndBits2.MOD_ID+".info.unlocked_mb"), true);
-                else player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.locked_mb"), true);
+                if (!pkt.state) player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.unlocked_mb"), true);
+                else player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.locked_mb"), true);
             }
-            if(!pkt.lock && stack.getItem() instanceof ChiselMimicItem) {
+            if (!pkt.lock && stack.getItem() instanceof ChiselMimicItem) {
                 ((ChiselMimicItem) stack.getItem()).setSwap(player, stack, pkt.state);
 
-                if(!pkt.state) player.sendStatusMessage(new TranslationTextComponent("general."+ ChiselsAndBits2.MOD_ID+".info.place_mode"), true);
-                else player.sendStatusMessage(new TranslationTextComponent("general."+ChiselsAndBits2.MOD_ID+".info.swap_mode"), true);
+                if (!pkt.state) player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.place_mode"), true);
+                else player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.swap_mode"), true);
             }
         });
         ctx.get().setPacketHandled(true);

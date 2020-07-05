@@ -24,7 +24,8 @@ import java.util.function.Supplier;
  * Sent CLIENT -> SERVER.
  */
 public class COpenBitBagPacket implements IPacket<COpenBitBagPacket> {
-    public COpenBitBagPacket() {}
+    public COpenBitBagPacket() {
+    }
 
     @Override
     public void encode(PacketBuffer buf) {
@@ -39,7 +40,7 @@ public class COpenBitBagPacket implements IPacket<COpenBitBagPacket> {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             final ItemStack item = ctx.get().getSender().getHeldItemMainhand();
-            if(!(item.getItem() instanceof BitBagItem)) return;
+            if (!(item.getItem() instanceof BitBagItem)) return;
             int maxSize = item.getCapability(StorageCapabilityProvider.STORAGE).map(BitStorage::getMaximumSlots).orElse(12);
             int size = item.getCapability(StorageCapabilityProvider.STORAGE).map(BitStorage::getOccupiedSlotCount).orElse(0);
             ctx.get().getSender().openContainer(new INamedContainerProvider() {

@@ -3,19 +3,16 @@ package nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Blocks;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
-import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockShapeCalculator;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.BitIterator;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
-import java.util.*;
+import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
 public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance> {

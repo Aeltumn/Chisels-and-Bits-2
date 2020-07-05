@@ -4,7 +4,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
 
 /**
@@ -46,10 +45,10 @@ public final class VoxelNeighborRenderTracker {
 
     //Checks all neighbours and sees if any have changed to no longer be a chiseled block.
     public boolean isInvalid(final World world, final BlockPos pos) {
-        if(world == null) return false; //Just in case
+        if (world == null) return false; //Just in case
         final TileEntity me = world.getTileEntity(pos);
         if (me instanceof ChiseledBlockTileEntity) {
-            if(this != ((ChiseledBlockTileEntity) me).getRenderTracker())
+            if (this != ((ChiseledBlockTileEntity) me).getRenderTracker())
                 throw new RuntimeException("Validate was called on block that was not itself.");
 
             for (Direction d : Direction.values()) {

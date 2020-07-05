@@ -1,9 +1,6 @@
 package nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel;
 
 import net.minecraft.network.PacketBuffer;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.serialization.BitStream;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

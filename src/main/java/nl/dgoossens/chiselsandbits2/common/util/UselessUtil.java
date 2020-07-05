@@ -12,7 +12,7 @@ public class UselessUtil {
      * Finds the stack or an equivalent one in the main inventory
      */
     public static int getSlotFor(PlayerInventory inventory, ItemStack stack) {
-        for(int i = 0; i < inventory.mainInventory.size(); ++i) {
+        for (int i = 0; i < inventory.mainInventory.size(); ++i) {
             if (!inventory.mainInventory.get(i).isEmpty() && stackEqualExact(stack, inventory.mainInventory.get(i))) {
                 return i;
             }

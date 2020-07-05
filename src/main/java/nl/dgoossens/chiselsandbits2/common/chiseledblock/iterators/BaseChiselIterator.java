@@ -28,7 +28,7 @@ public abstract class BaseChiselIterator implements ChiselIterator {
         IntegerBox box = null;
         while (hasNext()) {
             if ((blob.getSafe(x(), y(), z()) != VoxelBlob.AIR_BIT)) {
-                if(box == null) box = new IntegerBox(15, 15, 15, 0, 0, 0);
+                if (box == null) box = new IntegerBox(15, 15, 15, 0, 0, 0);
                 box.minX = Math.min(box.minX, x());
                 box.minY = Math.min(box.minY, y());
                 box.minZ = Math.min(box.minZ, z());

@@ -6,10 +6,21 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.common.network.client.*;
+import nl.dgoossens.chiselsandbits2.common.network.client.CChiselBlockPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CItemModePacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CItemStatePacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.COpenBitBagPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CPlaceBlockPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CRotateItemPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CTapeMeasureColourPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CUndoPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CUpdatePlayerItemModesPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CVoidBagPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CVoxelWrapperPacket;
+import nl.dgoossens.chiselsandbits2.common.network.client.CWrenchBlockPacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SAddUndoStepPacket;
-import nl.dgoossens.chiselsandbits2.common.network.server.SPlayerItemModePacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SGroupMethod;
+import nl.dgoossens.chiselsandbits2.common.network.server.SPlayerItemModePacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SRehighlightItemPacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SSynchronizeBitStoragePacket;
 
@@ -55,7 +66,7 @@ public class NetworkRouter {
     public <T extends IPacket<T>> void register(Class<T> packet) {
         try {
             HANDLER.registerMessage(disc++, packet, IPacket::encode, packet.newInstance().getDecoder(), IPacket::handle);
-        } catch(Exception x) {
+        } catch (Exception x) {
             x.printStackTrace();
         }
     }

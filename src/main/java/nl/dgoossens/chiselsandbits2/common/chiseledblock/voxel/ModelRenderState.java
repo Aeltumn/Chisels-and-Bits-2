@@ -30,7 +30,7 @@ public class ModelRenderState {
      * resets the dirty flag.
      */
     public boolean isDirty() {
-        if(dirty) {
+        if (dirty) {
             dirty = false;
             return true;
         }
@@ -65,7 +65,7 @@ public class ModelRenderState {
     }
 
     public void put(final Direction side, final IStateRef value) {
-        if(get(side) != value) dirty = true;
+        if (get(side) != value) dirty = true;
         switch (side) {
             case DOWN:
                 down = value;
@@ -107,7 +107,7 @@ public class ModelRenderState {
     }
 
     public void remove(final Direction side) {
-        if(has(side)) dirty = true;
+        if (has(side)) dirty = true;
         switch (side) {
             case DOWN:
                 down = null;

@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 /**
  * The capability attached to a player that can be used to get
  * the set item modes that this player has selected.
- *
+ * <p>
  * Most item modes are per-item but some are per-player, these per-player
  * modes can be retrieved from this capability.
  */
@@ -23,9 +23,9 @@ public class PlayerItemModeCapability implements Capability.IStorage<PlayerItemM
 
     @Override
     public void readNBT(Capability<PlayerItemModeManager> capability, PlayerItemModeManager instance, Direction side, INBT nbt) {
-        if(nbt instanceof IntNBT) {
+        if (nbt instanceof IntNBT) {
             int i = ((IntNBT) nbt).getInt();
-            if(i < PlayerItemMode.values().length && PlayerItemMode.values()[i].getType() == ItemModeType.CHISELED_BLOCK)
+            if (i < PlayerItemMode.values().length && PlayerItemMode.values()[i].getType() == ItemModeType.CHISELED_BLOCK)
                 instance.setChiseledBlockMode(PlayerItemMode.values()[i]);
             else
                 instance.setChiseledBlockMode(ItemModeType.CHISELED_BLOCK.getDefault());

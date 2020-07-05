@@ -26,7 +26,7 @@ public class ChiselsAndBitsRenderTypes extends RenderType {
     private static final DepthTestState DEPTH_BACK = new DepthTestState(GL11.GL_GEQUAL);
     private static final DepthTestState DEPTH_ALWAYS_SHOW = new DepthTestState(GL11.GL_ALWAYS);
 
-    public static final RenderType LINES = makeType(ChiselsAndBits2.MOD_ID+":lines", DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
+    public static final RenderType LINES = makeType(ChiselsAndBits2.MOD_ID + ":lines", DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
             RenderType.State.getBuilder()
                     .transparency(TRANSLUCENT_TRANSPARENCY)
                     .depthTest(DEPTH_FRONT)
@@ -35,7 +35,7 @@ public class ChiselsAndBitsRenderTypes extends RenderType {
                     .line(LINE)
                     .build(false));
 
-    public static final RenderType LINES_BACK_EDGES = makeType(ChiselsAndBits2.MOD_ID+":lines_back_edges", DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
+    public static final RenderType LINES_BACK_EDGES = makeType(ChiselsAndBits2.MOD_ID + ":lines_back_edges", DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
             RenderType.State.getBuilder()
                     .transparency(TRANSLUCENT_TRANSPARENCY)
                     .depthTest(DEPTH_BACK)
@@ -44,7 +44,7 @@ public class ChiselsAndBitsRenderTypes extends RenderType {
                     .line(LINE)
                     .build(false));
 
-    public static final RenderType TAPE_MEASURE_DISTANCE = makeType(ChiselsAndBits2.MOD_ID+":tape_measure_distance", DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
+    public static final RenderType TAPE_MEASURE_DISTANCE = makeType(ChiselsAndBits2.MOD_ID + ":tape_measure_distance", DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
             RenderType.State.getBuilder()
                     .line(WIDE_LINE)
                     .layer(PROJECTION_LAYERING)
@@ -59,6 +59,7 @@ public class ChiselsAndBitsRenderTypes extends RenderType {
      */
     public static class ExtendedLineState extends RenderState.LineState {
         private double value;
+
         public ExtendedLineState(double value) {
             super(OptionalDouble.empty());
             this.value = value;

@@ -19,7 +19,7 @@ public class StorageCapabilityProvider implements ICapabilitySerializable<INBT> 
     private BitStorage instance;
 
     public StorageCapabilityProvider(final StorageItem item) {
-        if(item == null) instance = new BitStorageImpl();
+        if (item == null) instance = new BitStorageImpl();
         else instance = new BitStorageImpl(item.getVoxelType());
     }
 

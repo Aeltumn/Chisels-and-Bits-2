@@ -28,7 +28,7 @@ public class BitBagItem extends StorageItem {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        if(handIn == Hand.MAIN_HAND) {
+        if (handIn == Hand.MAIN_HAND) {
             ItemStack itemstack = playerIn.getHeldItemMainhand();
             ChiselsAndBits2.getInstance().getClient().openBitBag();
             playerIn.addStat(Stats.ITEM_USED.get(this));

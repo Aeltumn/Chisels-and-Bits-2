@@ -16,7 +16,9 @@ import java.util.function.Supplier;
 public class CTapeMeasureColourPacket {
     private DyedItemColour state;
 
-    private CTapeMeasureColourPacket() {}
+    private CTapeMeasureColourPacket() {
+    }
+
     public CTapeMeasureColourPacket(final DyedItemColour state) {
         this.state = state;
     }
@@ -35,7 +37,7 @@ public class CTapeMeasureColourPacket {
         ctx.get().enqueueWork(() -> {
             PlayerEntity player = ctx.get().getSender();
             ItemStack stack = player.getHeldItemMainhand();
-            if(stack.getItem() instanceof TapeMeasureItem)
+            if (stack.getItem() instanceof TapeMeasureItem)
                 ((TapeMeasureItem) stack.getItem()).setColour(player, stack, pkt.state);
         });
         ctx.get().setPacketHandled(true);

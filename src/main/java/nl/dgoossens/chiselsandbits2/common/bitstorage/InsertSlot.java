@@ -9,7 +9,7 @@ import nl.dgoossens.chiselsandbits2.api.item.attributes.IVoxelStorer;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.items.ChiseledBlockItem;
 
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
 
 public class InsertSlot extends Slot {
@@ -30,22 +30,22 @@ public class InsertSlot extends Slot {
     @Override
     public void onSlotChanged() {
         //Only run on server
-        if(Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER) return;
+        if (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER) return;
 
         //Put the contents into the inventory
-        if(getHasStack()) {
+        if (getHasStack()) {
             ItemStack block = getStack();
-            if(block.getItem() instanceof IVoxelStorer) {
+            if (block.getItem() instanceof IVoxelStorer) {
                 IVoxelStorer voxel = (IVoxelStorer) block.getItem();
                 VoxelBlob vb = voxel.getVoxelBlob(block);
                 item.getCapability(StorageCapabilityProvider.STORAGE).ifPresent(cap -> {
                     Map<Integer, LongAdder> blocks = vb.getBlockSums();
-                    for(int bitType : blocks.keySet()) {
+                    for (int bitType : blocks.keySet()) {
                         VoxelWrapper w = VoxelWrapper.forAbstract(bitType);
                         int slot = cap.findSlot(w);
-                        if(slot == -1) continue; //Can't remove this bit type if we have no space to put it
+                        if (slot == -1) continue; //Can't remove this bit type if we have no space to put it
                         long queryRoom = cap.queryRoom(w);
-                        if(queryRoom < blocks.get(bitType).longValue()) {
+                        if (queryRoom < blocks.get(bitType).longValue()) {
                             //Not enough room to deposit all bits
                             vb.removeBitType(bitType, queryRoom);
                             cap.add(w, queryRoom);
@@ -57,7 +57,7 @@ public class InsertSlot extends Slot {
                     }
                 });
                 //If the vb is empty we remove the item from the slot
-                if(vb.filled() <= 0)
+                if (vb.filled() <= 0)
                     putStack(ItemStack.EMPTY);
                 else {
                     voxel.setVoxelBlob(block, vb);

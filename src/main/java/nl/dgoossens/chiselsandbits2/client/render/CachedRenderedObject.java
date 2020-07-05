@@ -1,7 +1,6 @@
 package nl.dgoossens.chiselsandbits2.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.player.PlayerEntity;
@@ -10,9 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
-import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
-import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 
 public abstract class CachedRenderedObject {
     //Fields that we validate to see if we need to rebuild
@@ -26,7 +23,7 @@ public abstract class CachedRenderedObject {
     private boolean crouching; //Whether the player is crouching
 
     public CachedRenderedObject(ItemStack item, PlayerEntity player, BitLocation location, Direction face, IItemMode mode) {
-        if(item.isEmpty()) {
+        if (item.isEmpty()) {
             isEmpty = true;
             return;
         }
@@ -40,7 +37,7 @@ public abstract class CachedRenderedObject {
         this.crouching = player.isCrouching();
 
         final TileEntity te = player.world.getTileEntity(location.blockPos);
-        if(te instanceof ChiseledBlockTileEntity)
+        if (te instanceof ChiseledBlockTileEntity)
             previousTileIteration = ((ChiseledBlockTileEntity) te).getIteration();
     }
 
@@ -75,9 +72,9 @@ public abstract class CachedRenderedObject {
      * Determines if there is a difference between te and previousTile.
      */
     public boolean didTileChange(final TileEntity te) {
-        if(te == null && previousTileIteration == -Long.MAX_VALUE) return false; //Both null? Same.
-        if(te == null || previousTileIteration == -Long.MAX_VALUE) return true; //Not both not null? Different!
-        if(te instanceof ChiseledBlockTileEntity) {
+        if (te == null && previousTileIteration == -Long.MAX_VALUE) return false; //Both null? Same.
+        if (te == null || previousTileIteration == -Long.MAX_VALUE) return true; //Not both not null? Different!
+        if (te instanceof ChiseledBlockTileEntity) {
             final ChiseledBlockTileEntity newTile = (ChiseledBlockTileEntity) te;
             return newTile.getIteration() != previousTileIteration;
         }

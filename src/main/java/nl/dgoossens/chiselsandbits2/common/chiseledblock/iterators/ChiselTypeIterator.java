@@ -2,7 +2,6 @@ package nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators;
 
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 
@@ -182,7 +181,7 @@ public class ChiselTypeIterator extends BaseChiselIterator implements ChiselIter
                 break;
 
             default:
-                throw new NullPointerException("Default chisel type iterator doesn't support mode "+mode);
+                throw new NullPointerException("Default chisel type iterator doesn't support mode " + mode);
         }
 
         original_x = Math.max(0, Math.min(full_size - x_range, x + offset));

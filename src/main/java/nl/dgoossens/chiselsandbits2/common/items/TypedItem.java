@@ -58,7 +58,7 @@ public abstract class TypedItem extends PropertyOwner implements IItemScrollWhee
     static boolean scroll(final PlayerEntity player, final ItemStack stack, final double dwheel, final IItemMode selected, final IItemModeType type) {
         if (!ChiselsAndBits2.getInstance().getConfig().enableModeScrolling.get()) return false;
 
-        if(!(selected instanceof ItemMode)) return false;
+        if (!(selected instanceof ItemMode)) return false;
         int offset = ((ItemMode) selected).ordinal();
         do {
             offset += (dwheel < 0 ? -1 : 1);

@@ -3,10 +3,9 @@ package nl.dgoossens.chiselsandbits2.common.network.client;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
 import net.minecraftforge.fml.network.NetworkEvent;
+import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.ChiselHandler;
-import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 
 import java.util.function.Supplier;
 
@@ -20,7 +19,8 @@ public class CChiselBlockPacket {
     public BitOperation operation;
     public Direction side;
 
-    private CChiselBlockPacket() {}
+    private CChiselBlockPacket() {
+    }
 
     public CChiselBlockPacket(final BitOperation operation, final BitLocation from, final BitLocation to, final Direction side) {
         this.operation = operation;

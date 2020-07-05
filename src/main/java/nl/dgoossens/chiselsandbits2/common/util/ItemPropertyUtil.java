@@ -10,23 +10,28 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.api.item.*;
 import nl.dgoossens.chiselsandbits2.api.bit.BitStorage;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
 import nl.dgoossens.chiselsandbits2.api.cache.CacheClearable;
 import nl.dgoossens.chiselsandbits2.api.cache.CacheType;
+import nl.dgoossens.chiselsandbits2.api.item.IItemMenu;
+import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.StorageCapabilityProvider;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
-import nl.dgoossens.chiselsandbits2.common.items.*;
+import nl.dgoossens.chiselsandbits2.common.items.MorphingBitItem;
+import nl.dgoossens.chiselsandbits2.common.items.StorageItem;
+import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
 import nl.dgoossens.chiselsandbits2.common.network.client.CItemModePacket;
 import nl.dgoossens.chiselsandbits2.common.network.client.CVoxelWrapperPacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SSynchronizeBitStoragePacket;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Utils for managing which item modes are being used by the player.
@@ -39,7 +44,7 @@ public class ItemPropertyUtil implements CacheClearable {
     }
 
     public ItemPropertyUtil() {
-        if(selected != null) throw new RuntimeException("Can't initialise ItemModeUtil twice!");
+        if (selected != null) throw new RuntimeException("Can't initialise ItemModeUtil twice!");
         selected = new HashMap<>();
     }
 
@@ -47,7 +52,7 @@ public class ItemPropertyUtil implements CacheClearable {
      * Updates the stack capability from the server to the client.
      */
     public static void updateStackCapability(final ItemStack item, final BitStorage cap, final ServerPlayerEntity player) {
-        if(player.getEntityWorld().isRemote)
+        if (player.getEntityWorld().isRemote)
             throw new UnsupportedOperationException("Can't update stack capability from client side!");
         validateSelectedVoxelWrapper(player, item);
         ChiselsAndBits2.getInstance().getNetworkRouter().sendTo(new SSynchronizeBitStoragePacket(cap, UselessUtil.getSlotFor(player.inventory, item)), player);
@@ -57,17 +62,17 @@ public class ItemPropertyUtil implements CacheClearable {
      * Validate that the bit storage in the given item for the player still has positive amounts of contents in each slot.
      */
     public static void validateSelectedVoxelWrapper(final PlayerEntity player, final ItemStack item) {
-        if(player.getEntityWorld().isRemote)
+        if (player.getEntityWorld().isRemote)
             throw new UnsupportedOperationException("Can't validate selected type from client side!");
-        if(!(item.getItem() instanceof StorageItem))
+        if (!(item.getItem() instanceof StorageItem))
             return;
 
         //Check if selected type is no longer valid
         VoxelWrapper selected = getSelectedVoxelWrapper(item);
-        if(selected.isEmpty()) return;
+        if (selected.isEmpty()) return;
         BitStorage storage = item.getCapability(StorageCapabilityProvider.STORAGE).orElse(null);
-        if(storage == null) return;
-        if(storage.get(selected) <= 0)
+        if (storage == null) return;
+        if (storage.get(selected) <= 0)
             setSelectedVoxelWrapper(player, item, VoxelWrapper.empty(), true);
     }
 
@@ -75,21 +80,21 @@ public class ItemPropertyUtil implements CacheClearable {
      * Set the voxel wapper for a StorageItem
      */
     public static void setSelectedVoxelWrapper(final PlayerEntity player, final ItemStack item, final VoxelWrapper w, final boolean updateTimestamp) {
-        if(player.world.isRemote) {
-            if(!item.equals(player.getHeldItemMainhand(), false))
+        if (player.world.isRemote) {
+            if (!item.equals(player.getHeldItemMainhand(), false))
                 throw new UnsupportedOperationException("Can't set voxel wrapper for different item on client!");
 
             ChiselsAndBits2.getInstance().getNetworkRouter().sendToServer(new CVoxelWrapperPacket(w, updateTimestamp));
             return;
         }
 
-        if(item.getItem() instanceof StorageItem) {
+        if (item.getItem() instanceof StorageItem) {
             //Check if this storage item at least contains this wrapper
-            if(w.isEmpty() || item.getCapability(StorageCapabilityProvider.STORAGE).map(f -> f.get(w) > 0).orElse(false)) {
+            if (w.isEmpty() || item.getCapability(StorageCapabilityProvider.STORAGE).map(f -> f.get(w) > 0).orElse(false)) {
                 ((StorageItem) item.getItem()).setSelected(player, item, w);
-                if(updateTimestamp) item.setTagInfo("timestamp", LongNBT.valueOf(w.isEmpty() ? 0 : System.currentTimeMillis())); //Update timestamp (make sure empty will never be first)
+                if (updateTimestamp) item.setTagInfo("timestamp", LongNBT.valueOf(w.isEmpty() ? 0 : System.currentTimeMillis())); //Update timestamp (make sure empty will never be first)
             }
-        } else if(item.getItem() instanceof MorphingBitItem) {
+        } else if (item.getItem() instanceof MorphingBitItem) {
             ((MorphingBitItem) item.getItem()).setSelected(player, item, w);
         }
     }
@@ -98,13 +103,13 @@ public class ItemPropertyUtil implements CacheClearable {
      * Set the mode of this itemstack to this enum value.
      */
     public static void setItemMode(final PlayerEntity player, final ItemStack stack, final IItemMode mode) {
-        if(player.world.isRemote) {
+        if (player.world.isRemote) {
             if (mode instanceof ItemMode && mode.getType() == ItemModeType.CHISELED_BLOCK) {
                 ClientItemPropertyUtil.setChiseledBlockMode((PlayerItemMode) mode);
                 return;
             }
 
-            if(!stack.equals(player.getHeldItemMainhand(), false))
+            if (!stack.equals(player.getHeldItemMainhand(), false))
                 throw new UnsupportedOperationException("Can't set item mode for different item on client!");
 
             ChiselsAndBits2.getInstance().getNetworkRouter().sendToServer(new CItemModePacket(mode));
@@ -117,7 +122,7 @@ public class ItemPropertyUtil implements CacheClearable {
         if (stack == null) return;
         if (stack.getItem() instanceof TypedItem) {
             TypedItem it = (TypedItem) stack.getItem();
-            if(!mode.getType().equals(it.getAssociatedType())) return;
+            if (!mode.getType().equals(it.getAssociatedType())) return;
             it.setSelectedMode(player, stack, mode);
             selected.remove(player.getUniqueID());
         }
@@ -127,12 +132,12 @@ public class ItemPropertyUtil implements CacheClearable {
      * Checks if the item mode of the provided stack is contained in the list of valid modes.
      */
     public static boolean isItemMode(final ItemStack stack, final ItemMode... modes) {
-        if(!(stack.getItem() instanceof TypedItem)) return false;
+        if (!(stack.getItem() instanceof TypedItem)) return false;
 
         final IItemMode res = ((TypedItem) stack.getItem()).getSelectedMode(stack);
-        if(res == null) return false;
-        for(final ItemMode i : modes) {
-            if(i.equals(res)) return true;
+        if (res == null) return false;
+        for (final ItemMode i : modes) {
+            if (i.equals(res)) return true;
         }
         return false;
     }
@@ -143,7 +148,7 @@ public class ItemPropertyUtil implements CacheClearable {
      * item is used for placement regardless of the inventory slots.
      */
     public static long getSelectionTime(final ItemStack stack) {
-        if(stack.getItem() instanceof IItemMenu) {
+        if (stack.getItem() instanceof IItemMenu) {
             final CompoundNBT nbt = stack.getTag();
             if (nbt != null && nbt.contains("timestamp"))
                 return nbt.getLong("timestamp");
@@ -155,9 +160,9 @@ public class ItemPropertyUtil implements CacheClearable {
      * Get the selected voxel wrapper of an item stack if it has any.
      */
     public static VoxelWrapper getSelectedVoxelWrapper(final ItemStack stack) {
-        if(stack.getItem() instanceof StorageItem)
+        if (stack.getItem() instanceof StorageItem)
             return ((StorageItem) stack.getItem()).getSelected(stack);
-        if(stack.getItem() instanceof MorphingBitItem)
+        if (stack.getItem() instanceof MorphingBitItem)
             return ((MorphingBitItem) stack.getItem()).getSelected(stack);
         return VoxelWrapper.empty();
     }
@@ -181,7 +186,7 @@ public class ItemPropertyUtil implements CacheClearable {
      * Gets the currently selected bit type as a selected item mode.
      */
     public static VoxelWrapper getGlobalSelectedVoxelWrapper(final PlayerEntity player) {
-        if(!selected.containsKey(player.getUniqueID())) {
+        if (!selected.containsKey(player.getUniqueID())) {
             long stamp = -1;
             VoxelWrapper res = selected.getOrDefault(player.getUniqueID(), VoxelWrapper.empty());
 
@@ -189,11 +194,11 @@ public class ItemPropertyUtil implements CacheClearable {
             for (ItemStack item : player.inventory.mainInventory) {
                 if (item.getItem() instanceof StorageItem) {
                     VoxelWrapper w = ((StorageItem) item.getItem()).getSelected(item);
-                    if(w.isEmpty()) continue; //Ignore empty selections
+                    if (w.isEmpty()) continue; //Ignore empty selections
                     long l = ItemPropertyUtil.getSelectionTime(item);
                     if (l > stamp) {
                         stamp = l;
-                        if(w.getId() != VoxelBlob.AIR_BIT)
+                        if (w.getId() != VoxelBlob.AIR_BIT)
                             res = w;
                     }
                 }
@@ -212,7 +217,7 @@ public class ItemPropertyUtil implements CacheClearable {
         for (ItemStack item : player.inventory.mainInventory) {
             if (item.getItem() instanceof StorageItem) {
                 VoxelWrapper w = ((StorageItem) item.getItem()).getSelected(item);
-                if(w.isEmpty()) continue; //Ignore empty selections
+                if (w.isEmpty()) continue; //Ignore empty selections
 
                 long l = getSelectionTime(item);
                 if (l > stamp) stamp = l;
@@ -232,7 +237,7 @@ public class ItemPropertyUtil implements CacheClearable {
             ItemStack item = player.inventory.mainInventory.get(i);
             if (item.getItem() instanceof StorageItem) {
                 VoxelWrapper w = ((StorageItem) item.getItem()).getSelected(item);
-                if(w.isEmpty()) continue; //Ignore empty selections
+                if (w.isEmpty()) continue; //Ignore empty selections
 
                 long l = ItemPropertyUtil.getSelectionTime(item);
                 if (l > stamp) {
@@ -247,19 +252,19 @@ public class ItemPropertyUtil implements CacheClearable {
     @Override
     public void clearCache() {
         //Remove the player from the cache.
-        if(FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+        if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
             //Server
-            for(ServerWorld w : ServerLifecycleHooks.getCurrentServer().getWorlds()) {
-                for(ServerPlayerEntity p : w.getPlayers())
+            for (ServerWorld w : ServerLifecycleHooks.getCurrentServer().getWorlds()) {
+                for (ServerPlayerEntity p : w.getPlayers())
                     selected.remove(p.getUniqueID());
             }
         } else {
             //LAN/Client
             PlayerEntity player = ChiselsAndBits2.getInstance().getClient().getPlayer();
-            if(player != null) {
+            if (player != null) {
                 selected.remove(player.getUniqueID());
                 //We'll settle for everyone in the same dimension. Doubt anyone will ever notice this.
-                for(PlayerEntity p : player.getEntityWorld().getPlayers())
+                for (PlayerEntity p : player.getEntityWorld().getPlayers())
                     selected.remove(p.getUniqueID());
             }
         }

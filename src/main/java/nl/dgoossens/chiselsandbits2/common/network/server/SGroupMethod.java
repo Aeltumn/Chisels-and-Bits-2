@@ -12,7 +12,8 @@ import java.util.function.Supplier;
  */
 public class SGroupMethod {
     public static class BeginGroupPacket {
-        public static void encode(BeginGroupPacket msg, PacketBuffer buf) {}
+        public static void encode(BeginGroupPacket msg, PacketBuffer buf) {
+        }
 
         public static BeginGroupPacket decode(PacketBuffer buffer) {
             return new BeginGroupPacket();
@@ -27,7 +28,8 @@ public class SGroupMethod {
     }
 
     public static class EndGroupPacket {
-        public static void encode(EndGroupPacket msg, PacketBuffer buf) {}
+        public static void encode(EndGroupPacket msg, PacketBuffer buf) {
+        }
 
         public static EndGroupPacket decode(PacketBuffer buffer) {
             return new EndGroupPacket();
@@ -35,7 +37,7 @@ public class SGroupMethod {
 
         public static void handle(final EndGroupPacket pkt, Supplier<NetworkEvent.Context> ctx) {
             ctx.get().enqueueWork(() ->
-                ChiselsAndBits2.getInstance().getUndoTracker().endGroup(ChiselsAndBits2.getInstance().getClient().getPlayer())
+                    ChiselsAndBits2.getInstance().getUndoTracker().endGroup(ChiselsAndBits2.getInstance().getClient().getPlayer())
             );
             ctx.get().setPacketHandled(true);
         }

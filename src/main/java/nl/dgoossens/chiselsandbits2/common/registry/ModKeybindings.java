@@ -37,17 +37,18 @@ public class ModKeybindings {
         //Generate Hotkeys
         for (MenuAction ma : MenuAction.values())
             if (ma.hasHotkey()) {
-                InputMappings.Input def = InputMappings.INPUT_INVALID;;
+                InputMappings.Input def = InputMappings.INPUT_INVALID;
+                ;
                 KeyModifier mod = KeyModifier.NONE;
                 //Undo and redo are set by default to Ctl+Z and Ctl+Y
-                if(ma.equals(MenuAction.UNDO)) {
+                if (ma.equals(MenuAction.UNDO)) {
                     def = getKey(90);
                     mod = KeyModifier.CONTROL;
-                } else if(ma.equals(MenuAction.REDO)) {
+                } else if (ma.equals(MenuAction.REDO)) {
                     def = getKey(89);
                     mod = KeyModifier.CONTROL;
                 }
-                if(ma.equals(MenuAction.PLACE)) continue; //No keybind for place because its shared with swap.
+                if (ma.equals(MenuAction.PLACE)) continue; //No keybind for place because its shared with swap.
                 KeyBinding kb = new KeyBinding("general.chiselsandbits2.menuaction." + ma.name().toLowerCase() + ".hotkey", CONFLICT, mod, def, CATEGORY);
                 actionHotkeys.put(ma, kb);
             }
@@ -63,9 +64,9 @@ public class ModKeybindings {
 
     public void setup() {
         //Register Everything
-        for(KeyBinding kb : actionHotkeys.values())
+        for (KeyBinding kb : actionHotkeys.values())
             ClientRegistry.registerKeyBinding(kb);
-        for(KeyBinding kb : modeHotkeys.values())
+        for (KeyBinding kb : modeHotkeys.values())
             ClientRegistry.registerKeyBinding(kb);
 
         for (Field f : getClass().getFields()) {

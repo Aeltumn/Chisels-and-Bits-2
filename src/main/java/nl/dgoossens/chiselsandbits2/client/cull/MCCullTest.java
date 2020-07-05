@@ -5,8 +5,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import nl.dgoossens.chiselsandbits2.api.render.ICullTest;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
+import nl.dgoossens.chiselsandbits2.api.render.ICullTest;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 import org.apache.commons.lang3.tuple.Pair;
@@ -51,7 +51,7 @@ public class MCCullTest extends DummyBlockReader implements ICullTest {
                         return null;
                     });
                     return resultCache.get(p);
-                } catch(Exception x) {}
+                } catch (Exception x) {}
             }
         }
         //Backup logic in case any errors occur

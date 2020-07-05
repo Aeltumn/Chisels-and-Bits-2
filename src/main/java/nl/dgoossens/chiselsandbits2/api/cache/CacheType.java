@@ -1,6 +1,9 @@
 package nl.dgoossens.chiselsandbits2.api.cache;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public enum CacheType {
     DEFAULT,
@@ -10,7 +13,9 @@ public enum CacheType {
 
     private final List<CacheClearable> clearable = new ArrayList<>();
 
-    CacheType() {}
+    CacheType() {
+    }
+
     CacheType(long repeating) {
         //Call this cache every repeating milliseconds.
         new Timer().schedule(new TimerTask() {

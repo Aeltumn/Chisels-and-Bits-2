@@ -5,7 +5,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.NetworkEvent;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.ChiselHandler;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
 
 import java.util.function.Supplier;
 
@@ -17,7 +16,8 @@ public class CWrenchBlockPacket {
     public BlockPos pos;
     public Direction side;
 
-    private CWrenchBlockPacket() {}
+    private CWrenchBlockPacket() {
+    }
 
     public CWrenchBlockPacket(final BlockPos pos, final Direction side) {
         this.pos = pos;

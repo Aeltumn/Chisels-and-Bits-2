@@ -47,7 +47,7 @@ public class SSynchronizeBitStoragePacket {
     public static void handle(final SSynchronizeBitStoragePacket pkt, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             PlayerEntity target;
-            if(ctx.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT)
+            if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT)
                 target = ChiselsAndBits2.getInstance().getClient().getPlayer();
             else
                 target = ctx.get().getSender();

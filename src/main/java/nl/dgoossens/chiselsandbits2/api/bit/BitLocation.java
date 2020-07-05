@@ -74,11 +74,11 @@ public class BitLocation {
         double tx = e.getPosX() - blockPos.getX();
         double ty = e.getPosY() - blockPos.getY();
         double tz = e.getPosZ() - blockPos.getZ();
-        bitX = snapToValid((int) Math.round(tx*16));
-        bitY = snapToValid((int) Math.round(ty*16)) - 1;
-        bitZ = snapToValid((int) Math.round(tz*16));
+        bitX = snapToValid((int) Math.round(tx * 16));
+        bitY = snapToValid((int) Math.round(ty * 16)) - 1;
+        bitZ = snapToValid((int) Math.round(tz * 16));
 
-        if(bitY < 0) {
+        if (bitY < 0) {
             blockPos = blockPos.offset(Direction.DOWN);
             bitY = 15;
         }
@@ -140,24 +140,24 @@ public class BitLocation {
         bitX += x;
         bitY += y;
         bitZ += z;
-        if(bitX < 0) {
+        if (bitX < 0) {
             bitX += 16;
             blockPos = blockPos.add(-1, 0, 0);
-        } else if(bitX >= 16) {
+        } else if (bitX >= 16) {
             bitX -= 16;
             blockPos = blockPos.add(1, 0, 0);
         }
-        if(bitY < 0) {
+        if (bitY < 0) {
             bitY += 16;
             blockPos = blockPos.add(0, -1, 0);
-        } else if(bitY >= 16) {
+        } else if (bitY >= 16) {
             bitY -= 16;
             blockPos = blockPos.add(0, 1, 0);
         }
-        if(bitZ < 0) {
+        if (bitZ < 0) {
             bitZ += 16;
             blockPos = blockPos.add(0, 0, -1);
-        } else if(bitZ >= 16) {
+        } else if (bitZ >= 16) {
             bitZ -= 16;
             blockPos = blockPos.add(0, 0, 1);
         }

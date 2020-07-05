@@ -39,10 +39,13 @@ public class ExtendedAxisAlignedBB extends AxisAlignedBB {
      * Get the length of an axis of this bounding box.
      */
     public double getLength(Direction.Axis axis) {
-        switch(axis) {
-            case X: return maxX - minX;
-            case Y: return maxY - minY;
-            case Z: return maxZ - maxZ;
+        switch (axis) {
+            case X:
+                return maxX - minX;
+            case Y:
+                return maxY - minY;
+            case Z:
+                return maxZ - maxZ;
         }
         return 0;
     }

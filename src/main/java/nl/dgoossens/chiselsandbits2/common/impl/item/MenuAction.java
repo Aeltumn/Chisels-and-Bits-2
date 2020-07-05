@@ -3,8 +3,8 @@ package nl.dgoossens.chiselsandbits2.common.impl.item;
 import net.minecraft.util.Direction;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
-import nl.dgoossens.chiselsandbits2.common.network.client.CRotateItemPacket;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
+import nl.dgoossens.chiselsandbits2.common.network.client.CRotateItemPacket;
 
 public enum MenuAction implements IMenuAction {
     //General
@@ -22,6 +22,7 @@ public enum MenuAction implements IMenuAction {
     ;
 
     private int width, height;
+
     MenuAction(int w, int h) {
         width = w;
         height = h;

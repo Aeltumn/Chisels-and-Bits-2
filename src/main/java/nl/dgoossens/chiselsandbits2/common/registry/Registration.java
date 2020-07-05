@@ -4,12 +4,10 @@ import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
-import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -26,7 +24,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.item.DyedItemColour;
-import nl.dgoossens.chiselsandbits2.client.gui.BitBagScreen;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.BagContainer;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlock;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
@@ -71,7 +68,7 @@ public class Registration {
     public final RegistryObject<Block> PREVIEW_BLOCK = BLOCKS.register("preview_block", () -> new PreviewBlock(Block.Properties.create(Material.WOOD, MaterialColor.WOOD).hardnessAndResistance(2.0F, 3.0F).sound(SoundType.WOOD).harvestTool(ToolType.AXE).notSolid()));
     public final RegistryObject<BlockItem> PREVIEW_BLOCK_ITEM = ITEMS.register("preview_block", () -> new BlockItem(PREVIEW_BLOCK.get(), new Item.Properties().group(ModItemGroups.CHISELS_AND_BITS2)));
     public final RegistryObject<ChiseledBlock> CHISELED_BLOCK = BLOCKS.register("chiseled_block", () -> new ChiseledBlock(Block.Properties.create(Material.ROCK).doesNotBlockMovement().hardnessAndResistance(1.0F, 6.0F)));
-    public final RegistryObject<ChiseledBlockItem> CHISELED_BLOCK_ITEM = ITEMS.register("chiseled_block", () ->  new ChiseledBlockItem(CHISELED_BLOCK.get(), new Item.Properties()));
+    public final RegistryObject<ChiseledBlockItem> CHISELED_BLOCK_ITEM = ITEMS.register("chiseled_block", () -> new ChiseledBlockItem(CHISELED_BLOCK.get(), new Item.Properties()));
     public final RegistryObject<TileEntityType<ChiseledBlockTileEntity>> CHISELED_BLOCK_TILE = TILE_ENTITIES.register("chiseled_block_tile", () -> TileEntityType.Builder.create(ChiseledBlockTileEntity::new, CHISELED_BLOCK.get()).build(null));
 
     //Register morphing bit last because we want the creative menu to not be bombarded with morphing bit types so people see the other items first
@@ -105,23 +102,39 @@ public class Registration {
      * Method used by recoloring recipe to get the correct bit bag item.
      */
     public RegistryObject<BitBagItem> getBitBag(final DyedItemColour color) {
-        switch(color) {
-            case WHITE: return WHITE_BIT_BAG;
-            case ORANGE: return ORANGE_BIT_BAG;
-            case MAGENTA: return MAGENTA_BIT_BAG;
-            case LIGHT_BLUE: return LIGHT_BLUE_BIT_BAG;
-            case YELLOW: return YELLOW_BIT_BAG;
-            case LIME: return LIME_BIT_BAG;
-            case PINK: return PINK_BIT_BAG;
-            case GRAY: return GRAY_BIT_BAG;
-            case LIGHT_GRAY: return LIGHT_GRAY_BIT_BAG;
-            case CYAN: return CYAN_BIT_BAG;
-            case PURPLE: return PURPLE_BIT_BAG;
-            case BLUE: return BLUE_BIT_BAG;
-            case BROWN: return BROWN_BIT_BAG;
-            case GREEN: return GREEN_BIT_BAG;
-            case RED: return RED_BIT_BAG;
-            case BLACK: return BLACK_BIT_BAG;
+        switch (color) {
+            case WHITE:
+                return WHITE_BIT_BAG;
+            case ORANGE:
+                return ORANGE_BIT_BAG;
+            case MAGENTA:
+                return MAGENTA_BIT_BAG;
+            case LIGHT_BLUE:
+                return LIGHT_BLUE_BIT_BAG;
+            case YELLOW:
+                return YELLOW_BIT_BAG;
+            case LIME:
+                return LIME_BIT_BAG;
+            case PINK:
+                return PINK_BIT_BAG;
+            case GRAY:
+                return GRAY_BIT_BAG;
+            case LIGHT_GRAY:
+                return LIGHT_GRAY_BIT_BAG;
+            case CYAN:
+                return CYAN_BIT_BAG;
+            case PURPLE:
+                return PURPLE_BIT_BAG;
+            case BLUE:
+                return BLUE_BIT_BAG;
+            case BROWN:
+                return BROWN_BIT_BAG;
+            case GREEN:
+                return GREEN_BIT_BAG;
+            case RED:
+                return RED_BIT_BAG;
+            case BLACK:
+                return BLACK_BIT_BAG;
         }
         return BIT_BAG;
     }
@@ -132,23 +145,38 @@ public class Registration {
      */
     public int getColoredItemColor(final ItemStack stack) {
         //Light gray and light blue can't be distinguished by the first 6 chars so we do one of them separate
-        if(stack.getItem().getRegistryName().getPath().startsWith("light_gray")) return 10329495;
-        switch(stack.getItem().getRegistryName().getPath().substring(0, 3)) { //Only first three characters! (enough to distinguish colours)
-            case "whi": return 16383998; //white
-            case "ora": return 16351261; //orange
-            case "mag": return 13061821; //magenta
-            case "lig": return 3847130; //light_blue
-            case "yel": return 16701501; //yellow
-            case "lim": return 8439583; //lime
-            case "pin": return 15961002; //pink
-            case "gra": return 4673362; //gray
-            case "cya": return 1481884; //cyan
-            case "pur": return 8991416; //purple
-            case "blu": return 3949738; //blue
-            case "bro": return 8606770; //brown
-            case "gre": return 6192150; //green
-            case "red": return 11546150; //red
-            case "bla": return 1908001; //black
+        if (stack.getItem().getRegistryName().getPath().startsWith("light_gray")) return 10329495;
+        switch (stack.getItem().getRegistryName().getPath().substring(0, 3)) { //Only first three characters! (enough to distinguish colours)
+            case "whi":
+                return 16383998; //white
+            case "ora":
+                return 16351261; //orange
+            case "mag":
+                return 13061821; //magenta
+            case "lig":
+                return 3847130; //light_blue
+            case "yel":
+                return 16701501; //yellow
+            case "lim":
+                return 8439583; //lime
+            case "pin":
+                return 15961002; //pink
+            case "gra":
+                return 4673362; //gray
+            case "cya":
+                return 1481884; //cyan
+            case "pur":
+                return 8991416; //purple
+            case "blu":
+                return 3949738; //blue
+            case "bro":
+                return 8606770; //brown
+            case "gre":
+                return 6192150; //green
+            case "red":
+                return 11546150; //red
+            case "bla":
+                return 1908001; //black
         }
         return -1;
     }

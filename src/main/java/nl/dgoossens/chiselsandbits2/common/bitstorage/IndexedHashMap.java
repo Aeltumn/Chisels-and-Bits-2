@@ -26,7 +26,7 @@ public class IndexedHashMap<K, V> {
     }
 
     public void add(K k, V v) {
-        if(!index.contains(k)) index.add(k);
+        if (!index.contains(k)) index.add(k);
         data.put(k, v);
     }
 

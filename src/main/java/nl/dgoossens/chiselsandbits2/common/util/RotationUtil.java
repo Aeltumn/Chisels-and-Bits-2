@@ -6,7 +6,13 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Mirror;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlock;
 
-import static net.minecraft.util.Direction.*;
+import static net.minecraft.util.Direction.Axis;
+import static net.minecraft.util.Direction.DOWN;
+import static net.minecraft.util.Direction.EAST;
+import static net.minecraft.util.Direction.NORTH;
+import static net.minecraft.util.Direction.SOUTH;
+import static net.minecraft.util.Direction.UP;
+import static net.minecraft.util.Direction.WEST;
 
 /**
  * A utility handling rotation of minecraft blockstates. E.g. banners, signs, campfires, furnaces.
@@ -39,10 +45,13 @@ public class RotationUtil {
      * Get the mirroring to apply to all blockstates in a block when the block is mirrored around this axis.
      */
     public static Mirror getMirror(final Direction.Axis axis) {
-        switch(axis) {
-            case X: return Mirror.LEFT_RIGHT;
-            case Y: return Mirror.NONE;
-            case Z: return Mirror.FRONT_BACK;
+        switch (axis) {
+            case X:
+                return Mirror.LEFT_RIGHT;
+            case Y:
+                return Mirror.NONE;
+            case Z:
+                return Mirror.FRONT_BACK;
         }
         return Mirror.NONE;
     }
@@ -52,17 +61,17 @@ public class RotationUtil {
      */
     public static int spinBlockState(final int inputState, final Direction.Axis axis, final boolean backwards) {
         final BlockState in = BitUtil.getBlockState(inputState);
-        if(!hasRotatableState(in)) return inputState;
-        if(in.has(BlockStateProperties.AXIS)) {
+        if (!hasRotatableState(in)) return inputState;
+        if (in.has(BlockStateProperties.AXIS)) {
             final Direction.Axis curr = in.get(BlockStateProperties.AXIS);
             //If axis remains the same, don't go to a different one.
             if (curr == axis) return inputState;
             //Get the axis that its not already on and that we are not rotating on.
-            for(Direction.Axis ax : Direction.Axis.values()) {
-                if(ax != curr && ax != axis)
+            for (Direction.Axis ax : Direction.Axis.values()) {
+                if (ax != curr && ax != axis)
                     return BitUtil.getBlockId(in.with(BlockStateProperties.AXIS, ax));
             }
-        } else if(in.has(BlockStateProperties.FACING)) {
+        } else if (in.has(BlockStateProperties.FACING)) {
             final Direction curr = in.get(BlockStateProperties.FACING);
             return BitUtil.getBlockId(in.with(BlockStateProperties.FACING, spinFacing(curr, axis, backwards)));
         }
@@ -76,18 +85,18 @@ public class RotationUtil {
      */
     public static int mirrorBlockState(final int inputState, final Direction.Axis axis) {
         final BlockState in = BitUtil.getBlockState(inputState);
-        if(!hasMirrorableState(in)) return inputState;
-        if(in.has(BlockStateProperties.FACING)) {
+        if (!hasMirrorableState(in)) return inputState;
+        if (in.has(BlockStateProperties.FACING)) {
             final Direction curr = in.get(BlockStateProperties.FACING);
-            switch(curr.getAxis()) {
+            switch (curr.getAxis()) {
                 case X:
-                    if(axis != Axis.Z) return inputState; //Only change this isn't in other XZ direction
+                    if (axis != Axis.Z) return inputState; //Only change this isn't in other XZ direction
                     break;
                 case Y:
-                    if(axis != Axis.Y) return inputState; //Only change this if already in Y
+                    if (axis != Axis.Y) return inputState; //Only change this if already in Y
                     break;
                 case Z:
-                    if(axis != Axis.X) return inputState; //Only change this isn't in other XZ direction
+                    if (axis != Axis.X) return inputState; //Only change this isn't in other XZ direction
                     break;
             }
             return BitUtil.getBlockId(in.with(BlockStateProperties.FACING, curr.getOpposite()));
@@ -98,13 +107,13 @@ public class RotationUtil {
     }
 
     private static Direction spinFacing(final Direction curr, final Axis axis, boolean backwards) {
-        if(axis == Axis.X) backwards = !backwards; //Somehow clockwise and counterclockwise are swapped for X. Don't have a clue why.
+        if (axis == Axis.X) backwards = !backwards; //Somehow clockwise and counterclockwise are swapped for X. Don't have a clue why.
         return backwards ? rotateAroundCCW(curr, axis) : curr; //TODO curr.rotateAround(axis);
     }
 
     //Internal method, opposite of Direction#rotateAround
     private static Direction rotateAroundCCW(final Direction curr, final Direction.Axis axis) {
-        switch(axis) {
+        switch (axis) {
             case X:
                 if (curr != WEST && curr != EAST) {
                     return rotateXCCW(curr);
@@ -129,7 +138,7 @@ public class RotationUtil {
     }
 
     private static Direction rotateXCCW(final Direction curr) {
-        switch(curr) {
+        switch (curr) {
             case NORTH:
                 return UP;
             case EAST:
@@ -146,7 +155,7 @@ public class RotationUtil {
     }
 
     private static Direction rotateZCCW(final Direction curr) {
-        switch(curr) {
+        switch (curr) {
             case EAST:
                 return UP;
             case SOUTH:

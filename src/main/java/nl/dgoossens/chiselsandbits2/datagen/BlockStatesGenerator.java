@@ -2,7 +2,6 @@ package nl.dgoossens.chiselsandbits2.datagen;
 
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
@@ -30,6 +29,6 @@ public class BlockStatesGenerator extends BlockStateProvider {
     }
 
     private ResourceLocation path(Block block) {
-        return new ResourceLocation(ChiselsAndBits2.MOD_ID, "block/"+block.getRegistryName().getPath());
+        return new ResourceLocation(ChiselsAndBits2.MOD_ID, "block/" + block.getRegistryName().getPath());
     }
 }

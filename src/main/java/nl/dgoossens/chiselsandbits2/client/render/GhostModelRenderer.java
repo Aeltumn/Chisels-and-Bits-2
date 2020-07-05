@@ -1,13 +1,9 @@
 package nl.dgoossens.chiselsandbits2.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -37,7 +33,7 @@ public class GhostModelRenderer extends CachedRenderedObject {
 
     public GhostModelRenderer(ItemStack item, PlayerEntity player, BitLocation location, Direction face, boolean offGrid) {
         super(item, player, location, face, ClientItemPropertyUtil.getChiseledBlockMode());
-        if(isEmpty())
+        if (isEmpty())
             return;
 
         final NBTBlobConverter c = new NBTBlobConverter();
@@ -45,7 +41,7 @@ public class GhostModelRenderer extends CachedRenderedObject {
 
         //Whether or not this is a silhoutte depends on whether or not it is placeable, which depends on if this is off-grid or not.
         this.offGrid = offGrid;
-        if(offGrid) {
+        if (offGrid) {
             this.silhouette = BlockPlacementLogic.isNotPlaceableOffGrid(player, player.world, face, location, item);
         } else {
             //We have a supplier for the NBTBlobConverter as we have it ready for use here so there is no need to recalculate it.
@@ -55,9 +51,9 @@ public class GhostModelRenderer extends CachedRenderedObject {
         final TileEntity te = player.world.getTileEntity(location.blockPos);
         boolean modified = false;
         VoxelBlob blob = c.getVoxelBlob();
-        if(te instanceof ChiseledBlockTileEntity) {
+        if (te instanceof ChiseledBlockTileEntity) {
             VoxelBlob b = ((ChiseledBlockTileEntity) te).getVoxelBlob();
-            if(ClientItemPropertyUtil.getChiseledBlockMode().equals(PlayerItemMode.CHISELED_BLOCK_MERGE)) {
+            if (ClientItemPropertyUtil.getChiseledBlockMode().equals(PlayerItemMode.CHISELED_BLOCK_MERGE)) {
                 blob.intersect(b);
                 modified = true;
             }
@@ -65,7 +61,7 @@ public class GhostModelRenderer extends CachedRenderedObject {
         modelBounds = blob.getBounds();
 
         //If we modified the blob we have to reapply it and build a new item.
-        if(modified) {
+        if (modified) {
             c.setBlob(blob);
             item = c.getItemStack();
         }
@@ -85,7 +81,7 @@ public class GhostModelRenderer extends CachedRenderedObject {
 
     @Override
     public void render(MatrixStack matrix, IRenderTypeBuffer buffer, float partialTicks) {
-        if(isEmpty()) return;
+        if (isEmpty()) return;
         final ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
         final double x = renderInfo.getProjectedView().x;
         final double y = renderInfo.getProjectedView().y;

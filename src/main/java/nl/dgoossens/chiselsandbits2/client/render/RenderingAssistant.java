@@ -4,14 +4,15 @@ import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.OptifineCompatibility;
-
-import java.lang.reflect.Method;
 
 /**
  * Assists with generic rendering tasks for rendering boxes and lines, mostly those called by the ClientSideHelper.
@@ -31,7 +32,7 @@ public class RenderingAssistant {
             //This makes it much easier to sculpt as you can estimate how many bits you will destroy with this action.
             matrix.push();
             matrix.translate(location.getX() - x, location.getY() - y, location.getZ() - z);
-            if(OptifineCompatibility.isUsingShaders()) {
+            if (OptifineCompatibility.isUsingShaders()) {
                 //FIXME Shaders doesn't currently support our custom render types so we have to use the default lines.
                 WorldRenderer.drawBoundingBox(matrix, builder.getBuffer(RenderType.getLines()), bb, red, green, blue, 0.4f);
             } else {
@@ -43,7 +44,7 @@ public class RenderingAssistant {
     }
 
     public static void drawLine(final MatrixStack matrix, final IRenderTypeBuffer buffer, final Vec3d a, final Vec3d b, final float red, final float green, final float blue) {
-        if(a != null && b != null) {
+        if (a != null && b != null) {
             Preconditions.checkState(matrix.clear(), "Matrix stack should be cleared!");
 
             ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
@@ -58,7 +59,7 @@ public class RenderingAssistant {
     private static void renderLine(final MatrixStack matrix, final IRenderTypeBuffer buffer, final Vec3d a, final Vec3d b, final float red, final float green, final float blue) {
         IVertexBuilder builder;
         //FIXME Shaders doesn't support our custom render types.
-        if(OptifineCompatibility.isUsingShaders()) {
+        if (OptifineCompatibility.isUsingShaders()) {
             builder = buffer.getBuffer(RenderType.getLines());
         } else {
             builder = buffer.getBuffer(ChiselsAndBitsRenderTypes.TAPE_MEASURE_DISTANCE);

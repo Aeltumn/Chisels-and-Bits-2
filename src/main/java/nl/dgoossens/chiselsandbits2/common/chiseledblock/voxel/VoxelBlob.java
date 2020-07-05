@@ -5,11 +5,11 @@ import net.minecraft.block.Blocks;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import nl.dgoossens.chiselsandbits2.api.render.ICullTest;
-import nl.dgoossens.chiselsandbits2.api.block.IVoxelSrc;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.serialization.BlobSerilizationCache;
+import nl.dgoossens.chiselsandbits2.api.block.IVoxelSrc;
+import nl.dgoossens.chiselsandbits2.api.render.ICullTest;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.BitIterator;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.serialization.BlobSerilizationCache;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 import nl.dgoossens.chiselsandbits2.common.util.RotationUtil;
 
@@ -17,8 +17,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
@@ -135,7 +139,7 @@ public final class VoxelBlob implements IVoxelSrc {
         Map<Integer, Integer> mappings = new HashMap<>();
         while (bi.hasNext()) {
             int i = mappings.computeIfAbsent(bi.getNext(this), (bit) -> {
-                if(VoxelType.isBlock(bit)) return RotationUtil.mirrorBlockState(bit, axis);
+                if (VoxelType.isBlock(bit)) return RotationUtil.mirrorBlockState(bit, axis);
                 return bit;
             });
             if (bi.getNext(this) != AIR_BIT) {
@@ -181,7 +185,7 @@ public final class VoxelBlob implements IVoxelSrc {
         Map<Integer, Integer> mappings = new HashMap<>();
         while (bi.hasNext()) {
             int i = mappings.computeIfAbsent(bi.getNext(this), (bit) -> {
-                if(VoxelType.isBlock(bit)) return RotationUtil.spinBlockState(bit, axis, false);
+                if (VoxelType.isBlock(bit)) return RotationUtil.spinBlockState(bit, axis, false);
                 return bit;
             });
             switch (axis) {
@@ -213,7 +217,7 @@ public final class VoxelBlob implements IVoxelSrc {
         Map<Integer, Integer> mappings = new HashMap<>();
         while (bi.hasNext()) {
             int i = mappings.computeIfAbsent(bi.getNext(this), (bit) -> {
-                if(VoxelType.isBlock(bit)) return RotationUtil.spinBlockState(bit, axis, true);
+                if (VoxelType.isBlock(bit)) return RotationUtil.spinBlockState(bit, axis, true);
                 return bit;
             });
             switch (axis) {
@@ -281,7 +285,7 @@ public final class VoxelBlob implements IVoxelSrc {
      */
     public VoxelBlob removeBitType(final int bitType) {
         for (int x = 0; x < values.length; ++x)
-            if(values[x] == bitType)
+            if (values[x] == bitType)
                 values[x] = AIR_BIT;
 
         return this;
@@ -289,11 +293,12 @@ public final class VoxelBlob implements IVoxelSrc {
 
     /**
      * Removes all bits of this type from this blob.
+     *
      * @param limit Don't remove more than the limit worth of bits.
      */
     public VoxelBlob removeBitType(final int bitType, long limit) {
         for (int x = 0; x < values.length; ++x)
-            if(values[x] == bitType && limit > 0) {
+            if (values[x] == bitType && limit > 0) {
                 limit--;
                 values[x] = AIR_BIT;
             }
@@ -338,8 +343,8 @@ public final class VoxelBlob implements IVoxelSrc {
      */
     public long air() {
         int i = 0;
-        for(int v : values)
-            if(v == AIR_BIT) i++;
+        for (int v : values)
+            if (v == AIR_BIT) i++;
         return i;
     }
 
@@ -348,8 +353,8 @@ public final class VoxelBlob implements IVoxelSrc {
      */
     public long count(int bitType) {
         int i = 0;
-        for(int v : values)
-            if(v == bitType) i++;
+        for (int v : values)
+            if (v == bitType) i++;
         return i;
     }
 
@@ -358,8 +363,8 @@ public final class VoxelBlob implements IVoxelSrc {
      */
     public long fluids() {
         int i = 0;
-        for(int v : values)
-            if(VoxelType.isFluid(v)) i++;
+        for (int v : values)
+            if (VoxelType.isFluid(v)) i++;
         return i;
     }
 
@@ -368,8 +373,8 @@ public final class VoxelBlob implements IVoxelSrc {
      */
     public long filled() {
         int i = 0;
-        for(int v : values)
-            if(v != VoxelBlob.AIR_BIT) i++;
+        for (int v : values)
+            if (v != VoxelBlob.AIR_BIT) i++;
         return i;
     }
 
@@ -379,9 +384,9 @@ public final class VoxelBlob implements IVoxelSrc {
      */
     public int singleType() {
         int i = values[0];
-        for(int v : values) {
+        for (int v : values) {
             //If that value is not the same we return AIR_BIT.
-            if(v != i)
+            if (v != i)
                 return AIR_BIT;
         }
         return i;
