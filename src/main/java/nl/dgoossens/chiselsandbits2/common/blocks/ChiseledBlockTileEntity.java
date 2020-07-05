@@ -89,7 +89,7 @@ public class ChiseledBlockTileEntity extends TileEntity implements VoxelTile {
         markDirty();
         try {
             //Trigger block update
-            if (!world.isRemote) {
+            if (world != null && !world.isRemote) {
                 world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), 3);
             }
         } catch (Exception x) {
