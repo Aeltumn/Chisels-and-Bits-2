@@ -46,6 +46,10 @@ public class BlockShapeCalculator {
                     //If we ended with a box we add that too
                     collisionShape = VoxelShapes.or(collisionShape, VoxelShapes.create(dx, start / 16.0d, dz, dx + bitDimension, 1.0d, dz + bitDimension));
                     y2 = 15;
+                    if (x < x1) x1 = x;
+                    if (z < z1) z1 = z;
+                    if (x > x2) x2 = x;
+                    if (z > z2) z2 = z;
                 }
             }
         }

@@ -82,18 +82,18 @@ public class VoxelStateImpl implements VoxelState {
     public VoxelShape getSelectionShape() {
         if (selectionShape == null) {
             Pair<VoxelShape, VoxelShape> shapes = BlockShapeCalculator.calculate(blob);
-            selectionShape = shapes.getRight();
-            collisionShape = shapes.getLeft();
+            selectionShape = shapes.getKey();
+            collisionShape = shapes.getValue();
         }
         return selectionShape;
     }
 
     @Override
     public VoxelShape getCollisionShape() {
-        if (selectionShape == null) {
+        if (collisionShape == null) {
             Pair<VoxelShape, VoxelShape> shapes = BlockShapeCalculator.calculate(blob);
-            selectionShape = shapes.getRight();
-            collisionShape = shapes.getLeft();
+            selectionShape = shapes.getKey();
+            collisionShape = shapes.getValue();
         }
         return collisionShape;
     }
