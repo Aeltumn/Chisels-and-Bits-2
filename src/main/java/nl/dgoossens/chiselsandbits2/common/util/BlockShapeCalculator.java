@@ -33,12 +33,12 @@ public class BlockShapeCalculator {
                         }
                     } else if (start != -1) {
                         //If this is air and we were working on a box we end it
-                        collisionShape = VoxelShapes.or(collisionShape, VoxelShapes.create(dx, start / 16.0d, dz, dx + bitDimension, (y - 1) / 16.0d, dz + bitDimension));
+                        collisionShape = VoxelShapes.or(collisionShape, VoxelShapes.create(dx, start / 16.0d, dz, dx + bitDimension, y / 16.0d, dz + bitDimension));
                         start = -1;
                         if (x < x1) x1 = x;
                         if (z < z1) z1 = z;
                         if (x > x2) x2 = x;
-                        if (y > y2) y2 = y - 1;
+                        if (y > y2) y2 = y;
                         if (z > z2) z2 = z;
                     }
                 }
