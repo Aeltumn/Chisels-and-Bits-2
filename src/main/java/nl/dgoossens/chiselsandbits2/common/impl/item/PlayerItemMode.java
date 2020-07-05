@@ -1,6 +1,6 @@
 package nl.dgoossens.chiselsandbits2.common.impl.item;
 
-import nl.dgoossens.chiselsandbits2.api.item.IItemModeType;
+import nl.dgoossens.chiselsandbits2.api.item.ItemModeType;
 import nl.dgoossens.chiselsandbits2.api.item.ItemModeEnum;
 
 /**
@@ -13,7 +13,7 @@ public enum PlayerItemMode implements ItemModeEnum {
     CHISELED_BLOCK_MERGE(9, 13), //Merge chiseled blocks and don't place bits in spots where bits already exist
     ;
 
-    private IItemModeType type;
+    private ItemModeType type;
     private String typelessName;
     private int width, height;
 
@@ -30,13 +30,13 @@ public enum PlayerItemMode implements ItemModeEnum {
     }
 
     //We don't always calculate the type like this, we cache it.
-    private IItemModeType calculateType() {
+    private ItemModeType calculateType() {
         switch (this) {
             case CHISELED_BLOCK_GRID:
             case CHISELED_BLOCK_FIT:
             case CHISELED_BLOCK_OVERLAP:
             case CHISELED_BLOCK_MERGE:
-                return ItemModeType.CHISELED_BLOCK;
+                return ItemModeTypes.CHISELED_BLOCK;
         }
         throw new UnsupportedOperationException("No type set for item mode " + name());
     }
@@ -53,7 +53,7 @@ public enum PlayerItemMode implements ItemModeEnum {
 
     //We also cache the type.
     @Override
-    public IItemModeType getType() {
+    public ItemModeType getType() {
         if (type == null) {
             type = calculateType();
             typelessName = name().substring(getType().name().length() + 1).toLowerCase();

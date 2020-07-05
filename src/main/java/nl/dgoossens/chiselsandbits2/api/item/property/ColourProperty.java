@@ -5,7 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.IntNBT;
 import nl.dgoossens.chiselsandbits2.api.item.DyedItemColour;
 
-public class ColourProperty extends IItemProperty<DyedItemColour> {
+public class ColourProperty extends ItemProperty<DyedItemColour> {
     private final DyedItemColour defaultColour;
 
     public ColourProperty(final DyedItemColour defaultColour) {

@@ -10,19 +10,20 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.item.DyedItemColour;
-import nl.dgoossens.chiselsandbits2.api.item.IItemModeType;
+import nl.dgoossens.chiselsandbits2.api.item.ItemModeType;
+import nl.dgoossens.chiselsandbits2.api.item.StandardTypedItem;
 import nl.dgoossens.chiselsandbits2.api.item.property.ColourProperty;
 import nl.dgoossens.chiselsandbits2.client.gui.ItemModeMenu;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.client.util.ItemTooltipWriter;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeTypes;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class TapeMeasureItem extends TypedItem {
+public class TapeMeasureItem extends StandardTypedItem {
     protected int PROPERTY_COLOR;
 
     public TapeMeasureItem(Properties builder) {
@@ -50,8 +51,8 @@ public class TapeMeasureItem extends TypedItem {
     }
 
     @Override
-    public IItemModeType getAssociatedType() {
-        return ItemModeType.TAPEMEASURE;
+    public ItemModeType getAssociatedType() {
+        return ItemModeTypes.TAPEMEASURE;
     }
 
     @Override

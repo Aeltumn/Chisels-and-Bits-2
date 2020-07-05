@@ -38,8 +38,8 @@ import net.minecraft.world.storage.loot.LootParameters;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
-import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.api.bit.BitOperation;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 
 import javax.annotation.Nullable;
@@ -56,12 +56,12 @@ public class ChiseledBlock extends Block {
 
     /**
      * Get the BlockState that this chiseled block is primary made out of and whose
-     * properties should be mimiced.
+     * properties should be mimic-ed.
      */
     public Optional<BlockState> getPrimaryState(IBlockReader world, BlockPos pos) {
         TileEntity te = world.getTileEntity(pos);
         if (te == null) return Optional.empty();
-        int primaryState = ((ChiseledBlockTileEntity) te).getPrimaryBlock();
+        int primaryState = ((ChiseledBlockTileEntity) te).getVoxelState().getPrimaryBlock();
         if (primaryState == VoxelBlob.AIR_BIT) return Optional.empty();
         return Optional.of(BitUtil.getBlockState(primaryState));
     }
@@ -80,10 +80,11 @@ public class ChiseledBlock extends Block {
 
     @Override
     public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos) {
-        //Update the rendering of the tile entity
+        //Update the rendering of the tile entity by invalidating the tile state which forces
+        //a re-render
         TileEntity te = worldIn.getTileEntity(currentPos);
         if (te instanceof ChiseledBlockTileEntity)
-            ((ChiseledBlockTileEntity) te).getRenderTracker().invalidate();
+            ((ChiseledBlockTileEntity) te).getOrCreateTileState().invalidate();
         return super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos);
     }
 
@@ -98,14 +99,14 @@ public class ChiseledBlock extends Block {
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
         TileEntity te = worldIn.getTileEntity(pos);
         if (!(te instanceof ChiseledBlockTileEntity)) return VoxelShapes.empty();
-        else return ((ChiseledBlockTileEntity) te).getCachedShape();
+        else return ((ChiseledBlockTileEntity) te).getVoxelState().getSelectionShape();
     }
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
         TileEntity te = worldIn.getTileEntity(pos);
         if (!(te instanceof ChiseledBlockTileEntity)) return VoxelShapes.empty();
-        else return ((ChiseledBlockTileEntity) te).getCollisionShape();
+        else return ((ChiseledBlockTileEntity) te).getVoxelState().getCollisionShape();
     }
 
     //--- MIMIC PRIMARY STATE ---
@@ -135,7 +136,7 @@ public class ChiseledBlock extends Block {
         TileEntity tileentity = worldIn.getTileEntity(pos);
         if (tileentity instanceof ChiseledBlockTileEntity) {
             ChiseledBlockTileEntity cte = (ChiseledBlockTileEntity) tileentity;
-            ItemEntity itementity = new ItemEntity(worldIn, pos.getX(), pos.getY(), pos.getZ(), cte.getItemStack());
+            ItemEntity itementity = new ItemEntity(worldIn, pos.getX(), pos.getY(), pos.getZ(), cte.getVoxelState().getOrCreateItemStack());
             itementity.setDefaultPickupDelay();
             worldIn.addEntity(itementity);
         }
@@ -150,7 +151,7 @@ public class ChiseledBlock extends Block {
         TileEntity tileentity = builder.get(LootParameters.BLOCK_ENTITY);
         if (tileentity instanceof ChiseledBlockTileEntity)
             builder = builder.withDynamicDrop(new ResourceLocation(ChiselsAndBits2.MOD_ID, "chiseled_block_drop"), (a, b) -> {
-                ((ChiseledBlockTileEntity) tileentity).getItemStack();
+                ((ChiseledBlockTileEntity) tileentity).getVoxelState().getOrCreateItemStack();
             });
         return super.getDrops(state, builder);
     }
@@ -159,7 +160,7 @@ public class ChiseledBlock extends Block {
     public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
         TileEntity te = world.getTileEntity(pos);
         if (te instanceof ChiseledBlockTileEntity)
-            return ((ChiseledBlockTileEntity) te).getItemStack();
+            return ((ChiseledBlockTileEntity) te).getVoxelState().getOrCreateItemStack();
         return ItemStack.EMPTY;
     }
 
@@ -272,7 +273,7 @@ public class ChiseledBlock extends Block {
 
             //If you're not hitting a bit we take the primary block type.
             if (i == VoxelBlob.AIR_BIT)
-                i = te.getPrimaryBlock();
+                i = te.getVoxelState().getPrimaryBlock();
 
             //if the primary block is also air we don't spawn particles.
             if (i == VoxelBlob.AIR_BIT)

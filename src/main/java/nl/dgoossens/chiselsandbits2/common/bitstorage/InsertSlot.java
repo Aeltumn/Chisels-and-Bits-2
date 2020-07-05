@@ -5,8 +5,8 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
-import nl.dgoossens.chiselsandbits2.api.item.attributes.IVoxelStorer;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.api.item.attributes.VoxelStorer;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.items.ChiseledBlockItem;
 
 import java.util.Map;
@@ -35,8 +35,8 @@ public class InsertSlot extends Slot {
         //Put the contents into the inventory
         if (getHasStack()) {
             ItemStack block = getStack();
-            if (block.getItem() instanceof IVoxelStorer) {
-                IVoxelStorer voxel = (IVoxelStorer) block.getItem();
+            if (block.getItem() instanceof VoxelStorer) {
+                VoxelStorer voxel = (VoxelStorer) block.getItem();
                 VoxelBlob vb = voxel.getVoxelBlob(block);
                 item.getCapability(StorageCapabilityProvider.STORAGE).ifPresent(cap -> {
                     Map<Integer, LongAdder> blocks = vb.getBlockSums();

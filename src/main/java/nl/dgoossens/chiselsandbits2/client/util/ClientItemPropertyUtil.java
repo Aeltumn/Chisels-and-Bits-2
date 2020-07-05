@@ -7,7 +7,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.item.DyedItemColour;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeTypes;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.network.client.CItemStatePacket;
 import nl.dgoossens.chiselsandbits2.common.network.client.CTapeMeasureColourPacket;
@@ -21,7 +21,7 @@ import java.lang.reflect.Field;
  */
 @OnlyIn(Dist.CLIENT)
 public class ClientItemPropertyUtil {
-    private static PlayerItemMode cbm = (PlayerItemMode) ItemModeType.CHISELED_BLOCK.getDefault();
+    private static PlayerItemMode cbm = (PlayerItemMode) ItemModeTypes.CHISELED_BLOCK.getDefault();
 
     /**
      * Read the global chiseled block mode from an incoming packet.

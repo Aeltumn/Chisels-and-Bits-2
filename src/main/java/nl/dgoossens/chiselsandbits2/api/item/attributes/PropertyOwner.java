@@ -3,7 +3,7 @@ package nl.dgoossens.chiselsandbits2.api.item.attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import nl.dgoossens.chiselsandbits2.api.item.property.IItemProperty;
+import nl.dgoossens.chiselsandbits2.api.item.property.ItemProperty;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ import java.util.Map;
 public abstract class PropertyOwner extends Item {
     public static boolean BUILDING_CREATIVE_TAB = false;
     private static NullProperty NULL_PROPERTY = new NullProperty();
-    private Map<Integer, IItemProperty> properties = new HashMap<>();
+    private Map<Integer, ItemProperty> properties = new HashMap<>();
 
     public PropertyOwner(final Item.Properties builder) {
         super(builder);
@@ -34,7 +34,7 @@ public abstract class PropertyOwner extends Item {
      *
      * @return the slot id for this property
      */
-    public int addProperty(IItemProperty property) {
+    public int addProperty(ItemProperty property) {
         int mySlot = 0;
         while (properties.containsKey(mySlot))
             mySlot++;
@@ -48,11 +48,11 @@ public abstract class PropertyOwner extends Item {
      *
      * @param returnType Optional class to set return type argument.
      */
-    public <T> IItemProperty<T> getProperty(int slot, Class<T> returnType) {
+    public <T> ItemProperty<T> getProperty(int slot, Class<T> returnType) {
         return properties.getOrDefault(slot, NULL_PROPERTY);
     }
 
-    static class NullProperty extends IItemProperty<Object> {
+    static class NullProperty extends ItemProperty<Object> {
         @Override
         public Object get(ItemStack stack) {
             return null;

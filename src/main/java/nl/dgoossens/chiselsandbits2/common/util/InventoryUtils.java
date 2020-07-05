@@ -15,13 +15,13 @@ import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.bit.BitStorage;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
-import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
+import nl.dgoossens.chiselsandbits2.api.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.api.item.StandardTypedItem;
+import nl.dgoossens.chiselsandbits2.api.bit.BitOperation;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.StorageCapabilityProvider;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselItem;
 import nl.dgoossens.chiselsandbits2.common.items.StorageItem;
-import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static nl.dgoossens.chiselsandbits2.api.block.BitOperation.PLACE;
-import static nl.dgoossens.chiselsandbits2.api.block.BitOperation.SWAP;
+import static nl.dgoossens.chiselsandbits2.api.bit.BitOperation.PLACE;
+import static nl.dgoossens.chiselsandbits2.api.bit.BitOperation.SWAP;
 
 /**
  * Utilities for managing durability usage and bag contents.
@@ -324,7 +324,7 @@ public class InventoryUtils {
                     return; //This shouldn't happen, but it might, anyways we don't care for a little bit of durability theft so we don't need to force take durability.
 
                 //We store the previous chisel's mode here to keep the mode through chisel changes. (just a lil quality 'o life)
-                IItemMode oldMode = null;
+                ItemMode oldMode = null;
                 //Now we start taking durability from the chisel in our targetSlot and otherwise scan for other chisels to move to our targetSlot.
                 while (usedDurability > 0) {
                     final PlayerInventory inventory = getPlayer().inventory;
@@ -350,7 +350,7 @@ public class InventoryUtils {
                     }
 
                     //Prevent unnecessary mode fetching.
-                    oldMode = !(target.getItem() instanceof TypedItem) ? oldMode : ((TypedItem) target.getItem()).getSelectedMode(target);
+                    oldMode = !(target.getItem() instanceof StandardTypedItem) ? oldMode : ((StandardTypedItem) target.getItem()).getSelectedMode(target);
                     //Get the maximum we can take from this chisel.
                     long capacity = Math.min(usedDurability, target.getMaxDamage() - target.getDamage());
                     //Take durability from the current item.

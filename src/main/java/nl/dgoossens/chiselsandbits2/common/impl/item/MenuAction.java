@@ -2,11 +2,10 @@ package nl.dgoossens.chiselsandbits2.common.impl.item;
 
 import net.minecraft.util.Direction;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.network.client.CRotateItemPacket;
 
-public enum MenuAction implements IMenuAction {
+public enum MenuAction implements nl.dgoossens.chiselsandbits2.api.item.MenuAction {
     //General
     UNDO(12, 10),
     REDO(12, 10),
@@ -69,7 +68,7 @@ public enum MenuAction implements IMenuAction {
                 break;
             case PLACE:
             case SWAP:
-                ClientItemPropertyUtil.setSwapState(this.equals(MenuAction.SWAP));
+                ClientItemPropertyUtil.setSwapState(this.equals(nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction.SWAP));
                 break;
         }
     }

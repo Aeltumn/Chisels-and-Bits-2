@@ -3,7 +3,7 @@ package nl.dgoossens.chiselsandbits2.common.network.client;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
 import net.minecraftforge.fml.network.NetworkEvent;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.ChiselHandler;
+import nl.dgoossens.chiselsandbits2.common.impl.ChiselHandler;
 
 import java.util.function.Supplier;
 

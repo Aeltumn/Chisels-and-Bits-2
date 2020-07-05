@@ -10,12 +10,11 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.api.block.BitAccess;
-import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
+import nl.dgoossens.chiselsandbits2.api.bit.BitOperation;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelTile;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.BitIterator;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlobStateReference;
+import nl.dgoossens.chiselsandbits2.api.iterator.BitIterator;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.util.InventoryUtils;
 
 import java.util.Optional;
@@ -27,14 +26,14 @@ import java.util.function.Supplier;
  */
 public class CUndoPacket {
     private BlockPos pos;
-    private VoxelBlobStateReference before, after;
+    private VoxelBlob before, after;
     private boolean redo; //true = redo, false = undo
     private int groupId;
 
     private CUndoPacket() {
     }
 
-    public CUndoPacket(final BlockPos pos, final VoxelBlobStateReference before, final VoxelBlobStateReference after, final boolean redo, final int groupId) {
+    public CUndoPacket(final BlockPos pos, final VoxelBlob before, final VoxelBlob after, final boolean redo, final int groupId) {
         this.pos = pos;
         this.after = after;
         this.before = before;
@@ -54,17 +53,17 @@ public class CUndoPacket {
 
         try {
             final World world = player.getEntityWorld();
-            final Optional<BitAccess> baOpt = ChiselsAndBits2.getInstance().getAPI().getBitAccess(player, world, pos);
-            if (baOpt.isPresent()) {
-                final VoxelBlob bbef = before.getVoxelBlob();
-                final VoxelBlob baft = after.getVoxelBlob();
+            final Optional<VoxelTile> tileOpt = ChiselsAndBits2.getInstance().getAPI().getVoxelManager().getVoxelTile(world, pos);
+            if (tileOpt.isPresent()) {
+                final VoxelBlob bbef = before;
+                final VoxelBlob baft = after;
 
                 //If before and after are equal we call it good enough.
                 if (bbef.equals(baft))
                     return;
 
-                final BitAccess ba = baOpt.get();
-                final VoxelBlob vb = ba.getNativeBlob();
+                final VoxelTile tile = tileOpt.get();
+                final VoxelBlob vb = tile.getVoxelBlob();
                 InventoryUtils.CalculatedInventory inventory = InventoryUtils.buildInventory(player);
                 inventory.determineEffectState(world, pos);
 
@@ -102,7 +101,7 @@ public class CUndoPacket {
                     te = world.getTileEntity(pos);
                 }
                 if (te instanceof ChiseledBlockTileEntity)
-                    ((ChiseledBlockTileEntity) te).completeEditOperation(player, vb, false);
+                    ((ChiseledBlockTileEntity) te).completeOperation(player, vb, false);
 
                 inventory.playEffects(world, pos);
                 inventory.apply();
@@ -122,10 +121,10 @@ public class CUndoPacket {
 
     public static void encode(CUndoPacket msg, PacketBuffer buf) {
         buf.writeBlockPos(msg.pos);
-        final byte[] bef = msg.before.getByteArray();
+        final byte[] bef = msg.before.toByteArray();
         buf.writeVarInt(bef.length);
         buf.writeBytes(bef);
-        final byte[] aft = msg.after.getByteArray();
+        final byte[] aft = msg.after.toByteArray();
         buf.writeVarInt(aft.length);
         buf.writeBytes(aft);
         buf.writeBoolean(msg.redo);
@@ -142,8 +141,8 @@ public class CUndoPacket {
         final byte[] tb = new byte[lenb];
         buffer.readBytes(tb);
 
-        pc.before = new VoxelBlobStateReference(ta);
-        pc.after = new VoxelBlobStateReference(tb);
+        pc.before = VoxelBlob.readFromBytes(ta);
+        pc.after = VoxelBlob.readFromBytes(tb);
 
         pc.redo = buffer.readBoolean();
         pc.groupId = buffer.readVarInt();

@@ -6,7 +6,7 @@ import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 /**
  * A general interface that can be extended by any enum that wants to register new item modes.
  */
-public interface ItemModeEnum extends IItemMode {
+public interface ItemModeEnum extends ItemMode {
     /**
      * Default method for enums.
      */
@@ -36,7 +36,7 @@ public interface ItemModeEnum extends IItemMode {
     /**
      * Get this item mode's type.
      */
-    IItemModeType getType();
+    ItemModeType getType();
 
     /**
      * Returns whether or not this mode has an icon.

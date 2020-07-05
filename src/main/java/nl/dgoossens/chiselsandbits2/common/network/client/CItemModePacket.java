@@ -2,8 +2,8 @@ package nl.dgoossens.chiselsandbits2.common.network.client;
 
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.api.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModes;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 
 import java.util.function.Supplier;
@@ -13,26 +13,26 @@ import java.util.function.Supplier;
  * Sent CLIENT -> SERVER.
  */
 public class CItemModePacket {
-    private IItemMode state;
+    private ItemMode state;
 
     private CItemModePacket() {
     }
 
-    public CItemModePacket(final IItemMode state) {
+    public CItemModePacket(final ItemMode state) {
         this.state = state;
     }
 
     public static void encode(CItemModePacket msg, PacketBuffer buf) {
-        if (msg.state instanceof ItemMode) {
+        if (msg.state instanceof ItemModes) {
             buf.writeBoolean(true);
-            buf.writeVarInt(((ItemMode) msg.state).ordinal());
+            buf.writeVarInt(((ItemModes) msg.state).ordinal());
         } else buf.writeBoolean(false);
     }
 
     public static CItemModePacket decode(PacketBuffer buffer) {
         CItemModePacket pc = new CItemModePacket();
         boolean useEnum = buffer.readBoolean();
-        if (useEnum) pc.state = ItemMode.values()[buffer.readVarInt()];
+        if (useEnum) pc.state = ItemModes.values()[buffer.readVarInt()];
         else throw new UnsupportedOperationException("We don't support addons adding item modes yet."); //TODO add support!
         return pc;
     }

@@ -6,8 +6,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
-import nl.dgoossens.chiselsandbits2.api.render.ICullTest;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.api.render.CullTest;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -19,7 +19,7 @@ import java.util.Map;
  * vanilla uses, with some overwrites for better
  * performance.
  */
-public class MCCullTest extends DummyBlockReader implements ICullTest {
+public class MCCullTest extends DummyBlockReader implements CullTest {
     //We cache results because minecraft's calculation is pretty heavy.
     private Map<Pair<BlockState, BlockState>, Boolean> resultCache = new HashMap<>();
     private BlockState a, b;

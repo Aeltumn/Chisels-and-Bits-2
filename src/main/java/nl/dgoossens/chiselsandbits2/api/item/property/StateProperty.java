@@ -4,7 +4,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.ByteNBT;
 
-public class StateProperty extends IItemProperty<Boolean> {
+public class StateProperty extends ItemProperty<Boolean> {
     private final boolean defaultValue;
 
     public StateProperty(final boolean defaultValue) {

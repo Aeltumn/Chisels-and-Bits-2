@@ -21,22 +21,21 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
-import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
+import nl.dgoossens.chiselsandbits2.api.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.api.item.attributes.BitModifyItem;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.ExtendedAxisAlignedBB;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.api.voxel.ExtendedAxisAlignedBB;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * A util that handles everything related to the chiseleling process with some extra
+ * A util that handles everything related to the chiseling process with some extra
  * general utility methods.
  */
 public class ChiselUtil {
-    public static final String NBT_BLOCKENTITYTAG = "BlockEntityTag";
     public static final double BIT_SIZE = 1.0 / 16.0;
     public static final double HALF_BIT = BIT_SIZE / 2.0f;
     private static long memory = -1; //The amount of memory allocated to Minecraft.
@@ -66,7 +65,7 @@ public class ChiselUtil {
     public static BlockState getChiseledTileMainState(final World world, final BlockPos pos) {
         BlockState state = world.getBlockState(pos);
         if (world.getTileEntity(pos) instanceof ChiseledBlockTileEntity) {
-            int a = ((ChiseledBlockTileEntity) world.getTileEntity(pos)).getPrimaryBlock();
+            int a = ((ChiseledBlockTileEntity) world.getTileEntity(pos)).getVoxelState().getPrimaryBlock();
             if (a != VoxelBlob.AIR_BIT) state = BitUtil.getBlockState(a);
         }
         return state;
@@ -85,7 +84,7 @@ public class ChiselUtil {
      * event.
      */
     public static boolean canChiselPosition(final BlockPos pos, final PlayerEntity player, final BlockState state, final Direction face) {
-        if (!(player.getHeldItemMainhand().getItem() instanceof IBitModifyItem))
+        if (!(player.getHeldItemMainhand().getItem() instanceof BitModifyItem))
             return false; //A valid item needs to be in the main hand!
 
         if (!player.getEntityWorld().getWorldBorder().contains(pos)) return false;
@@ -143,12 +142,11 @@ public class ChiselUtil {
             world.setBlockState(pos, ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get().getDefaultState(), 3);
             final ChiseledBlockTileEntity te = (ChiseledBlockTileEntity) world.getTileEntity(pos);
             if (te != null) {
-                if (!isAir) te.fillWith(blockId);
+                if (!isAir) te.updateState(new VoxelBlob(blockId));
                 else {
-                    te.fillWith(VoxelBlob.AIR_BIT);
                     //If there was a fluid previously make this a fluid block instead of an air block.
-                    if (fluid.isEmpty()) te.fillWith(VoxelBlob.AIR_BIT);
-                    else te.fillWith(BitUtil.getFluidId(fluid));
+                    if (fluid.isEmpty()) te.updateState(new VoxelBlob(blockId));
+                    else te.updateState(new VoxelBlob(BitUtil.getFluidId(fluid)));
                 }
             }
         }
@@ -180,13 +178,13 @@ public class ChiselUtil {
     /**
      * Get a bounding box from the two corner bit locations.
      *
-     * @param mode Optional parameter that makes the bounding box snap to block edges if equal to {@link ItemMode#TAPEMEASURE_BLOCK}
+     * @param mode Optional parameter that makes the bounding box snap to block edges if equal to {@link ItemModes#TAPEMEASURE_BLOCK}
      */
-    public static ExtendedAxisAlignedBB getBoundingBox(BitLocation start, BitLocation end, @Nullable IItemMode mode) {
+    public static ExtendedAxisAlignedBB getBoundingBox(BitLocation start, BitLocation end, @Nullable ItemMode mode) {
         final Vec3d a = ChiselUtil.bitLocationToCoordinate(start);
         final Vec3d b = ChiselUtil.bitLocationToCoordinate(end);
         ExtendedAxisAlignedBB bb = new ExtendedAxisAlignedBB(a.getX(), a.getY(), a.getZ(), b.getX(), b.getY(), b.getZ());
-        if (ItemMode.TAPEMEASURE_BLOCK.equals(mode)) bb = bb.snapToBlocks();
+        if (ItemModes.TAPEMEASURE_BLOCK.equals(mode)) bb = bb.snapToBlocks();
         return bb;
     }
 }

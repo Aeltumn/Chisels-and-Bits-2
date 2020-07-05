@@ -8,21 +8,34 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
+import nl.dgoossens.chiselsandbits2.api.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
 
+import java.util.UUID;
+
+/**
+ * A cached rendered object is an object being rendered every frame with specific data that when it changes will
+ * cause the rendered object to be rebuilt.
+ * Things that cause rebuilding the object:
+ * - Switching held slot
+ * - Looking at a different block
+ * - The voxel state of the chiseled tile you're looking at changing
+ * - Crouching (toggles precision mode)
+ * - Looking at a different face
+ * - Changing the mode of the item you're holding
+ */
 public abstract class CachedRenderedObject {
     //Fields that we validate to see if we need to rebuild
     private BitLocation location; //Block being looked at
     private int heldSlot; //Held item
     private BlockState state; //State of target block
-    private IItemMode mode; //Mode of item
+    private ItemMode mode; //Mode of item
     private Direction face; //Targeted face
-    private long previousTileIteration = -Long.MAX_VALUE; //Iteration of tile looked at
+    private UUID stateId; //The id of the state of the voxel tile being looked at
     private boolean isEmpty; //Whether or not we have built a cached object yet
     private boolean crouching; //Whether the player is crouching
 
-    public CachedRenderedObject(ItemStack item, PlayerEntity player, BitLocation location, Direction face, IItemMode mode) {
+    public CachedRenderedObject(ItemStack item, PlayerEntity player, BitLocation location, Direction face, ItemMode mode) {
         if (item.isEmpty()) {
             isEmpty = true;
             return;
@@ -38,14 +51,14 @@ public abstract class CachedRenderedObject {
 
         final TileEntity te = player.world.getTileEntity(location.blockPos);
         if (te instanceof ChiseledBlockTileEntity)
-            previousTileIteration = ((ChiseledBlockTileEntity) te).getIteration();
+            stateId = ((ChiseledBlockTileEntity) te).getVoxelState().getStateId();
     }
 
     public Direction getFace() {
         return face;
     }
 
-    public IItemMode getMode() {
+    public ItemMode getMode() {
         return mode;
     }
 
@@ -64,7 +77,7 @@ public abstract class CachedRenderedObject {
     /**
      * Returns whether or not this object is still valid if we have new inputs.
      */
-    public boolean isValid(PlayerEntity player, BitLocation pos, Direction face, IItemMode mode) {
+    public boolean isValid(PlayerEntity player, BitLocation pos, Direction face, ItemMode mode) {
         return !isEmpty && heldSlot == player.inventory.currentItem && this.mode.equals(mode) && this.location.equals(pos) && player.isCrouching() == this.crouching && face == this.face && player.world.getBlockState(pos.blockPos).equals(state) && !didTileChange(player.world.getTileEntity(pos.blockPos));
     }
 
@@ -72,11 +85,11 @@ public abstract class CachedRenderedObject {
      * Determines if there is a difference between te and previousTile.
      */
     public boolean didTileChange(final TileEntity te) {
-        if (te == null && previousTileIteration == -Long.MAX_VALUE) return false; //Both null? Same.
-        if (te == null || previousTileIteration == -Long.MAX_VALUE) return true; //Not both not null? Different!
+        if (te == null && stateId == null) return false; //Both null? Same.
+        if (te == null || stateId == null) return true; //Not both not null? Different!
         if (te instanceof ChiseledBlockTileEntity) {
             final ChiseledBlockTileEntity newTile = (ChiseledBlockTileEntity) te;
-            return newTile.getIteration() != previousTileIteration;
+            return !stateId.equals(newTile.getVoxelState().getStateId());
         }
         return true; //It changed if it isn't a chiseled block anymore.
     }

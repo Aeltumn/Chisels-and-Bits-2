@@ -6,7 +6,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.network.NetworkEvent;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
+import nl.dgoossens.chiselsandbits2.common.items.SculptItem;
 import nl.dgoossens.chiselsandbits2.common.items.MorphingBitItem;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 
@@ -52,8 +52,8 @@ public class CItemStatePacket {
                 if (!pkt.state) player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.unlocked_mb"), true);
                 else player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.locked_mb"), true);
             }
-            if (!pkt.lock && stack.getItem() instanceof ChiselMimicItem) {
-                ((ChiselMimicItem) stack.getItem()).setSwap(player, stack, pkt.state);
+            if (!pkt.lock && stack.getItem() instanceof SculptItem) {
+                ((SculptItem) stack.getItem()).setSwap(player, stack, pkt.state);
 
                 if (!pkt.state) player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.place_mode"), true);
                 else player.sendStatusMessage(new TranslationTextComponent("general." + ChiselsAndBits2.MOD_ID + ".info.swap_mode"), true);

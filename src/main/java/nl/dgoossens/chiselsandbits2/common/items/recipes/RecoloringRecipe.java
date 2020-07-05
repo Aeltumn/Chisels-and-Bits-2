@@ -11,6 +11,10 @@ import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.item.DyedItemColour;
 import nl.dgoossens.chiselsandbits2.common.items.BitBagItem;
 
+/**
+ * A recoloring recipe that allows users to change the colour of their bit bag
+ * to any dye colour.
+ */
 public class RecoloringRecipe extends SpecialRecipe {
     public RecoloringRecipe(ResourceLocation id) {
         super(id);

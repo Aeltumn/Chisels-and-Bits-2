@@ -4,15 +4,15 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlobStateReference;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 
 public class UndoStep {
     private final DimensionType dimension;
     private final BlockPos pos;
-    private final VoxelBlobStateReference before, after;
+    private final VoxelBlob before, after;
     private UndoStep next; //Groups form a linked chain.
 
-    public UndoStep(World world, BlockPos pos, VoxelBlobStateReference before, VoxelBlobStateReference after) {
+    public UndoStep(World world, BlockPos pos, VoxelBlob before, VoxelBlob after) {
         dimension = world.dimension.getType();
         this.pos = pos;
         this.before = before;
@@ -43,14 +43,14 @@ public class UndoStep {
     /**
      * Get the before state.
      */
-    public VoxelBlobStateReference getBefore() {
+    public VoxelBlob getBefore() {
         return before;
     }
 
     /**
      * Get the after state.
      */
-    public VoxelBlobStateReference getAfter() {
+    public VoxelBlob getAfter() {
         return after;
     }
 

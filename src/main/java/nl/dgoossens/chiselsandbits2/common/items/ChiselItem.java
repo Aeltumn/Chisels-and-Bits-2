@@ -19,7 +19,7 @@ import nl.dgoossens.chiselsandbits2.client.util.ItemTooltipWriter;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class ChiselItem extends ChiselMimicItem {
+public class ChiselItem extends SculptItem {
     public ChiselItem(Item.Properties builder) {
         super(builder);
     }

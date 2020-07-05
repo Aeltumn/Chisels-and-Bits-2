@@ -22,17 +22,16 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.cache.CacheType;
-import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
+import nl.dgoossens.chiselsandbits2.api.item.MenuAction;
 import nl.dgoossens.chiselsandbits2.api.item.ItemModeEnum;
-import nl.dgoossens.chiselsandbits2.api.item.attributes.IItemScrollWheel;
+import nl.dgoossens.chiselsandbits2.api.item.attributes.ItemScrollWheel;
 import nl.dgoossens.chiselsandbits2.client.render.chiseledblock.ChiseledBlockTileEntityRenderer;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ChiseledBlockItemColor;
 import nl.dgoossens.chiselsandbits2.client.render.color.ColourableItemColor;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
-import nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModes;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
-import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
+import nl.dgoossens.chiselsandbits2.common.items.SculptItem;
 import nl.dgoossens.chiselsandbits2.common.registry.ModKeybindings;
 import nl.dgoossens.chiselsandbits2.common.registry.Registration;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
@@ -115,14 +114,14 @@ public class ClientSide extends ClientSideHelper {
             return;
 
         //We only do this for our own, addons need to do this themselves.
-        for (final IMenuAction menuAction : MenuAction.values()) {
+        for (final MenuAction menuAction : nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction.values()) {
             if (!menuAction.hasIcon()) continue;
             menuActionLocations.put(menuAction, menuAction.getIconResourceLocation());
             e.addSprite(menuActionLocations.get(menuAction));
         }
 
         //Register icons for item modes
-        for (final ItemModeEnum itemMode : ItemMode.values())
+        for (final ItemModeEnum itemMode : ItemModes.values())
             addItemModeSprite(e, itemMode);
         for (final ItemModeEnum itemMode : PlayerItemMode.values())
             addItemModeSprite(e, itemMode);
@@ -164,16 +163,16 @@ public class ClientSide extends ClientSideHelper {
             if (kb.isPressed() && kb.getKeyModifier().isActive(KeyConflictContext.IN_GAME))
                 ItemPropertyUtil.setItemMode(Minecraft.getInstance().player, Minecraft.getInstance().player.getHeldItemMainhand(), im);
         }
-        for (IMenuAction ma : keybindings.actionHotkeys.keySet()) {
+        for (MenuAction ma : keybindings.actionHotkeys.keySet()) {
             KeyBinding kb = keybindings.actionHotkeys.get(ma);
             if (kb.isPressed() && kb.getKeyModifier().isActive(KeyConflictContext.IN_GAME)) {
-                if (ma.equals(MenuAction.PLACE) || ma.equals(MenuAction.SWAP)) {
+                if (ma.equals(nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction.PLACE) || ma.equals(nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction.SWAP)) {
                     ItemStack stack = Minecraft.getInstance().player.getHeldItemMainhand();
-                    if (stack.getItem() instanceof ChiselMimicItem) {
-                        if (((ChiselMimicItem) stack.getItem()).isPlacing(stack))
-                            MenuAction.PLACE.trigger();
+                    if (stack.getItem() instanceof SculptItem) {
+                        if (((SculptItem) stack.getItem()).isPlacing(stack))
+                            nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction.PLACE.trigger();
                         else
-                            MenuAction.SWAP.trigger();
+                            nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction.SWAP.trigger();
                     }
                     continue;
                 }
@@ -223,7 +222,7 @@ public class ClientSide extends ClientSideHelper {
     }
 
     /**
-     * Handles calling the scroll methods on all items implementing IItemScrollWheel.
+     * Handles calling the scroll methods on all items implementing ItemScrollWheel.
      */
     @SubscribeEvent
     public static void wheelEvent(final InputEvent.MouseScrollEvent me) {
@@ -233,8 +232,8 @@ public class ClientSide extends ClientSideHelper {
         final PlayerEntity player = Minecraft.getInstance().player;
         final ItemStack is = player.getHeldItemMainhand();
 
-        if (is.getItem() instanceof IItemScrollWheel && player.isCrouching()) {
-            if (((IItemScrollWheel) is.getItem()).scroll(player, is, dwheel))
+        if (is.getItem() instanceof ItemScrollWheel && player.isCrouching()) {
+            if (((ItemScrollWheel) is.getItem()).scroll(player, is, dwheel))
                 me.setCanceled(true);
         }
     }

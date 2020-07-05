@@ -13,15 +13,16 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.Tags;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.api.item.IItemModeType;
-import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
+import nl.dgoossens.chiselsandbits2.api.item.ItemModeType;
+import nl.dgoossens.chiselsandbits2.api.item.StandardTypedItem;
+import nl.dgoossens.chiselsandbits2.api.item.attributes.BitModifyItem;
 import nl.dgoossens.chiselsandbits2.client.util.ItemTooltipWriter;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeTypes;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class WrenchItem extends TypedItem implements IBitModifyItem {
+public class WrenchItem extends StandardTypedItem implements BitModifyItem {
     public WrenchItem(Properties builder) {
         super(builder);
     }
@@ -32,8 +33,8 @@ public class WrenchItem extends TypedItem implements IBitModifyItem {
     }
 
     @Override
-    public IItemModeType getAssociatedType() {
-        return ItemModeType.WRENCH;
+    public ItemModeType getAssociatedType() {
+        return ItemModeTypes.WRENCH;
     }
 
     @Override

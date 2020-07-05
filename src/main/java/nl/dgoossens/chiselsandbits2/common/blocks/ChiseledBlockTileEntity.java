@@ -2,169 +2,90 @@ package nl.dgoossens.chiselsandbits2.common.blocks;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.NullVoxelBlobStateReference;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlobStateReference;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelNeighborRenderTracker;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelTile;
+import nl.dgoossens.chiselsandbits2.common.impl.voxel.TileStateImpl;
+import nl.dgoossens.chiselsandbits2.common.util.VoxelNBTConverter;
+import nl.dgoossens.chiselsandbits2.api.voxel.TileState;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelState;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
-import nl.dgoossens.chiselsandbits2.common.util.ChiselUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.UUID;
 
-public class ChiseledBlockTileEntity extends TileEntity {
-    public static final ModelProperty<VoxelBlobStateReference> VOXEL_DATA = new ModelProperty<>();
-    public static final ModelProperty<VoxelNeighborRenderTracker> NEIGHBOUR_RENDER_TRACKER = new ModelProperty<>();
+public class ChiseledBlockTileEntity extends TileEntity implements VoxelTile {
+    /**
+     * The voxel state holds information about the voxel blob to show on this tile. Multiple tiles
+     * can have the same voxel state and show the same model.
+     * The voxel state is uniquely identifiable using its id and if the id of the voxel state
+     * of a neighbour changes a tile can know it should re-render.
+     *
+     * The voxel state itself is not stored by a tile entity, the tile entity only stores
+     * the id of its voxel state.
+     */
+    private UUID voxelStateId = VoxelState.NULL_STATE.getStateId();
+    public static final ModelProperty<UUID> VOXEL_STATE_ID = new ModelProperty<>();
 
-    private int primaryBlock;
-    private VoxelBlobStateReference voxelBlobReference;
-    private VoxelNeighborRenderTracker renderTracker;
-    private ItemStack itemCache;
-    private long iteration = -Long.MAX_VALUE + 1; //Make sure it's going to take a long time until we reach -Long.MAX_VALUE.
+    /**
+     * The tile state stores tile specific information like the state ids of its neighbours and
+     * whether the tile should update.
+     */
+    private TileState tileState;
+    public static final ModelProperty<TileState> TILE_STATE = new ModelProperty<>();
 
     public ChiseledBlockTileEntity() {
         super(ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK_TILE.get());
     }
 
-    public int getPrimaryBlock() {
-        return primaryBlock;
-    }
-
-    /**
-     * Value that if not equal can be used to conclude that the tile entity
-     * changed. You can compare two iteration numbers at two times, if they differ
-     * the TE has changed.
-     */
-    public long getIteration() {
-        return iteration;
-    }
-
-    public void setPrimaryBlock(int d) {
-        if (VoxelType.getType(d) == VoxelType.BLOCKSTATE)
-            primaryBlock = d;
-    }
-
-    public VoxelBlobStateReference getVoxelReference() {
-        return voxelBlobReference;
-    }
-
-    private void setVoxelReference(VoxelBlobStateReference voxel) {
-        voxelBlobReference = voxel;
-        itemCache = null;
-        requestModelDataUpdate();
-    }
-
-    public boolean hasRenderTracker() {
-        return renderTracker != null;
-    }
-
-    public VoxelNeighborRenderTracker getRenderTracker() {
-        if (renderTracker == null) renderTracker = new VoxelNeighborRenderTracker(world, pos);
-        return renderTracker;
-    }
-
-    /**
-     * Get the item stack this tile entity would become when the block is broken.
-     */
-    public ItemStack getItemStack() {
-        //We cache the item because apparently Waila spammed getPickBlock at some point in the past causing lag. Caching can't hurt though.
-        if (itemCache == null)
-            itemCache = buildItemStack();
-        return itemCache;
-    }
-
-    @Nonnull
     @Override
-    public IModelData getModelData() {
-        IModelData imd = super.getModelData();
-        imd.setData(VOXEL_DATA, voxelBlobReference);
-        imd.setData(NEIGHBOUR_RENDER_TRACKER, getRenderTracker());
-        return imd;
+    public boolean hasTileState() {
+        return tileState != null;
     }
 
-    /**
-     * Get the cached shape of this block.
-     */
-    @Nonnull
-    public VoxelShape getCachedShape() {
-        return voxelBlobReference == null ? VoxelShapes.empty() : voxelBlobReference.getInstance().getSelectionShape();
-    }
-
-    /**
-     * Get the cached shape of this block.
-     */
-    @Nonnull
-    public VoxelShape getCollisionShape() {
-        return voxelBlobReference == null ? VoxelShapes.empty() : voxelBlobReference.getInstance().getCollisionShape();
-    }
-
-    /**
-     * Builds an item stack for a chiseled block.
-     */
-    public ItemStack buildItemStack() {
-        VoxelBlob blob = getVoxelBlob();
-        if (blob.filled() == 0)
-            return ItemStack.EMPTY;
-
-        final NBTBlobConverter c = new NBTBlobConverter();
-        c.setBlob(blob);
-
-        final CompoundNBT comp = new CompoundNBT();
-        c.writeChiselData(comp);
-
-        final ItemStack stack = new ItemStack(ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get(), 1);
-        stack.setTagInfo(ChiselUtil.NBT_BLOCKENTITYTAG, comp);
-        return stack;
-    }
-
-    /**
-     * Update this tile entity's voxel data.
-     */
-    public boolean updateBlob(final NBTBlobConverter converter) {
-        final VoxelBlobStateReference originalRef = voxelBlobReference;
-
-        VoxelBlobStateReference voxelRef;
-        try {
-            voxelRef = converter.getVoxelRef(VoxelVersions.getDefault());
-        } catch (final Exception e) {
-            e.printStackTrace();
-            voxelRef = new VoxelBlobStateReference();
+    @Override
+    public TileState getOrCreateTileState() {
+        if (tileState == null) {
+            tileState = new TileStateImpl(world, pos);
+            requestModelDataUpdate();
         }
-
-        setVoxelReference(voxelRef);
-        return voxelRef == null || !voxelRef.equals(originalRef);
+        return tileState;
     }
 
-    /**
-     * Get the voxel blob for this chiseled block.
-     * Will be {@link VoxelBlob#NULL_BLOB} if this tile entity has no attached
-     * voxel data.
-     */
-    @Nonnull
+    @Override
+    public VoxelState getVoxelState() {
+        return ChiselsAndBits2.getInstance().getAPI().getVoxelManager().getVoxelState(voxelStateId).orElse(VoxelState.NULL_STATE);
+    }
+
+    @Override
     public VoxelBlob getVoxelBlob() {
-        return voxelBlobReference != null ? voxelBlobReference.getVoxelBlob() : VoxelBlob.NULL_BLOB;
+        return getVoxelState().getBlob();
     }
 
-    /**
-     * Set the voxel blob to new data.
-     */
-    public void setBlob(final VoxelBlob vb) {
-        iteration++;
-        setVoxelReference(new VoxelBlobStateReference(vb.write(VoxelVersions.getDefault())));
-        setPrimaryBlock(vb.getMostCommonStateId()); //We only want this to every be a blockstate.
+    @Override
+    public int getSafe(int x, int y, int z) {
+        return getVoxelBlob().getSafe(x, y, z);
+    }
+
+    @Override
+    public Optional<VoxelTile> getNeighbour(Direction direction) {
+        return ChiselsAndBits2.getInstance().getAPI().getVoxelManager().getVoxelTile(getWorld(), getPos().offset(direction));
+    }
+
+    @Override
+    public void updateState(final VoxelBlob voxelBlob) {
+        voxelStateId = ChiselsAndBits2.getInstance().getAPI().getVoxelManager().submitNewVoxelState(voxelBlob);
+        requestModelDataUpdate();
         markDirty();
         try {
             //Trigger block update
@@ -176,14 +97,14 @@ public class ChiseledBlockTileEntity extends TileEntity {
         }
     }
 
-    public void completeEditOperation(final PlayerEntity player, final VoxelBlob vb, final boolean updateUndoTracker) {
-        iteration++;
-        final VoxelBlobStateReference before = voxelBlobReference;
+    @Override
+    public void completeOperation(final PlayerEntity player, final VoxelBlob vb, final boolean updateUndoTracker) {
+        final VoxelBlob before = getVoxelBlob();
         //Empty voxelblob = we need to destroy this block.
         if (vb.filled() <= 0) {
             world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
             if (updateUndoTracker)
-                ChiselsAndBits2.getInstance().getUndoTracker().add(player, getWorld(), getPos(), before, NullVoxelBlobStateReference.NULL_REFERENCE);
+                ChiselsAndBits2.getInstance().getUndoTracker().add(player, getWorld(), getPos(), before, VoxelBlob.NULL_BLOB);
             return;
         }
 
@@ -204,21 +125,31 @@ public class ChiseledBlockTileEntity extends TileEntity {
             //Removing also needs to add to the undo tracker!
             if (destroy) {
                 if (updateUndoTracker)
-                    ChiselsAndBits2.getInstance().getUndoTracker().add(player, getWorld(), getPos(), before, NullVoxelBlobStateReference.NULL_REFERENCE);
+                    ChiselsAndBits2.getInstance().getUndoTracker().add(player, getWorld(), getPos(), before, VoxelBlob.NULL_BLOB);
                 return;
             }
         }
 
         if (updateUndoTracker) {
-            setBlob(vb);
-            ChiselsAndBits2.getInstance().getUndoTracker().add(player, getWorld(), getPos(), before, NullVoxelBlobStateReference.NULL_REFERENCE);
-        } else setBlob(vb);
+            updateState(vb);
+            ChiselsAndBits2.getInstance().getUndoTracker().add(player, getWorld(), getPos(), before, vb);
+        } else updateState(vb);
     }
 
-    public void fillWith(final int stateId) {
-        setBlob(new VoxelBlob(stateId));
+    //--- MODEL RENDERING DATA ---
+    @Nonnull
+    @Override
+    public IModelData getModelData() {
+        //We pass both the voxel and tile states to the model renderer because we
+        //manually cull faces and thus need those faces to update when a neighbouring
+        //block changes.
+        IModelData imd = super.getModelData();
+        imd.setData(VOXEL_STATE_ID, voxelStateId);
+        imd.setData(TILE_STATE, getOrCreateTileState());
+        return imd;
     }
 
+    //--- UPDATE/DATA PACKETS ---
     @Nullable
     @Override
     public SUpdateTileEntityPacket getUpdatePacket() {
@@ -239,17 +170,15 @@ public class ChiseledBlockTileEntity extends TileEntity {
     @Override
     public CompoundNBT write(final CompoundNBT compound) {
         super.write(compound);
-        iteration++;
-        NBTBlobConverter converter = new NBTBlobConverter(this);
-        converter.writeChiselData(compound);
+
+        //Write this tile's nbt data into the compound using a VoxelNBTConverter
+        VoxelNBTConverter.writeToNBT(getVoxelState().getBlob(), compound);
         return compound;
     }
 
     @Override
     public void read(final CompoundNBT compound) {
         super.read(compound);
-        iteration++;
-        final NBTBlobConverter converter = new NBTBlobConverter(this);
-        converter.readChiselData(compound, VoxelVersions.getDefault());
+        updateState(VoxelNBTConverter.readFromNBT(compound));
     }
 }

@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Direction;
-import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
+import nl.dgoossens.chiselsandbits2.api.item.MenuAction;
 import nl.dgoossens.chiselsandbits2.client.ClientSideHelper;
 
 public class ItemModeMenu { //extends RadialMenu {
@@ -18,7 +18,7 @@ public class ItemModeMenu { //extends RadialMenu {
     private long buttonLastHighlighted = 0L;
     private DurabilityBarRenderer cache;
     private ItemStack cachedStack;
-    private IItemMode cachedMode;
+    private ItemModes cachedMode;
 
     public ItemModeMenu() {
         super(new StringTextComponent("Radial Menu"));
@@ -31,7 +31,7 @@ public class ItemModeMenu { //extends RadialMenu {
 
     @Override
     public boolean shouldShow(final PlayerEntity player) {
-        return super.shouldShow(player) && player.getHeldItemMainhand().getItem() instanceof IItemMenu;
+        return super.shouldShow(player) && player.getHeldItemMainhand().getItem() instanceof StandardTypedItem;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class ItemModeMenu { //extends RadialMenu {
 
     @Override
     public void render(int mouseX, int mouseY, float partialTicks) {
-        if (!(getMinecraft().player.getHeldItemMainhand().getItem() instanceof IItemMenu)) return;
+        if (!(getMinecraft().player.getHeldItemMainhand().getItem() instanceof StandardTypedItem)) return;
 
         //Update information
         final ItemStack item = getMinecraft().player.getHeldItemMainhand();
@@ -225,7 +225,7 @@ public class ItemModeMenu { //extends RadialMenu {
     }
 
     /**
-     * Renders the icons as retrieved from {@link ClientSide#getMenuActionIconLocation(IMenuAction)} or {@link ClientSide#getModeIconLocation(IItemMode)}.
+     * Renders the icons as retrieved from {@link ClientSide#getMenuActionIconLocation(MenuAction)} or {@link ClientSide#getModeIconLocation(ItemModes)}.
      * Called both before and after textures are enabled for rendering the flat colours.
      */
     /*
@@ -427,11 +427,11 @@ public class ItemModeMenu { //extends RadialMenu {
                 for(int i = 0; i < frees; i++)
                     modes.add(new MenuRegion(VoxelWrapper.empty(), item, getMinecraft().player));
             });
-        } else if(item.getItem() instanceof IItemMenu) {
+        } else if(item.getItem() instanceof StandardTypedItem) {
             //TODO add support for addons' item modes
             //We iterate over the enum by default as this is the fastest way to do this and this code is ran semi-often.
-            IItemModeType type = ((IItemMenu) item.getItem()).getAssociatedType();
-            for(ItemMode it : ItemMode.values()) {
+            ItemModeTypes type = ((StandardTypedItem) item.getItem()).getAssociatedType();
+            for(ItemModes it : ItemModes.values()) {
                 if(it.getType().equals(type)) modes.add(new MenuRegion(it, item));
             }
         }
@@ -444,8 +444,8 @@ public class ItemModeMenu { //extends RadialMenu {
         buttons.add(new MenuButton(MenuAction.UNDO, TEXT_DISTANCE, -20, Direction.EAST));
         buttons.add(new MenuButton(MenuAction.REDO, TEXT_DISTANCE, 4, Direction.EAST));
 
-        if(getMinecraft().player.getHeldItemMainhand().getItem() instanceof IItemMenu) {
-            Set<MenuButton> i = ((IItemMenu) getMinecraft().player.getHeldItemMainhand().getItem()).getMenuButtons(getMinecraft().player.getHeldItemMainhand());
+        if(getMinecraft().player.getHeldItemMainhand().getItem() instanceof StandardTypedItem) {
+            Set<MenuButton> i = ((StandardTypedItem) getMinecraft().player.getHeldItemMainhand().getItem()).getMenuButtons(getMinecraft().player.getHeldItemMainhand());
             if(i != null) buttons.addAll(i);
         }
         return buttons;
@@ -467,7 +467,7 @@ public class ItemModeMenu { //extends RadialMenu {
         Direction textSide;
 
 
-        public MenuButton(final IMenuAction menuAction, final double x, final double y, final Direction textSide) {
+        public MenuButton(final MenuAction menuAction, final double x, final double y, final Direction textSide) {
             this(menuAction.getLocalizedName(), x, y, 0xffffffff, textSide, menuAction::trigger);
             this.sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(ClientSideHelper.getMenuActionIconLocation(menuAction));
         }
@@ -497,19 +497,19 @@ public class ItemModeMenu { //extends RadialMenu {
 
     /*
     public static class MenuRegion {
-        public IItemMode mode;
+        public ItemModes mode;
         public VoxelWrapper item;
         public RegionType type;
         public double x1, x2;
         public double y1, y2;
         public boolean highlighted;
 
-        public MenuRegion(final IItemMode mode, final ItemStack stack) {
+        public MenuRegion(final ItemModes mode, final ItemStack stack) {
             this.mode = mode;
             if(stack.getItem() instanceof ChiseledBlockItem) {
                 type = ClientItemPropertyUtil.getGlobalCBM().equals(mode) ? RegionType.SELECTED : RegionType.DEFAULT;
-            } else if(stack.getItem() instanceof TypedItem) {
-                type = ((TypedItem) stack.getItem()).getSelectedMode(stack).equals(mode) ? RegionType.SELECTED : RegionType.DEFAULT;
+            } else if(stack.getItem() instanceof TypedItemImpl) {
+                type = ((TypedItemImpl) stack.getItem()).getSelectedMode(stack).equals(mode) ? RegionType.SELECTED : RegionType.DEFAULT;
             } else
                 throw new UnsupportedOperationException("Invalid item given to make menu region! Gave '"+stack.getItem().getRegistryName()+"'.");
         }

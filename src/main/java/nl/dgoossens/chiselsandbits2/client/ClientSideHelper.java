@@ -21,12 +21,12 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
-import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
+import nl.dgoossens.chiselsandbits2.api.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.api.item.StandardTypedItem;
+import nl.dgoossens.chiselsandbits2.api.item.attributes.BitModifyItem;
+import nl.dgoossens.chiselsandbits2.api.bit.BitOperation;
 import nl.dgoossens.chiselsandbits2.api.item.DyedItemColour;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMenu;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
-import nl.dgoossens.chiselsandbits2.api.item.IMenuAction;
-import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
+import nl.dgoossens.chiselsandbits2.api.item.MenuAction;
 import nl.dgoossens.chiselsandbits2.api.radial.RadialMenu;
 import nl.dgoossens.chiselsandbits2.client.render.GhostModelRenderer;
 import nl.dgoossens.chiselsandbits2.client.render.RenderingAssistant;
@@ -34,16 +34,14 @@ import nl.dgoossens.chiselsandbits2.client.render.SelectionBoxRenderer;
 import nl.dgoossens.chiselsandbits2.client.render.TapeMeasureRenderer;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockPlacementLogic;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.ExtendedAxisAlignedBB;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.common.util.BlockPlacementLogic;
+import nl.dgoossens.chiselsandbits2.api.voxel.ExtendedAxisAlignedBB;
+import nl.dgoossens.chiselsandbits2.common.util.VoxelNBTConverter;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModes;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.items.ChiseledBlockItem;
 import nl.dgoossens.chiselsandbits2.common.items.MorphingBitItem;
 import nl.dgoossens.chiselsandbits2.common.items.TapeMeasureItem;
-import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
 import nl.dgoossens.chiselsandbits2.common.network.client.COpenBitBagPacket;
 import nl.dgoossens.chiselsandbits2.common.util.ChiselUtil;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
@@ -61,8 +59,8 @@ import java.util.List;
 public class ClientSideHelper {
     //--- GENERAL ---
     //Resource Locations for Icons
-    protected static final HashMap<IItemMode, ResourceLocation> modeIconLocations = new HashMap<>();
-    protected static final HashMap<IMenuAction, ResourceLocation> menuActionLocations = new HashMap<>();
+    protected static final HashMap<ItemMode, ResourceLocation> modeIconLocations = new HashMap<>();
+    protected static final HashMap<MenuAction, ResourceLocation> menuActionLocations = new HashMap<>();
 
     //Tape Measure
     protected List<Measurement> tapeMeasurements = new ArrayList<>();
@@ -106,7 +104,7 @@ public class ClientSideHelper {
     /**
      * Shows the selection box or create a new cached object for it if necessary.
      */
-    void showSelectionBox(MatrixStack matrix, IRenderTypeBuffer buffer, ItemStack item, PlayerEntity player, BitLocation bit, Direction face, BitOperation operation, IItemMode mode, float partialTicks) {
+    void showSelectionBox(MatrixStack matrix, IRenderTypeBuffer buffer, ItemStack item, PlayerEntity player, BitLocation bit, Direction face, BitOperation operation, ItemMode mode, float partialTicks) {
         //Create a new object if this one is invalid or non-existent
         if (selectionBox == null || !selectionBox.isValid(player, bit, face, mode))
             selectionBox = new SelectionBoxRenderer(item, player, bit, face, operation, mode);
@@ -118,9 +116,9 @@ public class ClientSideHelper {
     /**
      * Get the current bit operation.
      */
-    protected BitOperation getOperation(final IItemMode mode) {
+    protected BitOperation getOperation(final ItemMode mode) {
         //Only return the cached mode if we are in drawn region mode
-        if (operation != null && mode.equals(ItemMode.CHISEL_DRAWN_REGION)) return operation;
+        if (operation != null && mode.equals(ItemModes.CHISEL_DRAWN_REGION)) return operation;
         //Morphing bit is mainly meant for placement so we show the placement highlight preferred over the removal highlight.
         if (Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof MorphingBitItem) return BitOperation.PLACE;
         return BitOperation.REMOVE;
@@ -138,7 +136,7 @@ public class ClientSideHelper {
      * Get the resource location of the icon for the mode, will return null
      * if the mode has no icon.
      */
-    public static ResourceLocation getModeIconLocation(final IItemMode mode) {
+    public static ResourceLocation getModeIconLocation(final ItemMode mode) {
         return modeIconLocations.get(mode);
     }
 
@@ -146,7 +144,7 @@ public class ClientSideHelper {
      * Get the resource location of the icon for the menu action, will return null
      * if the action has no icon.
      */
-    public static ResourceLocation getMenuActionIconLocation(final IMenuAction action) {
+    public static ResourceLocation getMenuActionIconLocation(final MenuAction action) {
         return menuActionLocations.get(action);
     }
 
@@ -156,7 +154,7 @@ public class ClientSideHelper {
      */
     public static boolean hasToolbarIconItem(PlayerInventory inventory) {
         for (int slot = 8; slot >= 0; --slot) {
-            if (inventory.mainInventory.get(slot).getItem() instanceof IItemMenu && ((IItemMenu) inventory.mainInventory.get(slot).getItem()).showIconInHotbar())
+            if (inventory.mainInventory.get(slot).getItem() instanceof StandardTypedItem && ((StandardTypedItem) inventory.mainInventory.get(slot).getItem()).showIconInHotbar())
                 return true;
         }
         return false;
@@ -204,12 +202,12 @@ public class ClientSideHelper {
         final PlayerEntity player = Minecraft.getInstance().player;
         final ItemStack stack = player.getHeldItemMainhand();
 
-        //If it's not a typed item we can't do anything
-        if (!(stack.getItem() instanceof TypedItem)) return false;
+        //If it's not a standard typed item we can't do anything
+        if (!(stack.getItem() instanceof StandardTypedItem)) return false;
 
-        //If it's not a tape measure and not an IBitModifyItem capable of either BUILD/EXTRACT we don't render either
+        //If it's not a tape measure and not an BitModifyItem capable of either BUILD/EXTRACT we don't render either
         boolean tapeMeasure = stack.getItem() instanceof TapeMeasureItem;
-        if (!tapeMeasure && !(((stack.getItem() instanceof IBitModifyItem)) && ((IBitModifyItem) stack.getItem()).canPerformModification(IBitModifyItem.ModificationType.BUILD, IBitModifyItem.ModificationType.EXTRACT))) return false;
+        if (!tapeMeasure && !(((stack.getItem() instanceof BitModifyItem)) && ((BitModifyItem) stack.getItem()).canPerformModification(BitModifyItem.ModificationType.BUILD, BitModifyItem.ModificationType.EXTRACT))) return false;
 
         //If you aren't looking at a block we don't render anything either
         final RayTraceResult rayTrace = ChiselUtil.rayTrace(player, partialTicks);
@@ -220,13 +218,13 @@ public class ClientSideHelper {
         final World world = Minecraft.getInstance().world;
         if (!tapeMeasure && !ChiselsAndBits2.getInstance().getAPI().getRestrictions().canChiselBlock(world.getBlockState(((BlockRayTraceResult) rayTrace).getPos()))) return false;
 
-        final IItemMode mode = ((TypedItem) stack.getItem()).getSelectedMode(stack);
+        final ItemMode mode = ((StandardTypedItem) stack.getItem()).getSelectedMode(stack);
         final BitOperation operation = tapeMeasure ? BitOperation.REMOVE : ChiselsAndBits2.getInstance().getClient().getOperation(mode);
         final BitLocation location = new BitLocation((BlockRayTraceResult) rayTrace, true, operation);
 
         //Rendering drawn region bounding box
         //This is not cached as we only need to draw rectangles, we can keep doing that each tick. There are no maths/iterators involved in contrast to the normal selection boxes.
-        if (tapeMeasure || ItemPropertyUtil.isItemMode(stack, ItemMode.CHISEL_DRAWN_REGION)) {
+        if (tapeMeasure || ItemPropertyUtil.isItemMode(stack, ItemModes.CHISEL_DRAWN_REGION)) {
             final BitLocation other = tapeMeasure ? ChiselsAndBits2.getInstance().getClient().tapeMeasureCache : ChiselsAndBits2.getInstance().getClient().selectionStart;
             if (other != null) {
                 ChiselsAndBits2.getInstance().getClient().renderSelectionBox(matrix, buffer, tapeMeasure, location, other, partialTicks, mode, tapeMeasure ? new Color(((TapeMeasureItem) stack.getItem()).getColour(stack).getColour()) : new Color(0, 0, 0));
@@ -282,8 +280,8 @@ public class ClientSideHelper {
     /**
      * Renders the selection boxes as used by the tape measure and drawn region mode.
      */
-    void renderSelectionBox(MatrixStack matrix, IRenderTypeBuffer buffer, boolean tapeMeasure, BitLocation first, BitLocation second, float partialTicks, IItemMode mode, Color color) {
-        if (tapeMeasure && ItemMode.TAPEMEASURE_DISTANCE.equals(mode)) {
+    void renderSelectionBox(MatrixStack matrix, IRenderTypeBuffer buffer, boolean tapeMeasure, BitLocation first, BitLocation second, float partialTicks, ItemMode mode, Color color) {
+        if (tapeMeasure && ItemModes.TAPEMEASURE_DISTANCE.equals(mode)) {
             final Vec3d a = ChiselUtil.bitLocationToCoordinate(first);
             final Vec3d b = ChiselUtil.bitLocationToCoordinate(second);
             RenderingAssistant.drawLine(matrix, buffer, a, b, color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f);
@@ -344,11 +342,8 @@ public class ClientSideHelper {
                 if (mode == PlayerItemMode.CHISELED_BLOCK_GRID && !ChiselUtil.isBlockReplaceable(player.world, offset, player, face, false)) {
                     offset = offset.offset(face);
                 } else if (!(player.world.getTileEntity(offset) instanceof ChiseledBlockTileEntity)) {
-                    if (BlockPlacementLogic.isNotPlaceable(player, player.world, offset, face, mode, () -> {
-                        final NBTBlobConverter nbt = new NBTBlobConverter();
-                        nbt.readChiselData(currentItem.getChildTag(ChiselUtil.NBT_BLOCKENTITYTAG), VoxelVersions.getDefault());
-                        return nbt;
-                    })) {
+                    if (BlockPlacementLogic.isNotPlaceable(player, player.world, offset, face, mode,
+                            () -> VoxelNBTConverter.readFromNBT(currentItem.getChildTag(VoxelNBTConverter.NBT_BLOCKENTITYTAG)))) {
                         offset = offset.offset(face);
                     }
                 }
@@ -374,8 +369,8 @@ public class ClientSideHelper {
             int top = (window.getScaledHeight() - 18);
             ItemStack item = slot == -1 ? player.inventory.offHandInventory.get(0) : player.inventory.mainInventory.get(slot);
             //TODO add support for bit bag preview items
-            if (item.getItem() instanceof TypedItem && ((TypedItem) item.getItem()).showIconInHotbar()) {
-                final IItemMode mode = ((TypedItem) item.getItem()).getSelectedMode(item);
+            if (item.getItem() instanceof StandardTypedItem && ((StandardTypedItem) item.getItem()).showIconInHotbar()) {
+                final ItemMode mode = ((StandardTypedItem) item.getItem()).getSelectedMode(item);
 
                 //Don't render if this mode has no icon.
                 final ResourceLocation sprite = getModeIconLocation(mode);
@@ -403,9 +398,9 @@ public class ClientSideHelper {
         private BitLocation first, second;
         private DimensionType dimension;
         private DyedItemColour colour;
-        private IItemMode mode;
+        private ItemMode mode;
 
-        public Measurement(BitLocation first, BitLocation second, DyedItemColour colour, IItemMode mode, DimensionType dimension) {
+        public Measurement(BitLocation first, BitLocation second, DyedItemColour colour, ItemMode mode, DimensionType dimension) {
             this.first = first;
             this.second = second;
             this.colour = colour;

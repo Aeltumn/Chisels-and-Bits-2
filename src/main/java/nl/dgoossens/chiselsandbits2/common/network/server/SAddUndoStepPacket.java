@@ -5,7 +5,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.NetworkEvent;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlobStateReference;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 
 import java.util.function.Supplier;
 
@@ -15,12 +15,12 @@ import java.util.function.Supplier;
  */
 public class SAddUndoStepPacket {
     private BlockPos pos;
-    private VoxelBlobStateReference before, after;
+    private VoxelBlob before, after;
 
     private SAddUndoStepPacket() {
     }
 
-    public SAddUndoStepPacket(final BlockPos pos, final VoxelBlobStateReference before, final VoxelBlobStateReference after) {
+    public SAddUndoStepPacket(final BlockPos pos, final VoxelBlob before, final VoxelBlob after) {
         this.pos = pos;
         this.before = before;
         this.after = after;
@@ -28,10 +28,10 @@ public class SAddUndoStepPacket {
 
     public static void encode(SAddUndoStepPacket msg, PacketBuffer buf) {
         buf.writeBlockPos(msg.pos);
-        final byte[] bef = msg.before.getByteArray();
+        final byte[] bef = msg.before.toByteArray();
         buf.writeVarInt(bef.length);
         buf.writeBytes(bef);
-        final byte[] aft = msg.after.getByteArray();
+        final byte[] aft = msg.after.toByteArray();
         buf.writeVarInt(aft.length);
         buf.writeBytes(aft);
     }
@@ -46,8 +46,8 @@ public class SAddUndoStepPacket {
         final byte[] tb = new byte[lenb];
         buffer.readBytes(tb);
 
-        pc.before = new VoxelBlobStateReference(ta);
-        pc.after = new VoxelBlobStateReference(tb);
+        pc.before = VoxelBlob.readFromBytes(ta);
+        pc.after = VoxelBlob.readFromBytes(tb);
         return pc;
     }
 

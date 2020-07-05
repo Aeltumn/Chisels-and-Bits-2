@@ -13,13 +13,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
-import nl.dgoossens.chiselsandbits2.api.block.BitOperation;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
-import nl.dgoossens.chiselsandbits2.api.item.attributes.IBitModifyItem;
+import nl.dgoossens.chiselsandbits2.api.item.attributes.BitModifyItem;
+import nl.dgoossens.chiselsandbits2.api.bit.BitOperation;
+import nl.dgoossens.chiselsandbits2.api.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.ExtendedAxisAlignedBB;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
-import nl.dgoossens.chiselsandbits2.common.items.ChiselMimicItem;
+import nl.dgoossens.chiselsandbits2.api.voxel.ExtendedAxisAlignedBB;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModes;
+import nl.dgoossens.chiselsandbits2.common.items.SculptItem;
 import nl.dgoossens.chiselsandbits2.common.items.MorphingBitItem;
 import nl.dgoossens.chiselsandbits2.common.items.TapeMeasureItem;
 import nl.dgoossens.chiselsandbits2.common.network.client.CChiselBlockPacket;
@@ -65,11 +65,11 @@ public class ChiselEvent {
 
         //--- All other item interaction actions ---
         ItemStack stack = player.getHeldItemMainhand();
-        if (stack.getItem() instanceof IBitModifyItem) {
+        if (stack.getItem() instanceof BitModifyItem) {
             //Trigger an effect for one of our own tools.
             //We do it here instead of using Minecraft's method to cancel it properly for invalid blocks. (also to use our own raytracing)
-            IBitModifyItem it = (IBitModifyItem) stack.getItem();
-            for (IBitModifyItem.ModificationType modificationType : IBitModifyItem.ModificationType.values()) {
+            BitModifyItem it = (BitModifyItem) stack.getItem();
+            for (BitModifyItem.ModificationType modificationType : BitModifyItem.ModificationType.values()) {
                 if (it.canPerformModification(modificationType) && it.validateUsedButton(modificationType, e.isAttack(), stack)) {
                     e.setSwingHand(true);
                     e.setCanceled(true);
@@ -126,9 +126,9 @@ public class ChiselEvent {
         if (!player.world.isRemote)
             throw new UnsupportedOperationException("Block chiseling can only be started on the client-side.");
 
-        if (!(stack.getItem() instanceof ChiselMimicItem)) return;
-        ChiselMimicItem tit = (ChiselMimicItem) stack.getItem();
-        final IItemMode mode = tit.getSelectedMode(stack);
+        if (!(stack.getItem() instanceof SculptItem)) return;
+        SculptItem tit = (SculptItem) stack.getItem();
+        final ItemMode mode = tit.getSelectedMode(stack);
 
         RayTraceResult rayTrace = ChiselUtil.rayTrace(player);
         if (!(rayTrace instanceof BlockRayTraceResult) || rayTrace.getType() != RayTraceResult.Type.BLOCK)
@@ -138,7 +138,7 @@ public class ChiselEvent {
         final BitLocation location = new BitLocation((BlockRayTraceResult) rayTrace, true, operation);
 
         //Start drawn region selection if applicable
-        if (mode.equals(ItemMode.CHISEL_DRAWN_REGION)) {
+        if (mode.equals(ItemModes.CHISEL_DRAWN_REGION)) {
             ClientSide clientSide = ChiselsAndBits2.getInstance().getClient();
             //If we don't have a selection start yet select the clicked location.
             if (!clientSide.hasSelectionStart(operation)) {
@@ -156,7 +156,7 @@ public class ChiselEvent {
             final CChiselBlockPacket pc = new CChiselBlockPacket(operation, ChiselsAndBits2.getInstance().getClient().getSelectionStart(operation), location, ((BlockRayTraceResult) rayTrace).getFace());
             ChiselsAndBits2.getInstance().getClient().resetSelectionStart();
             ChiselsAndBits2.getInstance().getNetworkRouter().sendToServer(pc);
-        } else if (mode instanceof ItemMode) {
+        } else if (mode instanceof ItemModes) {
             final CChiselBlockPacket pc = new CChiselBlockPacket(operation, location, ((BlockRayTraceResult) rayTrace).getFace());
             ChiselsAndBits2.getInstance().getNetworkRouter().sendToServer(pc);
         }

@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import nl.dgoossens.chiselsandbits2.OptifineCompatibility;
+import nl.dgoossens.chiselsandbits2.common.integration.OptifineCompatibility;
 
 /**
  * Assists with generic rendering tasks for rendering boxes and lines, mostly those called by the ClientSideHelper.

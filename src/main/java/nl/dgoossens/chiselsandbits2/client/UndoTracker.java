@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlobStateReference;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.network.client.CUndoPacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SAddUndoStepPacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SGroupMethod;
@@ -40,7 +40,7 @@ public class UndoTracker {
     /**
      * Adds a new set of bits changed to be tracked.
      */
-    public void add(final PlayerEntity player, final World world, final BlockPos pos, final VoxelBlobStateReference before, final VoxelBlobStateReference after) {
+    public void add(final PlayerEntity player, final World world, final BlockPos pos, final VoxelBlob before, final VoxelBlob after) {
         if (pos != null && world != null) {
             if (world.isRemote) {
                 //Client
@@ -164,7 +164,7 @@ public class UndoTracker {
     /**
      * Replays a single action.
      */
-    private void replayAction(final BlockPos pos, final VoxelBlobStateReference before, final VoxelBlobStateReference after, final boolean redo, final int groupId) {
+    private void replayAction(final BlockPos pos, final VoxelBlob before, final VoxelBlob after, final boolean redo, final int groupId) {
         final CUndoPacket packet = new CUndoPacket(pos, before, after, redo, groupId);
         ChiselsAndBits2.getInstance().getNetworkRouter().sendToServer(packet);
     }

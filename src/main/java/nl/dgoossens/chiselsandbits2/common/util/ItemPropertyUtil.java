@@ -14,17 +14,16 @@ import nl.dgoossens.chiselsandbits2.api.bit.BitStorage;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
 import nl.dgoossens.chiselsandbits2.api.cache.CacheClearable;
 import nl.dgoossens.chiselsandbits2.api.cache.CacheType;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMenu;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMode;
+import nl.dgoossens.chiselsandbits2.api.item.StandardTypedItem;
+import nl.dgoossens.chiselsandbits2.api.item.ItemMode;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.StorageCapabilityProvider;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeType;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModeTypes;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModes;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
 import nl.dgoossens.chiselsandbits2.common.items.MorphingBitItem;
 import nl.dgoossens.chiselsandbits2.common.items.StorageItem;
-import nl.dgoossens.chiselsandbits2.common.items.TypedItem;
 import nl.dgoossens.chiselsandbits2.common.network.client.CItemModePacket;
 import nl.dgoossens.chiselsandbits2.common.network.client.CVoxelWrapperPacket;
 import nl.dgoossens.chiselsandbits2.common.network.server.SSynchronizeBitStoragePacket;
@@ -100,11 +99,11 @@ public class ItemPropertyUtil implements CacheClearable {
     }
 
     /**
-     * Set the mode of this itemstack to this enum value.
+     * Set the mode of this Itemstack to this enum value.
      */
-    public static void setItemMode(final PlayerEntity player, final ItemStack stack, final IItemMode mode) {
+    public static void setItemMode(final PlayerEntity player, final ItemStack stack, final ItemMode mode) {
         if (player.world.isRemote) {
-            if (mode instanceof ItemMode && mode.getType() == ItemModeType.CHISELED_BLOCK) {
+            if (mode instanceof ItemModes && mode.getType() == ItemModeTypes.CHISELED_BLOCK) {
                 ClientItemPropertyUtil.setChiseledBlockMode((PlayerItemMode) mode);
                 return;
             }
@@ -116,12 +115,12 @@ public class ItemPropertyUtil implements CacheClearable {
             return;
         }
 
-        if (mode instanceof ItemMode && mode.getType() == ItemModeType.CHISELED_BLOCK)
+        if (mode instanceof ItemModes && mode.getType() == ItemModeTypes.CHISELED_BLOCK)
             throw new UnsupportedOperationException("Can't set chiseled block item mode on the server side!");
 
         if (stack == null) return;
-        if (stack.getItem() instanceof TypedItem) {
-            TypedItem it = (TypedItem) stack.getItem();
+        if (stack.getItem() instanceof StandardTypedItem) {
+            StandardTypedItem it = (StandardTypedItem) stack.getItem();
             if (!mode.getType().equals(it.getAssociatedType())) return;
             it.setSelectedMode(player, stack, mode);
             selected.remove(player.getUniqueID());
@@ -131,12 +130,12 @@ public class ItemPropertyUtil implements CacheClearable {
     /**
      * Checks if the item mode of the provided stack is contained in the list of valid modes.
      */
-    public static boolean isItemMode(final ItemStack stack, final ItemMode... modes) {
-        if (!(stack.getItem() instanceof TypedItem)) return false;
+    public static boolean isItemMode(final ItemStack stack, final ItemModes... modes) {
+        if (!(stack.getItem() instanceof StandardTypedItem)) return false;
 
-        final IItemMode res = ((TypedItem) stack.getItem()).getSelectedMode(stack);
+        final ItemMode res = ((StandardTypedItem) stack.getItem()).getSelectedMode(stack);
         if (res == null) return false;
-        for (final ItemMode i : modes) {
+        for (final ItemModes i : modes) {
             if (i.equals(res)) return true;
         }
         return false;
@@ -148,7 +147,7 @@ public class ItemPropertyUtil implements CacheClearable {
      * item is used for placement regardless of the inventory slots.
      */
     public static long getSelectionTime(final ItemStack stack) {
-        if (stack.getItem() instanceof IItemMenu) {
+        if (stack.getItem() instanceof StandardTypedItem) {
             final CompoundNBT nbt = stack.getTag();
             if (nbt != null && nbt.contains("timestamp"))
                 return nbt.getLong("timestamp");

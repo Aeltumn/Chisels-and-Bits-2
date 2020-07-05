@@ -6,7 +6,7 @@ import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import nl.dgoossens.chiselsandbits2.common.impl.item.ItemMode;
+import nl.dgoossens.chiselsandbits2.common.impl.item.ItemModes;
 import nl.dgoossens.chiselsandbits2.common.impl.item.MenuAction;
 
 import java.lang.reflect.Field;
@@ -31,7 +31,7 @@ public class ModKeybindings {
     public KeyBinding modeMenu = new KeyBinding("Radial Menu", CONFLICT, KeyModifier.NONE, getKey(342), CATEGORY); //Left Alt
 
     public Map<MenuAction, KeyBinding> actionHotkeys = new HashMap<>();
-    public Map<ItemMode, KeyBinding> modeHotkeys = new HashMap<>();
+    public Map<ItemModes, KeyBinding> modeHotkeys = new HashMap<>();
 
     public ModKeybindings() {
         //Generate Hotkeys
@@ -53,7 +53,7 @@ public class ModKeybindings {
                 actionHotkeys.put(ma, kb);
             }
 
-        for (ItemMode im : ItemMode.values())
+        for (ItemModes im : ItemModes.values())
             if (im.hasHotkey()) {
                 KeyBinding kb = new KeyBinding("general.chiselsandbits2.itemmode." + im.getTypelessName().toLowerCase() + ".hotkey", CONFLICT, InputMappings.INPUT_INVALID, CATEGORY);
                 modeHotkeys.put(im, kb);

@@ -13,13 +13,11 @@ import net.minecraft.util.math.BlockPos;
 import nl.dgoossens.chiselsandbits2.api.bit.BitLocation;
 import nl.dgoossens.chiselsandbits2.client.util.ClientItemPropertyUtil;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockPlacementLogic;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.NBTBlobConverter;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.IntegerBox;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelVersions;
+import nl.dgoossens.chiselsandbits2.common.util.BlockPlacementLogic;
+import nl.dgoossens.chiselsandbits2.common.util.VoxelNBTConverter;
+import nl.dgoossens.chiselsandbits2.api.voxel.IntegerBox;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.impl.item.PlayerItemMode;
-import nl.dgoossens.chiselsandbits2.common.util.ChiselUtil;
 
 /**
  * The class responsible for rendering the ghost model of the held chiseled
@@ -36,21 +34,18 @@ public class GhostModelRenderer extends CachedRenderedObject {
         if (isEmpty())
             return;
 
-        final NBTBlobConverter c = new NBTBlobConverter();
-        c.readChiselData(item.getChildTag(ChiselUtil.NBT_BLOCKENTITYTAG), VoxelVersions.getDefault());
+        VoxelBlob blob = VoxelNBTConverter.readFromNBT(item.getChildTag(VoxelNBTConverter.NBT_BLOCKENTITYTAG));
 
         //Whether or not this is a silhoutte depends on whether or not it is placeable, which depends on if this is off-grid or not.
         this.offGrid = offGrid;
         if (offGrid) {
             this.silhouette = BlockPlacementLogic.isNotPlaceableOffGrid(player, player.world, face, location, item);
         } else {
-            //We have a supplier for the NBTBlobConverter as we have it ready for use here so there is no need to recalculate it.
-            this.silhouette = BlockPlacementLogic.isNotPlaceable(player, player.world, location.blockPos, face, (PlayerItemMode) getMode(), () -> c);
+            this.silhouette = BlockPlacementLogic.isNotPlaceable(player, player.world, location.blockPos, face, (PlayerItemMode) getMode(), () -> blob);
         }
 
         final TileEntity te = player.world.getTileEntity(location.blockPos);
         boolean modified = false;
-        VoxelBlob blob = c.getVoxelBlob();
         if (te instanceof ChiseledBlockTileEntity) {
             VoxelBlob b = ((ChiseledBlockTileEntity) te).getVoxelBlob();
             if (ClientItemPropertyUtil.getChiseledBlockMode().equals(PlayerItemMode.CHISELED_BLOCK_MERGE)) {
@@ -62,8 +57,7 @@ public class GhostModelRenderer extends CachedRenderedObject {
 
         //If we modified the blob we have to reapply it and build a new item.
         if (modified) {
-            c.setBlob(blob);
-            item = c.getItemStack();
+            item = VoxelNBTConverter.convertToItemStack(blob);
         }
 
         model = Minecraft.getInstance().getItemRenderer().getItemModelWithOverrides(item, player.getEntityWorld(), player);

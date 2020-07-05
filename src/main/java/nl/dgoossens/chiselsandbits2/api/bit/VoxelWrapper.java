@@ -7,10 +7,11 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
 
 import java.awt.Color;
+import java.util.Objects;
 
 /**
  * Represents the object of a VoxelType, can be either a Block, Fluid or Color.
@@ -18,8 +19,8 @@ import java.awt.Color;
  * interface.
  */
 public class VoxelWrapper<T> {
-    private int id;
-    private VoxelType type;
+    private final int id;
+    private final VoxelType type;
 
     private VoxelWrapper(Block b) {
         type = VoxelType.BLOCKSTATE;
@@ -44,7 +45,7 @@ public class VoxelWrapper<T> {
     /**
      * Simplifies this voxel wrapper to be the default state.
      */
-    public VoxelWrapper simplify() {
+    public VoxelWrapper<?> simplify() {
         switch (type) {
             case BLOCKSTATE:
                 return VoxelWrapper.forBlock((Block) get());
@@ -84,7 +85,7 @@ public class VoxelWrapper<T> {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof VoxelWrapper) {
-            VoxelWrapper o = (VoxelWrapper) obj;
+            VoxelWrapper<?> o = (VoxelWrapper<?>) obj;
             if (type != o.type) return false;
             //Use equals so we don't have multiple types of the same block in a bag.
             return get().equals(o.get());
@@ -165,7 +166,7 @@ public class VoxelWrapper<T> {
     public int getPlacementBitId(BlockItemUseContext context) {
         switch (type) {
             case BLOCKSTATE:
-                return BitUtil.getBlockId(((Block) get()).getStateForPlacement(context));
+                return BitUtil.getBlockId(Objects.requireNonNull(((Block) get()).getStateForPlacement(context)));
             default:
                 return getId();
         }

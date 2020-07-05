@@ -9,17 +9,16 @@ import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
 import nl.dgoossens.chiselsandbits2.api.bit.BitStorage;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
-import nl.dgoossens.chiselsandbits2.api.item.IItemMenu;
-import nl.dgoossens.chiselsandbits2.api.item.IItemModeType;
-import nl.dgoossens.chiselsandbits2.api.item.attributes.IItemScrollWheel;
+import nl.dgoossens.chiselsandbits2.api.item.ItemModeType;
+import nl.dgoossens.chiselsandbits2.api.item.TypedItem;
 import nl.dgoossens.chiselsandbits2.api.item.attributes.PropertyOwner;
 import nl.dgoossens.chiselsandbits2.api.item.property.SelectedProperty;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.StorageCapabilityProvider;
-import nl.dgoossens.chiselsandbits2.common.chiseledblock.voxel.VoxelBlob;
+import nl.dgoossens.chiselsandbits2.api.voxel.VoxelBlob;
 import nl.dgoossens.chiselsandbits2.common.registry.ModItemGroups;
 import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 
-public abstract class StorageItem extends PropertyOwner implements IItemScrollWheel, IItemMenu {
+public abstract class StorageItem extends PropertyOwner implements TypedItem {
     protected int PROPERTY_SELECTED;
 
     public StorageItem() {
@@ -34,7 +33,7 @@ public abstract class StorageItem extends PropertyOwner implements IItemScrollWh
     public abstract VoxelType getVoxelType();
 
     @Override
-    public IItemModeType getAssociatedType() {
+    public ItemModeType getAssociatedType() {
         return null;
     }
 

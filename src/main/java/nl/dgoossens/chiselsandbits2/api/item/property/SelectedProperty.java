@@ -7,7 +7,7 @@ import nl.dgoossens.chiselsandbits2.api.bit.VoxelWrapper;
 
 import java.util.function.Supplier;
 
-public class SelectedProperty extends IItemProperty<VoxelWrapper> {
+public class SelectedProperty extends ItemProperty<VoxelWrapper> {
     private final Supplier<VoxelWrapper> defaultValue;
 
     public SelectedProperty(final Supplier<VoxelWrapper> defaultValue) {

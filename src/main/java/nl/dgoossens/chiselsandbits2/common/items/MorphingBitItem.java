@@ -24,7 +24,7 @@ import nl.dgoossens.chiselsandbits2.common.util.ItemPropertyUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class MorphingBitItem extends ChiselMimicItem {
+public class MorphingBitItem extends SculptItem {
     protected int PROPERTY_LOCKED;
     protected int PROPERTY_SELECTED;
 
