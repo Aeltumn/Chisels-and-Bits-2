@@ -21,8 +21,7 @@ public class ItemModelsGenerator extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        // we use an unchecked model to make it a tile entity
-        addTransforms(getBuilder("chiseled_block").parent(new ModelFile.UncheckedModelFile(new ResourceLocation("builtin/entity"))));
+        addTransforms(getBuilder("chiseled_block"));
         addTransforms(getBuilder("morphing_bit"));
 
         withExistingParent("preview_block", new ResourceLocation(ChiselsAndBits2.MOD_ID, "block/preview_block"));
