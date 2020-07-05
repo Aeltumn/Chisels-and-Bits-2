@@ -51,6 +51,12 @@ public interface VoxelTile {
     void updateState(VoxelBlob newState);
 
     /**
+     * Silently updates the state of the block; doesn't cause a rendering update.
+     * If you use this variant you need to update it properly later!
+     */
+    void updateStateSilently(VoxelBlob newState);
+
+    /**
      * Updates the state of this tile by applying the changes to the supplied voxel blob to
      * the tile.
      */

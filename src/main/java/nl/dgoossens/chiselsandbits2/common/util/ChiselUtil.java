@@ -142,11 +142,10 @@ public class ChiselUtil {
             world.setBlockState(pos, ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get().getDefaultState(), 3);
             final ChiseledBlockTileEntity te = (ChiseledBlockTileEntity) world.getTileEntity(pos);
             if (te != null) {
-                if (!isAir) te.updateState(new VoxelBlob(blockId));
+                if (!isAir) te.updateStateSilently(new VoxelBlob(blockId));
                 else {
                     //If there was a fluid previously make this a fluid block instead of an air block.
-                    if (fluid.isEmpty()) te.updateState(new VoxelBlob(blockId));
-                    else te.updateState(new VoxelBlob(BitUtil.getFluidId(fluid)));
+                    if (!fluid.isEmpty()) te.updateStateSilently(new VoxelBlob(BitUtil.getFluidId(fluid)));
                 }
             }
         }

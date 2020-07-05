@@ -83,8 +83,13 @@ public class ChiseledBlockTileEntity extends TileEntity implements VoxelTile {
     }
 
     @Override
-    public void updateState(final VoxelBlob voxelBlob) {
+    public void updateStateSilently(final VoxelBlob voxelBlob) {
         voxelStateId = ChiselsAndBits2.getInstance().getAPI().getVoxelManager().submitNewVoxelState(voxelBlob);
+    }
+
+    @Override
+    public void updateState(final VoxelBlob voxelBlob) {
+        updateStateSilently(voxelBlob);
         requestModelDataUpdate();
         markDirty();
         try {

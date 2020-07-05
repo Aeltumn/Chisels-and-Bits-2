@@ -14,8 +14,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.UUID;
 
 public class VoxelStateImpl implements VoxelState {
-    private UUID stateId = UUID.randomUUID();
-    private VoxelBlob blob;
+    private final UUID stateId = UUID.randomUUID();
+    private final VoxelBlob blob;
     private int primaryBlock;
     private ItemStack itemCache;
     private VoxelShape selectionShape, collisionShape;
@@ -31,6 +31,9 @@ public class VoxelStateImpl implements VoxelState {
     public VoxelStateImpl(VoxelBlob blob) {
         this.blob = blob;
         this.primaryBlock = -1;
+        this.itemCache = null;
+        this.selectionShape = null;
+        this.collisionShape = null;
     }
 
     @Override
