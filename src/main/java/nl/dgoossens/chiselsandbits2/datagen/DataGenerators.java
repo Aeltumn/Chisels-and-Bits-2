@@ -10,11 +10,12 @@ public class DataGenerators {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent e) {
         DataGenerator generator = e.getGenerator();
-        generator.addProvider(new RecipesGenerator(generator));
-        generator.addProvider(new AdvancementsGenerator(generator));
-        generator.addProvider(new ItemModelsGenerator(generator, e.getExistingFileHelper()));
         generator.addProvider(new BlockModelsGenerator(generator, e.getExistingFileHelper()));
         generator.addProvider(new BlockStatesGenerator(generator, e.getExistingFileHelper()));
+        generator.addProvider(new ItemModelsGenerator(generator, e.getExistingFileHelper()));
+        generator.addProvider(new LootGenerator(generator));
         generator.addProvider(new TagsGenerator(generator));
+        generator.addProvider(new RecipesGenerator(generator));
+        generator.addProvider(new AdvancementsGenerator(generator));
     }
 }

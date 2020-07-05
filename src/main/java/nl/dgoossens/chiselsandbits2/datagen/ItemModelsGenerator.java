@@ -25,6 +25,8 @@ public class ItemModelsGenerator extends ItemModelProvider {
         addTransforms(getBuilder("chiseled_block").parent(new ModelFile.UncheckedModelFile(new ResourceLocation("builtin/entity"))));
         addTransforms(getBuilder("morphing_bit"));
 
+        withExistingParent("preview_block", new ResourceLocation(ChiselsAndBits2.MOD_ID, "block/preview_block"));
+
         withExistingParent("tool", "item/handheld")
                 .transforms()
                     .transform(ModelBuilder.Perspective.THIRDPERSON_RIGHT)

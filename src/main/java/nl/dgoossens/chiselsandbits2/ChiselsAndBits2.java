@@ -77,6 +77,9 @@ public class ChiselsAndBits2 {
         CapabilityManager.INSTANCE.register(PlayerItemModeManager.class, new PlayerItemModeCapability(), PlayerItemModeManager::new);
         NETWORK_ROUTER.init();
 
+        //Set render types for all blocks
+        REGISTER.setRenderLayers();
+
         //Register tile renderers
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> CLIENT::registerTileRenderers);
 

@@ -56,9 +56,9 @@ public class ChiseledBlock extends Block {
         return new ChiseledBlockTileEntity();
     }
 
-    @Override //Our rendering shape is identical to the collision shape.
+    @Override //Our rendering shape is identical to the default shape.
     public VoxelShape getRenderShape(BlockState state, IBlockReader worldIn, BlockPos pos) {
-        return getCollisionShape(state, worldIn, pos, ISelectionContext.dummy());
+        return getShape(state, worldIn, pos, ISelectionContext.dummy());
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ChiseledBlock extends Block {
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
-        //Set it to custom entity renderer mode
+        // Disable normal rendering so we can do it custom in the TileEntityRenderer
         return BlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
@@ -285,17 +285,14 @@ public class ChiseledBlock extends Block {
 
     //Add the block hit effects exactly as the ParticleManager would, but with a custom blockstate type and no colour.
     private void addBlockHitEffects(ParticleManager manager, World world, BlockPos pos, Direction side, BlockState blockstate) {
-        if (blockstate.getRenderType() != BlockRenderType.INVISIBLE)
-            manager.addEffect(buildHitParticle(world, pos, side, blockstate));
+        manager.addEffect(buildHitParticle(world, pos, side, blockstate));
     }
 
     //Add the block hit effects exactly as the ParticleManager would, but with a custom blockstate type.
     private void addBlockHitEffects(ParticleManager manager, World world, BlockPos pos, Direction side, BlockState blockstate, float red, float green, float blue, float alpha) {
-        if (blockstate.getRenderType() != BlockRenderType.INVISIBLE) {
-            Particle particle = buildHitParticle(world, pos, side, blockstate);
-            particle.setColor(red, green, blue);
-            manager.addEffect(particle);
-        }
+        Particle particle = buildHitParticle(world, pos, side, blockstate);
+        particle.setColor(red, green, blue);
+        manager.addEffect(particle);
     }
 
     //Builds the hit particle

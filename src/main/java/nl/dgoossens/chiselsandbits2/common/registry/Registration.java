@@ -1,8 +1,12 @@
 package nl.dgoossens.chiselsandbits2.common.registry;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.DyeColor;
@@ -14,6 +18,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.ToolType;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -25,6 +30,7 @@ import nl.dgoossens.chiselsandbits2.client.gui.BitBagScreen;
 import nl.dgoossens.chiselsandbits2.common.bitstorage.BagContainer;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlock;
 import nl.dgoossens.chiselsandbits2.common.blocks.ChiseledBlockTileEntity;
+import nl.dgoossens.chiselsandbits2.common.blocks.PreviewBlock;
 import nl.dgoossens.chiselsandbits2.common.items.BitBagItem;
 import nl.dgoossens.chiselsandbits2.common.items.ChiselItem;
 import nl.dgoossens.chiselsandbits2.common.items.ChiseledBlockItem;
@@ -34,15 +40,11 @@ import nl.dgoossens.chiselsandbits2.common.items.WrenchItem;
 import nl.dgoossens.chiselsandbits2.common.items.recipes.RecoloringRecipe;
 
 public class Registration {
-    private final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, ChiselsAndBits2.MOD_ID);
-    private final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, ChiselsAndBits2.MOD_ID);
-    private final DeferredRegister<TileEntityType<?>> TILE_ENTITIES = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, ChiselsAndBits2.MOD_ID);
-    private final DeferredRegister<ContainerType<?>> CONTAINERS = new DeferredRegister<>(ForgeRegistries.CONTAINERS, ChiselsAndBits2.MOD_ID);
-    private final DeferredRegister<IRecipeSerializer<?>> RECIPES = new DeferredRegister<>(ForgeRegistries.RECIPE_SERIALIZERS, ChiselsAndBits2.MOD_ID);
-
-    public final RegistryObject<ChiseledBlock> CHISELED_BLOCK = BLOCKS.register("chiseled_block", () -> new ChiseledBlock(Block.Properties.create(Material.ROCK).doesNotBlockMovement().hardnessAndResistance(1.0F, 6.0F)));
-    public final RegistryObject<ChiseledBlockItem> CHISELED_BLOCK_ITEM = ITEMS.register("chiseled_block", () ->  new ChiseledBlockItem(CHISELED_BLOCK.get(), new Item.Properties()));
-    public final RegistryObject<TileEntityType<ChiseledBlockTileEntity>> CHISELED_BLOCK_TILE = TILE_ENTITIES.register("chiseled_block_tile", () -> TileEntityType.Builder.create(ChiseledBlockTileEntity::new, CHISELED_BLOCK.get()).build(null));
+    private final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ChiselsAndBits2.MOD_ID);
+    private final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ChiselsAndBits2.MOD_ID);
+    private final DeferredRegister<TileEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, ChiselsAndBits2.MOD_ID);
+    private final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, ChiselsAndBits2.MOD_ID);
+    private final DeferredRegister<IRecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, ChiselsAndBits2.MOD_ID);
 
     public final RegistryObject<ChiselItem> CHISEL = ITEMS.register("chisel", () -> new ChiselItem(new Item.Properties().maxDamage(-1).group(ModItemGroups.CHISELS_AND_BITS2)));
     public final RegistryObject<TapeMeasureItem> TAPE_MEASURE = ITEMS.register("tape_measure", () -> new TapeMeasureItem(new Item.Properties().maxStackSize(1).group(ModItemGroups.CHISELS_AND_BITS2)));
@@ -66,6 +68,12 @@ public class Registration {
     public final RegistryObject<BitBagItem> RED_BIT_BAG = ITEMS.register("red_bit_bag", BitBagItem::new);
     public final RegistryObject<BitBagItem> BLACK_BIT_BAG = ITEMS.register("black_bit_bag", BitBagItem::new);
 
+    public final RegistryObject<Block> PREVIEW_BLOCK = BLOCKS.register("preview_block", () -> new PreviewBlock(Block.Properties.create(Material.WOOD, MaterialColor.WOOD).hardnessAndResistance(2.0F, 3.0F).sound(SoundType.WOOD).harvestTool(ToolType.AXE).notSolid()));
+    public final RegistryObject<BlockItem> PREVIEW_BLOCK_ITEM = ITEMS.register("preview_block", () -> new BlockItem(PREVIEW_BLOCK.get(), new Item.Properties().group(ModItemGroups.CHISELS_AND_BITS2)));
+    public final RegistryObject<ChiseledBlock> CHISELED_BLOCK = BLOCKS.register("chiseled_block", () -> new ChiseledBlock(Block.Properties.create(Material.ROCK).doesNotBlockMovement().hardnessAndResistance(1.0F, 6.0F)));
+    public final RegistryObject<ChiseledBlockItem> CHISELED_BLOCK_ITEM = ITEMS.register("chiseled_block", () ->  new ChiseledBlockItem(CHISELED_BLOCK.get(), new Item.Properties()));
+    public final RegistryObject<TileEntityType<ChiseledBlockTileEntity>> CHISELED_BLOCK_TILE = TILE_ENTITIES.register("chiseled_block_tile", () -> TileEntityType.Builder.create(ChiseledBlockTileEntity::new, CHISELED_BLOCK.get()).build(null));
+
     //Register morphing bit last because we want the creative menu to not be bombarded with morphing bit types so people see the other items first
     public final RegistryObject<MorphingBitItem> MORPHING_BIT = ITEMS.register("morphing_bit", () -> new MorphingBitItem(new Item.Properties().maxStackSize(1).group(ModItemGroups.CHISELS_AND_BITS2)));
 
@@ -82,6 +90,15 @@ public class Registration {
         TILE_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         CONTAINERS.register(FMLJavaModLoadingContext.get().getModEventBus());
         RECIPES.register(FMLJavaModLoadingContext.get().getModEventBus());
+    }
+
+    public void setRenderLayers() {
+        RenderTypeLookup.setRenderLayer(PREVIEW_BLOCK.get(), RenderType.getCutoutMipped());
+        RenderTypeLookup.setRenderLayer(CHISELED_BLOCK.get(), RenderType.getCutoutMipped());
+    }
+
+    public DeferredRegister<Block> getBlockRegister() {
+        return BLOCKS;
     }
 
     /**

@@ -1,10 +1,11 @@
 package nl.dgoossens.chiselsandbits2.datagen;
 
-import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.generators.BlockModelProvider;
 import net.minecraftforge.client.model.generators.ExistingFileHelper;
 import nl.dgoossens.chiselsandbits2.ChiselsAndBits2;
+import nl.dgoossens.chiselsandbits2.common.registry.Registration;
 
 public class BlockModelsGenerator extends BlockModelProvider {
     public BlockModelsGenerator(DataGenerator dataGenerator, ExistingFileHelper existingFileHandler) {
@@ -18,7 +19,10 @@ public class BlockModelsGenerator extends BlockModelProvider {
 
     @Override
     protected void registerModels() {
-        Block chiseledBlock =  ChiselsAndBits2.getInstance().getRegister().CHISELED_BLOCK.get();
-        getBuilder(chiseledBlock.getRegistryName().getPath());
+        // The chiseled block has en empty model
+        getBuilder("chiseled_block");
+
+        // Regular cube for the preview block
+        cubeAll("preview_block", new ResourceLocation(ChiselsAndBits2.MOD_ID, "block/preview_block"));
     }
 }

@@ -32,6 +32,8 @@
   "item.chiselsandbits2.yellow_bit_bag": "Yellow Bit Bag",
   "item.chiselsandbits2.cyan_bit_bag": "Cyan Bit Bag",
 
+  "block.chiselsandbits2.preview_block": "Preview Block",
+
   "block.chiselsandbits2.chiseled_block": "Chiseled Block",
   "item.chiselsandbits2.chiseled_block.help": "Sneak to place off-grid|$ to open mode options",
 
