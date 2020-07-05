@@ -38,7 +38,7 @@ public class BlockShapeCalculator {
                         if (x < x1) x1 = x;
                         if (z < z1) z1 = z;
                         if (x > x2) x2 = x;
-                        if (y > y2) y2 = y;
+                        if (y > y2) y2 = y - 1;
                         if (z > z2) z2 = z;
                     }
                 }
@@ -56,7 +56,7 @@ public class BlockShapeCalculator {
 
         // Determine selection shape by taking the bounds
         boolean invalid = (x1 > x2) || (y1 > y2) || (z1 > z2);
-        VoxelShape selectionShape = invalid ? VoxelShapes.empty() : VoxelShapes.create(x1 / 16.0d, y1 / 16.0d, z1 / 16.0d, x2 / 16.0d, y2 / 16.0d, z2 / 16.0d);
+        VoxelShape selectionShape = invalid ? VoxelShapes.empty() : VoxelShapes.create(x1 / 16.0d, y1 / 16.0d, z1 / 16.0d, (x2 + 1) / 16.0d, (y2 + 1) / 16.0d, (z2 + 1) / 16.0d);
         return Pair.of(selectionShape, collisionShape);
     }
 }
