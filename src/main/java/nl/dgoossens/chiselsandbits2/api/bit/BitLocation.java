@@ -167,6 +167,14 @@ public class BitLocation {
         return blockPos;
     }
 
+    /**
+     * Returns a BlockPos with the bit x/y/z as it's
+     * x/y/z coordinates.
+     */
+    public BlockPos getBitPos() {
+        return new BlockPos(bitX, bitY, bitZ);
+    }
+
     public int getBitX() {
         return bitX;
     }

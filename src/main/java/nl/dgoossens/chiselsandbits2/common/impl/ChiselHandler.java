@@ -150,7 +150,9 @@ public class ChiselHandler {
                         if (te instanceof ChiseledBlockTileEntity) {
                             final ChiseledBlockTileEntity tec = (ChiseledBlockTileEntity) te;
                             final VoxelBlob vb = tec.getVoxelBlob();
-                            final ChiselIterator i = mode.getIterator(from, pkt.side, pkt.operation, (ChiseledBlockTileEntity) te, pkt.from, pkt.to);
+                            //Drawn region wants the actual block position whilst all other iterators want the bit position.
+                            final ChiselIterator i = mode.getIterator(mode.equals(ItemModes.CHISEL_DRAWN_REGION) ? pos : pkt.from.getBitPos(),
+                                    pkt.side, pkt.operation, (ChiseledBlockTileEntity) te, pkt.from, pkt.to);
 
                             //Handle the operation
                             switch (pkt.operation) {
