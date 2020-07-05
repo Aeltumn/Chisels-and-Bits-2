@@ -11,7 +11,7 @@ public class NullVoxelBlobStateReference extends VoxelBlobStateReference {
     public final static VoxelBlobStateReference NULL_REFERENCE = new NullVoxelBlobStateReference();
 
     NullVoxelBlobStateReference() {
-        super(new VoxelBlobStateInstance(new byte[0]));
+        super(new VoxelBlobStateInstance());
     }
 
     @Override

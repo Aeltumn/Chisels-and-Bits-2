@@ -7,8 +7,10 @@ import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import nl.dgoossens.chiselsandbits2.api.bit.VoxelType;
+import nl.dgoossens.chiselsandbits2.common.chiseledblock.BlockShapeCalculator;
 import nl.dgoossens.chiselsandbits2.common.chiseledblock.iterators.BitIterator;
 import nl.dgoossens.chiselsandbits2.common.util.BitUtil;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -24,13 +26,22 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
     private int format = Integer.MIN_VALUE;
     private VoxelShape selectionShape, collisionShape;
 
+    public VoxelBlobStateInstance() {
+        voxelBytes = new byte[0];
+        hash = 1;
+        selectionShape = VoxelShapes.empty();
+        collisionShape = VoxelShapes.empty();
+
+    }
+
     public VoxelBlobStateInstance(final byte[] data) {
         voxelBytes = data;
         hash = Arrays.hashCode(voxelBytes);
 
-        //TODO setup default voxel shape based on the data
-        selectionShape = VoxelShapes.empty();
-        collisionShape = VoxelShapes.empty();
+        VoxelBlob blob = getBlob();
+        Pair<VoxelShape, VoxelShape> shapes = BlockShapeCalculator.calculate(blob);
+        selectionShape = shapes.getRight();
+        collisionShape = shapes.getLeft();
     }
 
     @Override

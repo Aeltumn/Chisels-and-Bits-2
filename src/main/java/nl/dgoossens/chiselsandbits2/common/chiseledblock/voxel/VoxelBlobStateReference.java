@@ -42,11 +42,6 @@ public class VoxelBlobStateReference implements IStateRef {
         return Optional.ofNullable(getReferences().get(inst)).map(Reference::get).orElse(null);
     }
 
-    private static byte[] findBytesFor(final int stateId) {
-        final VoxelBlob vb = new VoxelBlob(stateId);
-        return vb.write(VoxelVersions.getDefault());
-    }
-
     /**
      * Create the default chiseled block to use in the statistics menu
      * and for cheated in items.
