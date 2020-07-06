@@ -13,7 +13,7 @@ public interface VoxelState {
     /**
      * The dummy state that any tile entity has when it is initially created.
      */
-    public static final VoxelState NULL_STATE = new VoxelStateImpl() {
+    VoxelState NULL_STATE = new VoxelStateImpl() {
         @Override
         public boolean isDummy() {
             return true;

@@ -35,6 +35,12 @@ public class VoxelManagerImpl implements VoxelManager {
         return FMLEnvironment.dist.isClient() ? client : server;
     }
 
+    //Put the null states into the sided maps.
+    public VoxelManagerImpl() {
+        client.put(VoxelState.NULL_STATE.getStateId(), VoxelState.NULL_STATE);
+        server.put(VoxelState.NULL_STATE.getStateId(), VoxelState.NULL_STATE);
+    }
+
     @Override
     public Optional<VoxelTile> getVoxelTile(World world, BlockPos pos) {
         TileEntity te = world.getTileEntity(pos);
