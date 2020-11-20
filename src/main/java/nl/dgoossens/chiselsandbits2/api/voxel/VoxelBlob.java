@@ -36,7 +36,6 @@ public final class VoxelBlob {
     public final static int DIMENSION_MINUS_ONE = DIMENSION - 1;
 
     public final static VoxelBlob NULL_BLOB = new VoxelBlob();
-    public final static VoxelBlob FULL_BLOB = new VoxelBlob(BitUtil.getBlockId(ChiselsAndBits2.getInstance().getRegister().PREVIEW_BLOCK.get().getDefaultState()));
 
     private int best_buffer_size = 26;
     final int[] values = new int[ARRAY_SIZE];
@@ -71,12 +70,18 @@ public final class VoxelBlob {
     }
 
     /**
+     * Creates a VoxelBlob filled completely with the default
+     * type.
+     */
+    public static VoxelBlob getFullBlob() {
+        return full(BitUtil.getBlockId(ChiselsAndBits2.getInstance().getRegister().PREVIEW_BLOCK.get().getDefaultState()));
+    }
+
+    /**
      * Creates a VoxelBlob filled with type.
      */
     public static VoxelBlob full(final int type) {
-        final VoxelBlob b = new VoxelBlob();
-        Arrays.fill(b.values, type);
-        return b;
+        return new VoxelBlob(type);
     }
 
     /**

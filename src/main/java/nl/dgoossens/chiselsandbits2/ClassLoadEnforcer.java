@@ -35,11 +35,9 @@ public class ClassLoadEnforcer {
 
         //Development Environment
         if (System.getProperty("development") != null) {
-            //For the develop environment we use the ouptut jar
-            if (System.getProperty("chiselsandbits2.buildJar") == null)
-                throw new UnsupportedOperationException("Please fill in the settings.gradle file!");
-
+            //For the develop environment we use the output jar
             f = new File(System.getProperty("chiselsandbits2.buildJar"));
+            System.out.println("Loading all classes in jar file at "+f);
         } else {
             //Actual jar in mods folder
             f = FMLLoader.getLoadingModList().getModFileById(ChiselsAndBits2.MOD_ID).getFile().getFilePath().toFile();

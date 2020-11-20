@@ -11,7 +11,7 @@ displayURL="https://www.curseforge.com/minecraft/mc-mods/chisels-bits-2"
 logoFile="chiselsandbits2.png"
 credits="Original mod created by AlgorithmX2"
 authors="Aeltumn, AlgorithmX2"
-description="The successor to the original Chisels and Bits mod. A mod about sculpting, decorating and aesthetics."
+description="A reimagining of the original Chisels and Bits mod. A mod about sculpting, decorating and aesthetics."
 [[dependencies.chiselsandbits2]]
     modId="forge"
     mandatory=true

@@ -31,7 +31,7 @@ public class SelectionBoxRenderer extends CachedRenderedObject {
 
         final TileEntity data = player.world.getTileEntity(location.blockPos);
         final ChiselIterator iterator = getMode().getIterator(new BlockPos(location.bitX, location.bitY, location.bitZ), face, operation, data == null ? null : (VoxelTile) data);
-        final VoxelBlob blob = data instanceof ChiseledBlockTileEntity ? ((ChiseledBlockTileEntity) data).getVoxelBlob() : VoxelBlob.FULL_BLOB;
+        final VoxelBlob blob = data instanceof ChiseledBlockTileEntity ? ((ChiseledBlockTileEntity) data).getVoxelBlob() : VoxelBlob.getFullBlob();
         selectionBoundingBox = iterator.getBoundingBox(blob).orElse(null);
 
         if (selectionBoundingBox == null)

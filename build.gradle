@@ -39,7 +39,7 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'info'
             property 'fml.earlyprogresswindow', 'false'
-            property 'chiselsandbits2.buildJar', gradle.ext.buildJar
+            property 'chiselsandbits2.buildJar', "${rootProject.buildDir}\\libs\\${archivesBaseName}-${version}.jar"
             property 'development', 'true'
             ideaModule "${project.name}.main"
 
@@ -78,7 +78,7 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'info'
             property 'fml.earlyprogresswindow', 'false'
-            property 'chiselsandbits2.buildJar', gradle.ext.buildJar
+            property 'chiselsandbits2.buildJar', "${rootProject.buildDir}\\libs\\${archivesBaseName}-${version}.jar"
             property 'development', 'true'
             ideaModule "${project.name}.main"
             args 'nogui'
@@ -95,7 +95,7 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'info'
             property 'fml.earlyprogresswindow', 'false'
-            property 'chiselsandbits2.buildJar', gradle.ext.buildJar
+            property 'chiselsandbits2.buildJar', "${rootProject.buildDir}\\libs\\${archivesBaseName}-${version}.jar"
             property 'development', 'true'
             ideaModule "${project.name}.main"
             args '--mod', 'chiselsandbits2', '--all', '--output', file('src/main/generated/'), '--existing', file('src/main/resources'), '--existing', file('src/main/generated')
