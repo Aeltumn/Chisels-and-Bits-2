@@ -1,4 +1,7 @@
 # Chisels & Bits 2
+
+**This project has been discontinued, it was originally started as a new mod to bring C&B to versions 1.14 and newer. However, due to a lack of time the project was discontinued. Luckily the original Chisels & Bits mod has since been resurrected and is now once again available for the latest versions of Minecraft on its own [Github page](https://github.com/AlgorithmX2/Chisels-and-Bits).**
+
 A successor to [AlgorithmX2's original Chisels & Bits](https://github.com/AlgorithmX2/Chisels-and-Bits) that had releases for Minecraft 1.8 through 1.12. A Minecraft mod about chiseling, sculpting and designing custom blocks made of various materials, fluids or colours.
 
 Download
